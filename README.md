@@ -1,62 +1,112 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# wm-app
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Webmapp code for mobile (app and webapp). This software is developed and mantained by WEBMAPP TEAM (see authors). Please
+fill free to contact us (info@webmapp.it) for any question.
 
-## About Laravel
+## 1 Getting Started
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 1.1 Prerequisites
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+To develop this project make sure you have:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- php 7.4.x (built on 7.4.14)
+- composer 2.0.11
+- git
+- PostgreSQL 13.1
+- npm LTS (built on 12.x)
+- Cypress v7.x
 
-## Learning Laravel
+### 1.2 Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+To install the project you will need to:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- clone the repository
 
-## Laravel Sponsors
+`git clone git@github.com:webmappsrl/geomixer.git`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- install the dependencies
 
-### Premium Partners
+`composer install`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+- configure the project environment:
+    - `cp .env.example .env`
+    - set the local database name
+    - set the HOQU variables
 
-## Contributing
+- run the migrations
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+`php artisan migrate`
 
-## Code of Conduct
+- run the project in a local environment
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+`php artisan serve`
 
-## Security Vulnerabilities
+If you have Valet installed then you can skip the last step and configure Valet instead
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 2 Tests
 
-## License
+### 2.1 Unit tests
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+#### 2.1.1 Configuring the environment
+
+To run the test is advisable to create a testing environment. The easiest way is to copy the .env file in a new testing
+
+`cp .env .env.testing`
+
+In the new environment change the database name and create the new testing database. Then run
+
+`php artisan migrate --env=testing`
+
+#### 2.1.2 Run the tests
+
+To run the test simply run the command
+
+`php artisan test`
+
+### 2.2 End-to-end tests
+
+#### 2.1.1 Configuring the environment
+
+The end-to-end tests uses Cypress which can be configured changing the cypress.json file in the root directory.
+
+#### 2.1.2 Run the tests
+
+To run the end-to-end tests simply run
+
+`npx cypress open`
+
+and run all the tests from the Cypress GUI
+
+## 3 Development
+
+All the development work must be done in the develop branch following the GitFlow Workflow
+
+## 4 Built With
+
+- MacOS MacOS Big Sur 11.2.x
+- [Laravel](https://laravel.com)
+- [Laravel Nova](https://nova.laravel.com)
+
+## 5 Contributing
+
+To contribute to this project please contact one of the [Authors](#7-authors)
+
+## 6 Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see
+the [tags on this repository](https://github.com/webmappsrl/wm-app/tags).
+
+## 7 Authors
+
+- **Alessio Piccioli** - _CTO_ - [Webmapp](https://github.com/piccioli)
+- **Antonella Puglia** - _UX designer_ - [Webmapp](https://github.com/antonellapuglia)
+- **Davide Pizzato** - _App developer_ - [Webmapp](https://github.com/dvdpzzt-webmapp)
+- **Marco Barbieri** - _Map maker_ - [Webmapp](https://github.com/marchile)
+- **Pedram Katanchi** - _Web developer_ - [Webmapp](https://github.com/padramkat)
+
+See also the list of [contributors](https://github.com/webmappsrl/wm-app/graphs/contributors) who participated in this
+project.
+
+## 8 License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
