@@ -1,7 +1,7 @@
-# wm-app
+# Geomixer
 
-Webmapp code for mobile (app and webapp). This software is developed and mantained by WEBMAPP TEAM (see authors). Please
-fill free to contact us (info@webmapp.it) for any question.
+Webmapp code for the Geomixer GEOBOX component. This software is developed and mantained by WEBMAPP TEAM (see authors).
+Please fill free to contact us (info@webmapp.it) for any question.
 
 ## 1 Getting Started
 
@@ -28,10 +28,15 @@ To install the project you will need to:
 
 `composer install`
 
+- create the local database
+
+`createdb [database_name]`
+
 - configure the project environment:
     - `cp .env.example .env`
-    - set the local database name
-    - set the HOQU variables
+    - set the local database configuration (the `DB_*` variables)
+    - set the HOQU variables (`HOQU_*`)
+    - set the GEOHUB variables (`GEOHUB_*`)
 
 - run the migrations
 
