@@ -25,6 +25,13 @@ class GeohubServiceProvider extends ServiceProvider {
         //
     }
 
+    /**
+     * Get the where taxonomy from the Geohub
+     *
+     * @param int $id the where id to retrieve
+     *
+     * @return array the geojson of the where in the geohub
+     */
     public function getTaxonomyWhere(int $id): array {
     }
 }

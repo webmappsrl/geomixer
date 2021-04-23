@@ -71,7 +71,7 @@ class HoquServer extends Command implements SignalableCommandInterface {
      */
     public function handle(): int {
         while (!$this->interrupted) {
-            $result = $this->executeHoquServer();
+            $result = $this->executeHoquJob();
             if (!$result)
                 sleep(5);
         }
@@ -84,7 +84,7 @@ class HoquServer extends Command implements SignalableCommandInterface {
      *
      * @return bool true if a job has been executed
      */
-    public function executeHoquServer(): bool {
+    public function executeHoquJob(): bool {
         try {
             Log::channel('stdout')->info('Retrieving new job from HOQU');
             $job = $this->hoquServiceProvider->pull(JOBS);

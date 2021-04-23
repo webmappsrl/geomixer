@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Tests\TestCase;
 
 class HoquServerTest extends TestCase {
+    use RefreshDatabase;
+
     public function testNoJobsAvailable() {
         $hoquServiceMock = $this->mock(HoquServiceProvider::class, function ($mock) {
             $mock->shouldReceive('pull')
@@ -20,7 +22,7 @@ class HoquServerTest extends TestCase {
         });
 
         $hoquServer = new HoquServer($hoquServiceMock);
-        $result = $hoquServer->executeHoquServer();
+        $result = $hoquServer->executeHoquJob();
         $this->assertFalse($result);
     }
 
@@ -32,7 +34,7 @@ class HoquServerTest extends TestCase {
         });
 
         $hoquServer = new HoquServer($hoquServiceMock);
-        $result = $hoquServer->executeHoquServer();
+        $result = $hoquServer->executeHoquJob();
         $this->assertFalse($result);
     }
 
@@ -66,7 +68,7 @@ class HoquServerTest extends TestCase {
             ->andReturn(null);
 
         $hoquServer = new HoquServer($hoquServiceMock);
-        $result = $hoquServer->executeHoquServer();
+        $result = $hoquServer->executeHoquJob();
         $this->assertTrue($result);
     }
 
@@ -100,7 +102,7 @@ class HoquServerTest extends TestCase {
             ->andThrows(new \Exception('Test message'));
 
         $hoquServer = new HoquServer($hoquServiceMock);
-        $result = $hoquServer->executeHoquServer();
+        $result = $hoquServer->executeHoquJob();
         $this->assertTrue($result);
     }
 
@@ -124,7 +126,7 @@ class HoquServerTest extends TestCase {
         });
 
         $hoquServer = new HoquServer($hoquServiceMock);
-        $result = $hoquServer->executeHoquServer();
+        $result = $hoquServer->executeHoquJob();
         $this->assertTrue($result);
     }
 }

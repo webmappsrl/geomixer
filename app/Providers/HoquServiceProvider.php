@@ -91,7 +91,7 @@ class HoquServiceProvider extends ServiceProvider {
      * @throws HttpException
      */
     public function pull(array $jobs, array $acceptInstances = null): array {
-        if (is_null($acceptInstances)) $acceptInstances = [''];
+        if (is_null($acceptInstances)) $acceptInstances = [config('hoqu.geohub_domain')];
 
         Log::debug('Performing pull from HOQU:');
         Log::debug('  instances: ' . json_encode($acceptInstances));
