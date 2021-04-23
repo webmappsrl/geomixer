@@ -1,0 +1,33 @@
+{
+  "type": "Feature",
+  "properties": {
+    "id": 1
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          11,
+          43
+        ],
+        [
+          11,
+          44
+        ],
+        [
+          12,
+          44
+        ],
+        [
+          12,
+          43
+        ],
+        [
+          11,
+          43
+        ]
+      ]
+    ]
+  }
+}
