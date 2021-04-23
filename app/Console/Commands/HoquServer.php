@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
 
 define('JOBS', [
-    'update_taxonomy_where'
+    'update_taxonomy_where',
+    'update_wheres_to_feature'
 ]);
 
 class HoquServer extends Command implements SignalableCommandInterface {
@@ -99,6 +100,10 @@ class HoquServer extends Command implements SignalableCommandInterface {
                         case 'update_taxonomy_where';
                             $controller = App::make('\App\Http\Controllers\TaxonomyWhere');
                             App::call([$controller, 'updateJob'], [$parameters]);
+                            break;
+                        case 'update_wheres_to_feature';
+                            $controller = App::make('\App\Http\Controllers\TaxonomyWhere');
+                            App::call([$controller, 'updateWheresToFeatureJob'], [$parameters]);
                             break;
                         default:
                             $error = true;

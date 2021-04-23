@@ -5,8 +5,7 @@ namespace Database\Factories;
 use App\Models\TaxonomyWhere;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class TaxonomyWhereFactory extends Factory
-{
+class TaxonomyWhereFactory extends Factory {
     /**
      * The name of the factory's corresponding model.
      *
@@ -19,10 +18,9 @@ class TaxonomyWhereFactory extends Factory
      *
      * @return array
      */
-    public function definition()
-    {
+    public function definition() {
         return [
-            //
+            'geometry' => null,
         ];
     }
 }
