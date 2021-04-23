@@ -32,6 +32,11 @@ To install the project you will need to:
 
 `createdb [database_name]`
 
+- configure the postgres access
+    - `sudo -u postgres psql`
+    - `create user myuser with encrypted password 'mypass';`
+    - `grant all privileges on database mydb to myuser;`
+
 - configure the project environment:
     - `cp .env.example .env`
     - set the local database configuration (the `DB_*` variables)
