@@ -129,4 +129,12 @@ class HoquServerTest extends TestCase {
         $result = $hoquServer->executeHoquJob();
         $this->assertTrue($result);
     }
+
+    // TODO: implement
+    public function xtestJobUpdateTaxonomyWhereSupported() {
+    }
+
+    // TODO: implement
+    public function xtestJobUpdateWheresToFeatureSupported() {
+    }
 }
