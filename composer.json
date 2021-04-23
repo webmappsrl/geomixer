@@ -17,7 +17,6 @@
     "laravel/nova": "*",
     "ext-curl": "*",
     "ext-json": "*",
-    "ext-http": "*",
     "ext-pcntl": "*"
   },
   "require-dev": {
