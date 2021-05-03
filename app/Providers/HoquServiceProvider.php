@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use HttpException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
 define('PULL_ENDPOINT', '/api/pull');
