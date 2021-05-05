@@ -7,6 +7,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Intl\Exception\MissingResourceException;
 
 define('GET_TAXONOMY_WHERE_ENDPOINT', '/api/taxonomy/where/geojson/');
+define('GET_UGC_ENDPOINT', '/api/ugc/');
 
 class GeohubServiceProvider extends ServiceProvider
 {
@@ -61,8 +62,40 @@ class GeohubServiceProvider extends ServiceProvider
             throw new HttpException($code, 'Error ' . $code . ' calling ' . config('geohub.base_url') . ': ' . $error);
 
         return json_decode($result, true);
-
     }
+
+    /**
+     * Get the Ugc from the Geohub
+     *
+     * @param int $id the Ugc id to retrieve
+     * @param string $type the type of the UgcFeature
+     *
+     * @return array the geojson of the Ugc in the geohub
+     *
+     * @throws HttpException if the HTTP request fails
+     */
+    public function getUgcFeature(int $id, string $type): array
+    {
+        $ch = curl_init(config('geohub.base_url') . GET_UGC_ENDPOINT . $type . "/geojson/" . $id);
+
+        //curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        //curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_getHeaders());
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $result = curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        if ($code >= 400)
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . config('geohub.base_url') . ': ' . $error);
+
+        return json_decode($result, true);
+    }
+
 
     /**
      * Return a geojson with the given feature
