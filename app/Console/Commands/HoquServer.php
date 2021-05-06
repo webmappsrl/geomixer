@@ -2,16 +2,16 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\TaxonomyWhere;
 use App\Providers\HoquServiceProvider;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
 
 define('JOBS', [
-    'update_taxonomy_where',
-    'update_wheres_to_feature'
+    'update_geomixer_taxonomy_where',
+    'update_ugc_taxonomy_wheres'
 ]);
 
 class HoquServer extends Command implements SignalableCommandInterface {
@@ -97,13 +97,13 @@ class HoquServer extends Command implements SignalableCommandInterface {
                     $parameters = json_decode($job['parameters'], true);
 
                     switch ($job["job"]) {
-                        case 'update_taxonomy_where';
-                            $controller = App::make('\App\Http\Controllers\TaxonomyWhere');
-                            App::call([$controller, 'updateJob'], [$parameters]);
+                        case 'update_geomixer_taxonomy_where';
+                            $controller = new TaxonomyWhere();
+                            $controller::updateJob($parameters);
                             break;
-                        case 'update_wheres_to_feature';
-                            $controller = App::make('\App\Http\Controllers\TaxonomyWhere');
-                            App::call([$controller, 'updateWheresToFeatureJob'], [$parameters]);
+                        case 'update_ugc_taxonomy_wheres';
+                            $controller = new TaxonomyWhere();
+                            $controller::updateWheresToFeatureJob($parameters);
                             break;
                         default:
                             $error = true;

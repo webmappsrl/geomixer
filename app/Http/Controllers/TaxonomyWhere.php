@@ -12,17 +12,17 @@ class TaxonomyWhere extends Controller {
     /**
      * Perform the update of a taxonomy where in the database
      *
-     * @param array                 $params the parameters array
-     * @param GeohubServiceProvider $geohubServiceProvider
+     * @param array $params the parameters array
      *
      * @throws MissingMandatoryParametersException
      */
-    public static function updateJob(array $params, GeohubServiceProvider $geohubServiceProvider): void {
+    public static function updateJob(array $params): void {
         if (!isset($params['id']) || empty($params['id']))
             throw new MissingMandatoryParametersException('The parameter "id" is missing but required. The operation can not be completed');
 
         $id = $params['id'];
 
+        $geohubServiceProvider = app(GeohubServiceProvider::class);
         $where = $geohubServiceProvider->getTaxonomyWhere($id);
         $currentWhere = \App\Models\TaxonomyWhere::find($id);
 
@@ -39,22 +39,22 @@ class TaxonomyWhere extends Controller {
     /**
      * Calculate the wheres to associate with the given feature
      *
-     * @param array                 $params the HOQU job parameters
-     * @param GeohubServiceProvider $geohubServiceProvider
+     * @param array $params the HOQU job parameters
      *
      * @throws MissingMandatoryParametersException
      * @throws HttpException
      */
-    public static function updateWheresToFeatureJob(array $params, GeohubServiceProvider $geohubServiceProvider): void {
+    public static function updateWheresToFeatureJob(array $params): void {
         if (!isset($params['id']) || empty($params['id']))
             throw new MissingMandatoryParametersException('The parameter "id" is missing but required. The operation can not be completed');
-        if (!isset($params['feature_type']) || empty($params['id']))
-            throw new MissingMandatoryParametersException('The parameter "feature_type" is missing but required. The operation can not be completed');
+        if (!isset($params['type']) || empty($params['type']))
+            throw new MissingMandatoryParametersException('The parameter "type" is missing but required. The operation can not be completed');
 
         $id = $params['id'];
-        $featureType = $params['feature_type'];
+        $featureType = $params['type'];
 
-        $feature = $geohubServiceProvider->getFeature($id, $featureType);
+        $geohubServiceProvider = app(GeohubServiceProvider::class);
+        $feature = $geohubServiceProvider->getUgcFeature($id, $featureType);
 
         $ids = \App\Models\TaxonomyWhere::whereRaw(
             'public.ST_Intersects('
@@ -66,6 +66,6 @@ class TaxonomyWhere extends Controller {
             . ', geometry)'
         )->get()->pluck('id')->toArray();
 
-        $geohubServiceProvider->setWheresToFeature($id, $featureType, $ids);
+        $geohubServiceProvider->setWheresToUgcFeature($id, $featureType, $ids);
     }
 }

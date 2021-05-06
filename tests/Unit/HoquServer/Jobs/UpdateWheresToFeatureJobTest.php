@@ -7,7 +7,6 @@ use App\Providers\GeohubServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Intl\Exception\MissingResourceException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
@@ -46,7 +45,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $id = 1;
         $featureType = 'track';
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andThrows(new MissingResourceException("Error - feature not found"));
@@ -70,7 +69,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $id = 1;
         $featureType = 'track';
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andThrows(new HttpException(500, 'Error'));
@@ -95,7 +94,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $featureType = 'track';
         $feature = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubTrack1.geojson"), true);
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType, $feature) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andReturn($feature);
@@ -125,7 +124,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $featureType = 'track';
         $feature = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubPoint1.geojson"), true);
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType, $feature) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andReturn($feature);
@@ -152,7 +151,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $featureType = 'poi';
         $feature = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubPoint1.geojson"), true);
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType, $feature) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andReturn($feature);
@@ -179,7 +178,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $featureType = 'track';
         $feature = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubTrack1.geojson"), true);
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType, $feature) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andReturn($feature);
@@ -206,7 +205,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $featureType = 'track';
         $feature = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubTrack1.geojson"), true);
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType, $feature) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andReturn($feature);
@@ -233,7 +232,7 @@ class UpdateWheresToFeatureJobTest extends TestCase {
         $featureType = 'track';
         $feature = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubTrack1.geojson"), true);
         $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $featureType, $feature) {
-            $mock->shouldReceive('getFeature')
+            $mock->shouldReceive('getUgcFeature')
                 ->once()
                 ->with($id, $featureType)
                 ->andReturn($feature);
