@@ -4,6 +4,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | This value is the version of the Geomixer.
+    |
+    */
+
+    'version' => '0.0.2',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Name
     |--------------------------------------------------------------------------
     |
@@ -39,7 +50,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -175,6 +186,17 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\NovaServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
+        /**
+         * Webmapp
+         */
+        App\Providers\HoquServiceProvider::class,
+        App\Providers\GeohubServiceProvider::class,
+
+        /**
+         * Hoqu Jobs
+         */
+        App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider::class
 
     ],
 
