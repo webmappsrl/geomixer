@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\HoquServer\Jobs;
 
-use App\Http\Controllers\TaxonomyWhere;
 use App\Providers\GeohubServiceProvider;
+use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -15,14 +15,15 @@ class TaxonomyWhereJobTest extends TestCase {
     public function testIfWhereDoesNotExists() {
         $id = 1;
         $geohubWhere = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubWhere1.geojson"), true);
-        $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $geohubWhere) {
+        $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $geohubWhere) {
             $mock->shouldReceive('getTaxonomyWhere')
                 ->once()
                 ->with($id)
                 ->andReturn($geohubWhere);
         });
 
-        TaxonomyWhere::updateJob(['id' => $id], $geohubServiceMock);
+        $service = $this->partialMock(TaxonomyWhereJobsServiceProvider::class);
+        $service->updateJob(['id' => $id]);
 
         $where = \App\Models\TaxonomyWhere::select([
             'id',
@@ -39,7 +40,7 @@ class TaxonomyWhereJobTest extends TestCase {
     public function testIfWhereExists() {
         $id = 1;
         $geohubWhere = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubWhere1.geojson"), true);
-        $geohubServiceMock = $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $geohubWhere) {
+        $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $geohubWhere) {
             $mock->shouldReceive('getTaxonomyWhere')
                 ->once()
                 ->with($id)
@@ -54,7 +55,8 @@ class TaxonomyWhereJobTest extends TestCase {
             ]) . "'))");
         $currentWhere->save();
 
-        TaxonomyWhere::updateJob(['id' => $id], $geohubServiceMock);
+        $service = $this->partialMock(TaxonomyWhereJobsServiceProvider::class);
+        $service->updateJob(['id' => $id]);
 
         $where = \App\Models\TaxonomyWhere::select([
             'id',

@@ -3,11 +3,10 @@
 namespace Tests\Unit\HoquServer;
 
 use App\Console\Commands\HoquServer;
+use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Tests\TestCase;
 
@@ -40,11 +39,12 @@ class HoquServerTest extends TestCase {
 
     public function testJobExecuted() {
         $jobParameters = [
-            'id' => 2
+            'id' => 2,
+            'type' => 'poi'
         ];
         $job = [
             'id' => 1,
-            'job' => 'update_taxonomy_where',
+            'job' => UPDATE_UGC_TAXONOMY_WHERES,
             'parameters' => json_encode($jobParameters)
         ];
         $hoquServiceMock = $this->mock(HoquServiceProvider::class, function ($mock) use ($job) {
@@ -57,15 +57,11 @@ class HoquServerTest extends TestCase {
                 ->andReturn(200);
         });
 
-        $testController = "Controller";
-        App::shouldReceive('make')
-            ->once()
-            ->with('\App\Http\Controllers\TaxonomyWhere')
-            ->andReturn($testController);
-        App::shouldReceive('call')
-            ->once()
-            ->with([$testController, 'updateJob'], [$jobParameters])
-            ->andReturn(null);
+        $this->mock(TaxonomyWhereJobsServiceProvider::class, function ($mock) use ($job) {
+            $mock->shouldReceive('updateWheresToFeatureJob')
+                ->once()
+                ->andReturn();
+        });
 
         $hoquServer = new HoquServer($hoquServiceMock);
         $result = $hoquServer->executeHoquJob();
@@ -78,7 +74,7 @@ class HoquServerTest extends TestCase {
         ];
         $job = [
             'id' => 1,
-            'job' => 'update_taxonomy_where',
+            'job' => 'update_ugc_taxonomy_wheres',
             'parameters' => json_encode($jobParameters)
         ];
         $hoquServiceMock = $this->mock(HoquServiceProvider::class, function ($mock) use ($job) {
@@ -91,15 +87,11 @@ class HoquServerTest extends TestCase {
                 ->andReturn(200);
         });
 
-        $testController = "Controller";
-        App::shouldReceive('make')
-            ->once()
-            ->with('\App\Http\Controllers\TaxonomyWhere')
-            ->andReturn($testController);
-        App::shouldReceive('call')
-            ->once()
-            ->with([$testController, 'updateJob'], [$jobParameters])
-            ->andThrows(new \Exception('Test message'));
+        $this->mock(TaxonomyWhereJobsServiceProvider::class, function ($mock) use ($job) {
+            $mock->shouldReceive('updateWheresToFeatureJob')
+                ->once()
+                ->andThrows(new \Exception('Test message'));
+        });
 
         $hoquServer = new HoquServer($hoquServiceMock);
         $result = $hoquServer->executeHoquJob();

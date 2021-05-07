@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  *
+ * @property int    id
+ * @property string name
  */
 class TaxonomyWhere extends Model {
     use HasFactory;

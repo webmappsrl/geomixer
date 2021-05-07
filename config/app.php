@@ -186,8 +186,17 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\NovaServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
+        /**
+         * Webmapp
+         */
         App\Providers\HoquServiceProvider::class,
-        App\Providers\GeohubServiceProvider::class
+        App\Providers\GeohubServiceProvider::class,
+
+        /**
+         * Hoqu Jobs
+         */
+        App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider::class
 
     ],
 
