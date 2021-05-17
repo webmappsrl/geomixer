@@ -8,15 +8,18 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Intl\Exception\MissingResourceException;
 
 define('GET_TAXONOMY_WHERE_ENDPOINT', '/api/taxonomy/where/geojson/');
+define('GET_EC_MEDIA_ENDPOINT', '/api/ec/media/');
 define('GET_ENDPOINT', '/api/');
 
-class GeohubServiceProvider extends ServiceProvider {
+class GeohubServiceProvider extends ServiceProvider
+{
     /**
      * Register services.
      *
      * @return void
      */
-    public function register() {
+    public function register()
+    {
         $this->app->singleton(GeohubServiceProvider::class, function ($app) {
             return new GeohubServiceProvider($app);
         });
@@ -27,7 +30,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    public function boot() {
+    public function boot()
+    {
         //
     }
 
@@ -40,8 +44,40 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getTaxonomyWhere(int $id): array {
+    public function getTaxonomyWhere(int $id): array
+    {
         $url = config('geohub.base_url') . GET_TAXONOMY_WHERE_ENDPOINT . $id;
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $result = curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($code >= 400)
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+
+        return json_decode($result, true);
+    }
+
+    /**
+     * Get the EcMedia from the Geohub
+     *
+     * @param int $id the EcMedia id to retrieve
+     *
+     * @return array the EcMedia selected by id
+     *
+     * @throws HttpException if the HTTP request fails
+     */
+    public function getEcMedia(int $id): array
+    {
+        $url = config('geohub.base_url') . GET_EC_MEDIA_ENDPOINT . $id;
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -64,21 +100,22 @@ class GeohubServiceProvider extends ServiceProvider {
     /**
      * Return a geojson with the given ugc feature
      *
-     * @param int    $id   the id of the ugc feature to retrieve
+     * @param int $id the id of the ugc feature to retrieve
      * @param string $type the type of the ugc feature
      *
      * @return array the geojson of the Ugc in the geohub
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getUgcFeature(int $id, string $type): array {
+    public function getUgcFeature(int $id, string $type): array
+    {
         return $this->getFeature($id, 'ugc/' . $type);
     }
 
     /**
      * Return a geojson with the given feature
      *
-     * @param int    $id
+     * @param int $id
      * @param string $featureType
      *
      * @return array the feature geojson
@@ -86,7 +123,8 @@ class GeohubServiceProvider extends ServiceProvider {
      * @throws HttpException
      * @throws MissingResourceException
      */
-    public function getFeature(int $id, string $featureType): array {
+    public function getFeature(int $id, string $featureType): array
+    {
         $url = config('geohub.base_url') . GET_ENDPOINT . $featureType . "/geojson/" . $id;
         $ch = curl_init($url);
 
@@ -112,30 +150,32 @@ class GeohubServiceProvider extends ServiceProvider {
     /**
      * Post to Geohub the where ids that need to be associated with the specified ugc feature
      *
-     * @param int    $id          the ugc feature id
+     * @param int $id the ugc feature id
      * @param string $featureType the ugc feature type
-     * @param array  $whereIds    the where ids
+     * @param array $whereIds the where ids
      *
      * @return int the http code of the request
      *
      * @throws HttpException
      */
-    public function setWheresToUgcFeature(int $id, string $featureType, array $whereIds): int {
+    public function setWheresToUgcFeature(int $id, string $featureType, array $whereIds): int
+    {
         return $this->setWheresToFeature($id, 'ugc/' . $featureType, $whereIds);
     }
 
     /**
      * Post to Geohub the where ids that need to be associated with the specified feature
      *
-     * @param int    $id          the feature id
+     * @param int $id the feature id
      * @param string $featureType the feature type
-     * @param array  $whereIds    the where ids
+     * @param array $whereIds the where ids
      *
      * @return int the http code of the request
      *
      * @throws HttpException
      */
-    public function setWheresToFeature(int $id, string $featureType, array $whereIds): int {
+    public function setWheresToFeature(int $id, string $featureType, array $whereIds): int
+    {
         $url = config('geohub.base_url') . GET_ENDPOINT . $featureType . "/taxonomy_where";
         $payload = [
             'id' => $id,
