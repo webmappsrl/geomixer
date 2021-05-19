@@ -54,6 +54,10 @@ class EcMediaJobTest extends TestCase
 
         $imagePath = $geohubServiceProvider->getEcMediaImage(5);
 
+        //$command = 'mogrify -format jpg ' . $imagePath . '.heic';
+        //system($command);
+
+
         if (!file_exists($imagePath)) {
             throw new HttpException(404);
         }
@@ -95,11 +99,10 @@ class EcMediaJobTest extends TestCase
 
             $coordinates = ['latitude' => $imgLatitude, 'longitude' => $imgLongitude];
 
-            Storage::disk('local')->delete($imagePath);
+            unlink($imagePath);
 
             dd($coordinates);
-
-
+            
         } else {
             throw new \Exception("The image does not have GPS info");
         }
