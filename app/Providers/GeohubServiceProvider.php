@@ -241,4 +241,47 @@ class GeohubServiceProvider extends ServiceProvider
 
         return $code;
     }
+
+
+    /**
+     * Post to Geohub the where ids that need to be associated with the specified EcMedia
+     *
+     * @param int $id the EcMedia id
+     * @param array $whereIds the where ids
+     *
+     * @return int the http code of the request
+     *
+     * @throws HttpException
+     */
+    public function setEcMediaToWhere(int $id, array $whereIds): int
+    {
+        $url = config('geohub.base_url') . GET_ENDPOINT . "/taxonomy_where";
+        $payload = [
+            'id' => $id,
+            'where_ids' => $whereIds
+        ];
+        $headers = [
+            "Accept: application/json",
+            "Content-Type:application/json"
+        ];
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        if ($code >= 400)
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+
+        return $code;
+    }
 }

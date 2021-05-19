@@ -3,6 +3,7 @@
 namespace App\Providers\HoquJobs;
 
 use App\Models\EcMedia;
+use App\Models\TaxonomyWhere;
 use App\Providers\GeohubServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +49,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         $imagePath = $geohubServiceProvider->getEcMediaImage($params['id']);
 
-        $this->getImageExif($imagePath);
+        $coordinates = $this->getImageExif($imagePath);
     }
 
     /**
@@ -103,7 +104,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
             $coordinates = ['latitude' => $imgLatitude, 'longitude' => $imgLongitude];
 
-            Storage::disk('local')->delete($imagePath);
+            unlink($imagePath);
 
             return $coordinates;
 
@@ -112,4 +113,5 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         }
     }
 
+    
 }
