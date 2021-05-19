@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Intl\Exception\MissingResourceException;
 
 define('GET_TAXONOMY_WHERE_ENDPOINT', '/api/taxonomy/where/geojson/');
 define('GET_EC_MEDIA_ENDPOINT', '/api/ec/media/');
+define('GET_EC_MEDIA_IMAGE_PATH_ENDPOINT', '/api/ec/media/image/');
 define('GET_ENDPOINT', '/api/');
 
 class GeohubServiceProvider extends ServiceProvider
@@ -95,6 +97,40 @@ class GeohubServiceProvider extends ServiceProvider
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
 
         return json_decode($result, true);
+    }
+
+    /**
+     * Get the EcMedia Image from the Geohub
+     *
+     * @param int $id the EcMedia id to retrieve
+     *
+     * @return string the EcMedia selected by id
+     *
+     * @throws HttpException if the HTTP request fails
+     */
+    public function getEcMediaImage(int $id): string
+    {
+        $url = config('geohub.base_url') . GET_EC_MEDIA_IMAGE_PATH_ENDPOINT . $id;
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $result = curl_exec($ch);
+        Log::info($url);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($code >= 400)
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+
+        $filename = substr(str_shuffle(MD5(microtime())), 0, 5);
+        Storage::disk('local')->put('ec_media/' . $filename, $result);
+        return Storage::disk('local')->path('ec_media/' . $filename);
     }
 
     /**
