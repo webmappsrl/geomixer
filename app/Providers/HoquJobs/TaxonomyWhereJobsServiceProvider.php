@@ -113,11 +113,11 @@ class TaxonomyWhereJobsServiceProvider extends ServiceProvider
     }
 
     /**
-     * @param Json $geometry
+     * @param array $geometry
      *
-     * @return mixed
+     * @return array the ids of associate Wheres
      */
-    public function associateWhere($geometry)
+    public function associateWhere(array $geometry)
     {
         return TaxonomyWhere::whereRaw(
             'public.ST_Intersects('

@@ -4,8 +4,10 @@ namespace Tests\Unit\HoquServer\Jobs;
 
 use App\Console\Commands\HoquServer;
 use App\Models\EcMedia;
+use App\Models\TaxonomyWhere;
 use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
+use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
@@ -50,9 +52,9 @@ class EcMediaJobTest extends TestCase
 
     public function testGetExifDataJpg()
     {
-        $geohubServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
+        $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
 
-        $exif_data = $geohubServiceProvider->getImageExif(base_path() . '/tests/Fixtures/EcMedia/test.jpg');
+        $exif_data = $ecMediaJobsServiceProvider->getImageExif(base_path() . '/tests/Fixtures/EcMedia/test.jpg');
 
         $this->assertTrue(is_array($exif_data));
         $this->assertTrue(is_array($exif_data['coordinates']));
@@ -62,4 +64,5 @@ class EcMediaJobTest extends TestCase
         $this->assertEquals(10.448261111111, $exif_data['coordinates'][0]);
         $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
+
 }

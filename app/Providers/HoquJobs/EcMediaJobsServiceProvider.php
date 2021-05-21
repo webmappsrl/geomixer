@@ -43,6 +43,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      */
     public function enrichJob(array $params): void
     {
+        $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
         if (!isset($params['id']) || empty($params['id']))
             throw new MissingMandatoryParametersException('The parameter "id" is missing but required. The operation can not be completed');
@@ -51,8 +52,13 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         $exif = $this->getImageExif($imagePath);
 
-        //if(isset($exif['coordinates']))
-
+        if (isset($exif['coordinates'])) {
+            $ecMediaCoordinatesJson = [
+                'type' => 'Point',
+                'coordinates' => [$exif['coordinates'][0], $exif['coordinates'][1]]
+            ];
+            $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
+        }
 
         //unlink($imagePath);
     }
@@ -108,12 +114,18 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             $imgLongitude = $lonDegrees + $lonMinutes + $lonSeconds;
 
             $coordinates = [$imgLongitude, $imgLatitude];
-            
+
             return array('coordinates' => $coordinates);
 
         } else {
             return [];
         }
+
+    }
+
+    public function uploadEcMediaImage()
+    {
+
     }
 
 
