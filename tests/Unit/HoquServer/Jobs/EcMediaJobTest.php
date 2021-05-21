@@ -48,63 +48,17 @@ class EcMediaJobTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testGetExifData()
+    public function testGetExifDataJpg()
     {
-        $geohubServiceProvider = $this->partialMock(GeohubServiceProvider::class);
+        $geohubServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
 
-        $imagePath = $geohubServiceProvider->getEcMediaImage(5);
+        $exif_data = $geohubServiceProvider->getImageExif(base_path() . '/tests/Fixtures/EcMedia/test.jpg');
 
-        //$command = 'mogrify -format jpg ' . $imagePath . '.heic';
-        //system($command);
+        $this->assertTrue(is_array($exif_data));
+        $this->assertCount(2, $exif_data);
+        $this->assertArrayHasKey('latitude', $exif_data);
+        $this->assertArrayHasKey('longitude', $exif_data);
 
 
-        if (!file_exists($imagePath)) {
-            throw new HttpException(404);
-        }
-
-        $data = Image::make($imagePath)->exif();
-
-        if (in_array('GPSLatitude', $data) && in_array('GPSLongitude', $data)) {
-
-            //Calculate Latitude with degrees, minutes and seconds
-
-            $latDegrees = $data['GPSLatitude'][0];
-            $latDegrees = explode('/', $latDegrees);
-            $latDegrees = ($latDegrees[0] / $latDegrees[1]);
-
-            $latMinutes = $data['GPSLatitude'][1];
-            $latMinutes = explode('/', $latMinutes);
-            $latMinutes = (($latMinutes[0] / $latMinutes[1]) / 60);
-
-            $latSeconds = $data['GPSLatitude'][2];
-            $latSeconds = explode('/', $latSeconds);
-            $latSeconds = (($latSeconds[0] / $latSeconds[1]) / 3600);
-
-            //Calculate Longitude with degrees, minutes and seconds
-
-            $lonDegrees = $data['GPSLongitude'][0];
-            $lonDegrees = explode('/', $lonDegrees);
-            $lonDegrees = ($lonDegrees[0] / $lonDegrees[1]);
-
-            $lonMinutes = $data['GPSLongitude'][1];
-            $lonMinutes = explode('/', $lonMinutes);
-            $lonMinutes = (($lonMinutes[0] / $lonMinutes[1]) / 60);
-
-            $lonSeconds = $data['GPSLongitude'][2];
-            $lonSeconds = explode('/', $lonSeconds);
-            $lonSeconds = (($lonSeconds[0] / $lonSeconds[1]) / 3600);
-
-            $imgLatitude = $latDegrees + $latMinutes + $latSeconds;
-            $imgLongitude = $lonDegrees + $lonMinutes + $lonSeconds;
-
-            $coordinates = ['latitude' => $imgLatitude, 'longitude' => $imgLongitude];
-
-            unlink($imagePath);
-
-            dd($coordinates);
-            
-        } else {
-            throw new \Exception("The image does not have GPS info");
-        }
     }
 }
