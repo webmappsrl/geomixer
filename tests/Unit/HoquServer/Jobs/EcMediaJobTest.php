@@ -55,10 +55,11 @@ class EcMediaJobTest extends TestCase
         $exif_data = $geohubServiceProvider->getImageExif(base_path() . '/tests/Fixtures/EcMedia/test.jpg');
 
         $this->assertTrue(is_array($exif_data));
-        $this->assertCount(2, $exif_data);
-        $this->assertArrayHasKey('latitude', $exif_data);
-        $this->assertArrayHasKey('longitude', $exif_data);
-
-
+        $this->assertTrue(is_array($exif_data['coordinates']));
+        $this->assertCount(2, $exif_data['coordinates']);
+        $this->assertIsNumeric($exif_data['coordinates'][0]); //longintude
+        $this->assertIsNumeric($exif_data['coordinates'][1]); //latitude
+        $this->assertEquals(10.448261111111, $exif_data['coordinates'][0]);
+        $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
 }

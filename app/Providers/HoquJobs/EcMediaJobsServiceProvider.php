@@ -49,7 +49,12 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         $imagePath = $geohubServiceProvider->getEcMediaImage($params['id']);
 
-        $coordinates = $this->getImageExif($imagePath);
+        $exif = $this->getImageExif($imagePath);
+
+        //if(isset($exif['coordinates']))
+
+
+        //unlink($imagePath);
     }
 
     /**
@@ -102,16 +107,14 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             $imgLatitude = $latDegrees + $latMinutes + $latSeconds;
             $imgLongitude = $lonDegrees + $lonMinutes + $lonSeconds;
 
-            $coordinates = ['latitude' => $imgLatitude, 'longitude' => $imgLongitude];
-
-            unlink($imagePath);
-
-            return $coordinates;
+            $coordinates = [$imgLongitude, $imgLatitude];
+            
+            return array('coordinates' => $coordinates);
 
         } else {
-            throw new \Exception("The image does not have GPS info");
+            return [];
         }
     }
 
-    
+
 }
