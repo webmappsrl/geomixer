@@ -45,7 +45,7 @@ return [
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID', 'AKIAQ4UI2NKRBXKVWHHJ'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY', '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'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'eu-central-1'),
             'bucket' => env('AWS_BUCKET', 'ecmedia'),
             'url' => env('AWS_URL'),
