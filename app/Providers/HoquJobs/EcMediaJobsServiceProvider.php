@@ -60,6 +60,8 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
         }
 
+        $this->uploadEcMediaImage($imagePath);
+
         //unlink($imagePath);
     }
 
@@ -123,8 +125,19 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
     }
 
-    public function uploadEcMediaImage()
+    /**
+     * @param string $imagePath the path of the image to upload
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function uploadEcMediaImage($imagePath)
     {
+        if (!Storage::exists($imagePath))
+            return response()->json('Element does not exists', 404);
+
+        Storage::disk('s3')->put('EcMedia/' . $imagePath, file_get_contents($imagePath));
+
+        Storage::disk('s3')->put('EcMedia/' . $imagePath, file_get_contents(Storage::disk('local')->path($imagePath)));
+        return response()->json('Upload Completed');
 
     }
 
