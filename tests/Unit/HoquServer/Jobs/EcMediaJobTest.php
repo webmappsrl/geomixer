@@ -65,5 +65,4 @@ class EcMediaJobTest extends TestCase
         $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
 
-
 }

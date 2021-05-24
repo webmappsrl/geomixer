@@ -8,6 +8,7 @@ use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class TaxonomyWhereJobTest extends TestCase
@@ -79,8 +80,9 @@ class TaxonomyWhereJobTest extends TestCase
         $service = $this->partialMock(TaxonomyWhereJobsServiceProvider::class);
         $geometry = [
             'type' => 'Point',
-            'coordinates' => [10.448261111111, 43.781288888889]
+            'coordinates' => [100.448261111111, 434.781288888889]
         ];
+        $where = TaxonomyWhere::factory(1)->create(['geometry' => DB::raw("(ST_GeomFromText('MULTIPOLYGON(((10 45, 11 45, 11 46, 11 46, 10 45)))'))")]);
 
         $ids = $service->associateWhere($geometry);
         $this->assertEmpty($ids);
@@ -96,8 +98,8 @@ class TaxonomyWhereJobTest extends TestCase
         $where = TaxonomyWhere::factory(1)->create(['geometry' => DB::raw("(ST_GeomFromText('MULTIPOLYGON(((10 45, 11 45, 11 46, 11 46, 10 45)))'))")]);
 
         $ids = $service->associateWhere($geometry);
-
         $this->assertIsArray($ids);
         $this->assertNotEmpty($ids);
     }
+    
 }

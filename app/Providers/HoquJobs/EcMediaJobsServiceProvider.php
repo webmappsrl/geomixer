@@ -51,7 +51,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         $imagePath = $geohubServiceProvider->getEcMediaImage($params['id']);
 
         $exif = $this->getImageExif($imagePath);
-
+        $ids = [];
         if (isset($exif['coordinates'])) {
             $ecMediaCoordinatesJson = [
                 'type' => 'Point',
@@ -62,7 +62,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         $this->uploadEcMediaImage($imagePath);
 
-        //unlink($imagePath);
+        $imageCloudUrl = Storage::cloud()->url($imagePath);
+
+        $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids);
+
+        unlink($imagePath);
     }
 
     /**
@@ -134,11 +138,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         if (!Storage::exists($imagePath))
             return response()->json('Element does not exists', 404);
 
-        Storage::disk('s3')->put('EcMedia/' . $imagePath, file_get_contents($imagePath));
+        $filename = explode('/', $imagePath);
+        $filename = $filename[9];
 
-        Storage::disk('s3')->put('EcMedia/' . $imagePath, file_get_contents(Storage::disk('local')->path($imagePath)));
+        Storage::disk('s3')->put('EcMedia/' . $filename, file_get_contents($imagePath));
         return response()->json('Upload Completed');
-
     }
 
 

@@ -11,6 +11,7 @@ use Symfony\Component\Intl\Exception\MissingResourceException;
 define('GET_TAXONOMY_WHERE_ENDPOINT', '/api/taxonomy/where/geojson/');
 define('GET_EC_MEDIA_ENDPOINT', '/api/ec/media/');
 define('GET_EC_MEDIA_IMAGE_PATH_ENDPOINT', '/api/ec/media/image/');
+define('GET_EC_MEDIA_ENRICH', '/api/ec/media/update/');
 define('GET_ENDPOINT', '/api/');
 
 class GeohubServiceProvider extends ServiceProvider
@@ -259,6 +260,52 @@ class GeohubServiceProvider extends ServiceProvider
         $payload = [
             'id' => $id,
             'where_ids' => $whereIds
+        ];
+        $headers = [
+            "Accept: application/json",
+            "Content-Type:application/json"
+        ];
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        if ($code >= 400)
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+
+        return $code;
+    }
+
+    /**
+     * Post to Geohub the parameters to update to EcMedia
+     *
+     * @param int $id the ecMedia id
+     * @param array $exif the image exif data
+     * @param array $geometry the geometry of the ecMedia
+     * @param string $url the cloud url image
+     * @param array $whereIds the ids of associated Where
+     * @return int the http code of the request
+     *
+     * @throws HttpException
+     */
+    public function updateEcMedia(int $id, array $exif, array $geometry, string $imageUrl, array $whereIds): int
+    {
+        $url = config('geohub.base_url') . GET_EC_MEDIA_ENRICH . $id;
+        $payload = [
+            'exif' => $exif,
+            'geometry' => $geometry,
+            'url' => $imageUrl,
+            'where_ids' => $whereIds,
         ];
         $headers = [
             "Accept: application/json",
