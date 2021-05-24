@@ -82,15 +82,7 @@ class TaxonomyWhereJobTest extends TestCase
             'coordinates' => [10.448261111111, 43.781288888889]
         ];
 
-        $ids = TaxonomyWhere::whereRaw(
-            'public.ST_Intersects('
-            . 'public.ST_Force2D('
-            . "public.ST_GeomFromGeojson('"
-            . json_encode($geometry)
-            . "')"
-            . ")"
-            . ', geometry)'
-        )->get()->pluck('id')->toArray();
+        $ids = $service->associateWhere($geometry);
         $this->assertEmpty($ids);
     }
 
