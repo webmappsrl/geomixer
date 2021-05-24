@@ -5,6 +5,7 @@ namespace App\Providers\HoquJobs;
 use App\Models\EcMedia;
 use App\Models\TaxonomyWhere;
 use App\Providers\GeohubServiceProvider;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
@@ -60,13 +61,19 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
         }
 
+        $imageResize320x240 = $this->imgResize($imagePath, 320, 240);
+        $imageResize960x640 = $this->imgResize($imagePath, 960, 640);
+        $imageResize1136x640 = $this->imgResize($imagePath, 1136, 640);
+
+        $this->uploadEcMediaImageResize($imageResize320x240);
+
         $this->uploadEcMediaImage($imagePath);
 
         $imageCloudUrl = Storage::cloud()->url($imagePath);
 
         $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids);
 
-        unlink($imagePath);
+        //unlink($imagePath);
     }
 
     /**
@@ -143,6 +150,31 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         Storage::disk('s3')->put('EcMedia/' . $filename, file_get_contents($imagePath));
         return response()->json('Upload Completed');
+    }
+
+    public function uploadEcMediaImageResize($imagePath)
+    {
+        if (!Storage::exists($imagePath))
+            return response()->json('Element does not exists', 404);
+
+        $filename = explode('/', $imagePath);
+        $filename = $filename[9];
+
+        Storage::disk('s3')->put('EcMedia/Resize/' . $filename, file_get_contents($imagePath));
+        return response()->json('Upload Completed');
+    }
+
+
+    public function imgResize($imagePath, $width, $height)
+    {
+        $img = Image::make($imagePath);
+        $newPathImage = $imagePath . '_' . $width . 'x' . $height . '.jpg';
+        $img->resize($width, $height, function ($const) {
+            $const->aspectRatio();
+        })->save($newPathImage);
+
+        return $newPathImage;
+
     }
 
 

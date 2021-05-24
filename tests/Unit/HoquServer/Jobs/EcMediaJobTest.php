@@ -65,4 +65,27 @@ class EcMediaJobTest extends TestCase
         $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
 
+    public function testImageNoExists()
+    {
+        $image = base_path() . '/tests/Fixtures/EcMedia/test2.jpg';
+        $this->assertFileDoesNotExist($image);
+    }
+
+    public function testImageExists()
+    {
+        $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
+        $this->assertFileExists($image);
+    }
+
+    public function testImageResize()
+    {
+        $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
+        $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
+        $width = 300;
+        $height = 200;
+        $ecMediaJobsServiceProvider->imgResize($image, $width, $height);
+        $ecMediaJobsServiceProvider->uploadEcMediaImageResize(base_path() . '/tests/Fixtures/EcMedia/test.jpg_' . $width . '_' . $height . '.jpg');
+        $this->assertFileExists(base_path() . '/tests/Fixtures/EcMedia/testResize.jpg');
+    }
+
 }
