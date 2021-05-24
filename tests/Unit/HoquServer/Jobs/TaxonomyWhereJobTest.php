@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\HoquServer\Jobs;
 
+use App\Models\TaxonomyWhere;
 use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,10 +10,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
-class TaxonomyWhereJobTest extends TestCase {
+class TaxonomyWhereJobTest extends TestCase
+{
     use RefreshDatabase;
 
-    public function testIfWhereDoesNotExists() {
+    public function testIfWhereDoesNotExists()
+    {
         $id = 1;
         $geohubWhere = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubWhere1.geojson"), true);
         $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $geohubWhere) {
@@ -37,7 +40,8 @@ class TaxonomyWhereJobTest extends TestCase {
         $this->assertSame(json_encode($geohubWhere['geometry']), json_encode(json_decode($where->geom, true)));
     }
 
-    public function testIfWhereExists() {
+    public function testIfWhereExists()
+    {
         $id = 1;
         $geohubWhere = json_decode(File::get("tests/Fixtures/TaxonomyWhere/geohubWhere1.geojson"), true);
         $this->mock(GeohubServiceProvider::class, function ($mock) use ($id, $geohubWhere) {
@@ -68,5 +72,40 @@ class TaxonomyWhereJobTest extends TestCase {
         $this->assertNotNull($where->id);
         $this->assertNotNull($where->geom);
         $this->assertSame(json_encode($geohubWhere['geometry']), json_encode(json_decode($where->geom, true)));
+    }
+
+    public function testAssociateWhereNoIntersect()
+    {
+        $service = $this->partialMock(TaxonomyWhereJobsServiceProvider::class);
+        $geometry = [
+            'type' => 'Point',
+            'coordinates' => [10.448261111111, 43.781288888889]
+        ];
+
+        $ids = TaxonomyWhere::whereRaw(
+            'public.ST_Intersects('
+            . 'public.ST_Force2D('
+            . "public.ST_GeomFromGeojson('"
+            . json_encode($geometry)
+            . "')"
+            . ")"
+            . ', geometry)'
+        )->get()->pluck('id')->toArray();
+        $this->assertEmpty($ids);
+    }
+
+    public function testAssociateWhereIntersect()
+    {
+        $service = $this->partialMock(TaxonomyWhereJobsServiceProvider::class);
+        $geometry = [
+            'type' => 'Point',
+            'coordinates' => [10, 45]
+        ];
+        $where = TaxonomyWhere::factory(1)->create(['geometry' => DB::raw("(ST_GeomFromText('MULTIPOLYGON(((10 45, 11 45, 11 46, 11 46, 10 45)))'))")]);
+
+        $ids = $service->associateWhere($geometry);
+
+        $this->assertIsArray($ids);
+        $this->assertNotEmpty($ids);
     }
 }
