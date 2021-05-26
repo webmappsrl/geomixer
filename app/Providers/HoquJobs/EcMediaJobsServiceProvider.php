@@ -16,6 +16,15 @@ use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
 class EcMediaJobsServiceProvider extends ServiceProvider
 {
+    private $thumbnailSizes = [
+        ['width' => 108, 'height' => 148],
+        ['width' => 108, 'height' => 137],
+        ['width' => 225, 'height' => 100],
+        ['width' => 118, 'height' => 138],
+        ['width' => 108, 'height' => 139],
+        ['width' => 118, 'height' => 117],
+    ];
+
     /**
      * Register services.
      *
@@ -44,6 +53,8 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      */
     public function enrichJob(array $params): void
     {
+
+        $thumbnailList = [];
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
         if (!isset($params['id']) || empty($params['id']))
@@ -60,18 +71,21 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             ];
             $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
         }
+        try {
+            $this->uploadEcMediaImage($imagePath);
 
-        $imageResize320x240 = $this->imgResize($imagePath, 320, 240);
-        $imageResize960x640 = $this->imgResize($imagePath, 960, 640);
-        $imageResize1136x640 = $this->imgResize($imagePath, 1136, 640);
+            foreach ($this->thumbnailSizes as $size) {
+                $imageResize = $this->imgResize($imagePath, $size['width'], $size['height']);
+                $thumbnailUrl = $this->uploadEcMediaImageResize($imageResize, $size['width'], $size['height']);
+                $key = $size['width'] . 'x' . $size['height'];
+                array_push($thumbnailList, [$key => $thumbnailUrl]);
+            }
+            $imageCloudUrl = Storage::cloud()->url($imagePath);
+            $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
 
-        $this->uploadEcMediaImageResize($imageResize320x240);
-
-        $this->uploadEcMediaImage($imagePath);
-
-        $imageCloudUrl = Storage::cloud()->url($imagePath);
-
-        $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids);
+        } catch (\Exception $e) {
+            throw new \Exception('Upload Failed');
+        }
 
         //unlink($imagePath);
     }
@@ -142,39 +156,57 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      */
     public function uploadEcMediaImage($imagePath)
     {
-        if (!Storage::exists($imagePath))
+        if (!file_exists($imagePath))
             return response()->json('Element does not exists', 404);
 
-        $filename = explode('/', $imagePath);
-        $filename = $filename[9];
+        $filename = pathinfo($imagePath)['filename'];
 
         Storage::disk('s3')->put('EcMedia/' . $filename, file_get_contents($imagePath));
         return response()->json('Upload Completed');
     }
 
-    public function uploadEcMediaImageResize($imagePath)
+    public function uploadEcMediaImageResize($imagePath, $width, $height)
     {
-        if (!Storage::exists($imagePath))
+
+        if (!file_exists($imagePath))
             return response()->json('Element does not exists', 404);
 
-        $filename = explode('/', $imagePath);
-        $filename = $filename[9];
+        $filename = basename($imagePath);
 
-        Storage::disk('s3')->put('EcMedia/Resize/' . $filename, file_get_contents($imagePath));
-        return response()->json('Upload Completed');
+        Storage::disk('s3')->put('EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename, file_get_contents($imagePath));
+        return Storage::cloud()->url($imagePath);
     }
 
-
+    /**
+     * @param string $imagePath the path of the image
+     * @param int $width the new width
+     * @param int $height the new height
+     *
+     * @return string the new path image
+     */
     public function imgResize($imagePath, $width, $height)
     {
         $img = Image::make($imagePath);
-        $newPathImage = $imagePath . '_' . $width . 'x' . $height . '.jpg';
+        $pathinfo = pathinfo($imagePath);
+        $newPathImage = $pathinfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width, $height);
         $img->resize($width, $height, function ($const) {
             $const->aspectRatio();
         })->save($newPathImage);
 
         return $newPathImage;
+    }
 
+    /**
+     * @param string $imagePath absolute path of file
+     * @param $width
+     * @param $height
+     *
+     * @return string
+     */
+    public function resizedFileName($imagePath, $width, $height)
+    {
+        $pathinfo = pathinfo($imagePath);
+        return $pathinfo['filename'] . '_' . $width . 'x' . $height . '.' . $pathinfo['extension'];
     }
 
 

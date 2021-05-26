@@ -294,11 +294,13 @@ class GeohubServiceProvider extends ServiceProvider
      * @param array $geometry the geometry of the ecMedia
      * @param string $url the cloud url image
      * @param array $whereIds the ids of associated Where
+     * @param array $thumbnailUrls the list of thumbnails of ecMedia
+     *
      * @return int the http code of the request
      *
      * @throws HttpException
      */
-    public function updateEcMedia(int $id, array $exif, array $geometry, string $imageUrl, array $whereIds): int
+    public function setExifAndUrlToEcMedia(int $id, array $exif, array $geometry, string $imageUrl, array $whereIds, array $thumbnailUrls): int
     {
         $url = config('geohub.base_url') . GET_EC_MEDIA_ENRICH . $id;
         $payload = [
@@ -306,6 +308,7 @@ class GeohubServiceProvider extends ServiceProvider
             'geometry' => $geometry,
             'url' => $imageUrl,
             'where_ids' => $whereIds,
+            'thumbnail_urls' => $thumbnailUrls,
         ];
         $headers = [
             "Accept: application/json",

@@ -79,13 +79,20 @@ class EcMediaJobTest extends TestCase
 
     public function testImageResize()
     {
-        $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
-        $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
-        $width = 300;
-        $height = 200;
-        $ecMediaJobsServiceProvider->imgResize($image, $width, $height);
-        $ecMediaJobsServiceProvider->uploadEcMediaImageResize(base_path() . '/tests/Fixtures/EcMedia/test.jpg_' . $width . '_' . $height . '.jpg');
-        $this->assertFileExists(base_path() . '/tests/Fixtures/EcMedia/testResize.jpg');
-    }
+        $thumbnailSizes = [
+            ['width' => 108, 'height' => 148],
+            ['width' => 108, 'height' => 137],
+        ];
 
+        $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
+        $pathinfo = pathinfo($image);
+        $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
+        foreach ($thumbnailSizes as $size) {
+            $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $size['width'], $size['height']);
+            $ecMediaJobsServiceProvider->imgResize($image, $size['width'], $size['height']);
+            $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
+            $this->assertFileExists($resizedFileName);
+        }
+
+    }
 }
