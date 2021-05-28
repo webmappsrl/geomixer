@@ -74,7 +74,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
                 if (file_exists($imageResize)) {
                     $thumbnailUrl = $this->uploadEcMediaImageResize($imageResize, $size['width'], $size['height']);
                     $key = $size['width'] . 'x' . $size['height'];
-                    array_push($thumbnailList, [$key => $thumbnailUrl]);
+                    $thumbnailList[$key] = $thumbnailUrl;
                 }
             } catch (Exception $e) {
                 Log::warning($e->getMessage());
