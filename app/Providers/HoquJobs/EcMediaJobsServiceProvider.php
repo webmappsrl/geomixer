@@ -4,23 +4,23 @@ namespace App\Providers\HoquJobs;
 
 use App\Providers\GeohubServiceProvider;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use Intervention\Image\Exception\ImageException;
 use Intervention\Image\Facades\Image;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
-class EcMediaJobsServiceProvider extends ServiceProvider {
-    private array $thumbnailSizes = [
-        ['width' => 108, 'height' => 148],
-        ['width' => 108, 'height' => 137],
-        ['width' => 225, 'height' => 100],
-        ['width' => 118, 'height' => 138],
-        ['width' => 108, 'height' => 139],
-        ['width' => 118, 'height' => 117],
-    ];
+define("THUMBNAIL_SIZES", [
+    ['width' => 108, 'height' => 148],
+    ['width' => 108, 'height' => 137],
+    ['width' => 225, 'height' => 100],
+    ['width' => 118, 'height' => 138],
+    ['width' => 108, 'height' => 139],
+    ['width' => 118, 'height' => 117],
+]);
 
+class EcMediaJobsServiceProvider extends ServiceProvider {
     /**
      * Register services.
      *
@@ -65,37 +65,38 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
             ];
             $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
         }
-        try {
-            $this->uploadEcMediaImage($imagePath);
 
-            foreach ($this->thumbnailSizes as $size) {
+        $imageCloudUrl = $this->uploadEcMediaImage($imagePath);
+
+        foreach (THUMBNAIL_SIZES as $size) {
+            try {
                 $imageResize = $this->imgResize($imagePath, $size['width'], $size['height']);
                 if (file_exists($imageResize)) {
                     $thumbnailUrl = $this->uploadEcMediaImageResize($imageResize, $size['width'], $size['height']);
                     $key = $size['width'] . 'x' . $size['height'];
                     array_push($thumbnailList, [$key => $thumbnailUrl]);
                 }
+            } catch (Exception $e) {
+                Log::warning($e->getMessage());
             }
-            $imageCloudUrl = Storage::cloud()->url($imagePath);
-            $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
-        } catch (Exception $e) {
-            throw new Exception('Upload Failed');
         }
-        //unlink($imagePath);
+
+        $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
+        //        unlink($imagePath);
     }
 
     /**
+     * Return a mapped array with all the useful exif of the image
+     *
      * @param string $imagePath the path of the image
      *
-     * @return array the array with coordinates
-     * @throws HttpException if the HTTP request fails
-     * @throws Exception if image does not have GPS metadata
+     * @return array the array with the coordinates
      *
+     * @throws Exception
      */
     public function getImageExif(string $imagePath): array {
-        if (!file_exists($imagePath)) {
-            throw new HttpException(404);
-        }
+        if (!file_exists($imagePath))
+            throw new Exception("The image $imagePath does not exists");
 
         $data = Image::make($imagePath)->exif();
 
@@ -140,24 +141,40 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
     }
 
     /**
+     * Upload an existing image to the s3 bucket
+     *
      * @param string $imagePath the path of the image to upload
      *
-     * @return JsonResponse
+     * @return string the uploaded image url
+     *
+     * @throws Exception
      */
-    public function uploadEcMediaImage(string $imagePath): JsonResponse {
+    public function uploadEcMediaImage(string $imagePath): string {
         if (!file_exists($imagePath))
-            return response()->json('Element does not exists', 404);
+            throw new Exception("The image $imagePath does not exists");
 
         $filename = pathinfo($imagePath)['filename'];
 
+        $cloudPath = 'EcMedia/' . $filename;
         Storage::disk('s3')->put('EcMedia/' . $filename, file_get_contents($imagePath));
 
-        return response()->json('Upload Completed');
+        return Storage::cloud()->url($cloudPath);
     }
 
-    public function uploadEcMediaImageResize(string $imagePath, int $width, int $height) {
+    /**
+     * Upload an already resized image to the s3 bucket
+     *
+     * @param string $imagePath the resized image
+     * @param int    $width     the image width
+     * @param int    $height    the image height
+     *
+     * @return string the uploaded image url
+     *
+     * @throws Exception
+     */
+    public function uploadEcMediaImageResize(string $imagePath, int $width, int $height): string {
         if (!file_exists($imagePath))
-            return response()->json('Element does not exists', 404);
+            throw new Exception("The image $imagePath does not exists");
 
         $filename = basename($imagePath);
         $cloudPath = 'EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename;
@@ -167,17 +184,20 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
     }
 
     /**
+     * Resize the given image to the specified width and height
+     *
      * @param string $imagePath the path of the image
      * @param int    $width     the new width
      * @param int    $height    the new height
      *
      * @return string the new path image
+     *
+     * @throws ImageException
      */
     public function imgResize(string $imagePath, int $width, int $height): string {
         list($imgWidth, $imgHeight) = getimagesize($imagePath);
-        if ($imgWidth < $width || $imgHeight < $height) {
-            return response()->json('The image is too small for resize', 400);
-        }
+        if ($imgWidth < $width || $imgHeight < $height)
+            throw new ImageException("The image is too small to resize - required size: $width, $height - actual size: $imgWidth, $imgHeight");
 
         $img = Image::make($imagePath);
         $pathInfo = pathinfo($imagePath);
@@ -190,9 +210,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
     }
 
     /**
+     * Helper to get the filename of a resized image
+     *
      * @param string $imagePath absolute path of file
-     * @param int    $width
-     * @param int    $height
+     * @param int    $width     the image width
+     * @param int    $height    the image height
      *
      * @return string
      */

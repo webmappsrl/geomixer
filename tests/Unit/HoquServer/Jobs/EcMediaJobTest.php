@@ -9,9 +9,11 @@ use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
 use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Exception\ImageException;
 use Intervention\Image\Facades\Image;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
@@ -63,8 +65,12 @@ class EcMediaJobTest extends TestCase {
     }
 
     public function testImageNoExists() {
+        $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         $image = base_path() . '/tests/Fixtures/EcMedia/test2.jpg';
-        $this->assertFileDoesNotExist($image);
+        try {
+            $ecMediaJobsServiceProvider->imgResize($image, 100, 100);
+        } catch (Exception $e) {
+        }
     }
 
     public function testImageExists() {
@@ -95,18 +101,20 @@ class EcMediaJobTest extends TestCase {
     }
 
     public function testImageResizeTooSmall() {
-        $thumbnailSizes = [
-            ['width' => 10000, 'height' => 10000],
-        ];
+        $thumbnailSize = ['width' => 10000, 'height' => 10000];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
-        $pathinfo = pathinfo($image);
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
-        foreach ($thumbnailSizes as $size) {
-            $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $size['width'], $size['height']);
-            $ecMediaJobsServiceProvider->imgResize($image, $size['width'], $size['height']);
-            $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
+        $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $thumbnailSize['width'], $thumbnailSize['height']);
+
+        try {
+            $ecMediaJobsServiceProvider->imgResize($image, $thumbnailSize['width'], $thumbnailSize['height']);
+        } catch (ImageException $e) {
             $this->assertFileDoesNotExist($resizedFileName);
+
+            return;
         }
+
+        $this->fail("The image should not be resized correctly but something went right");
     }
 }
