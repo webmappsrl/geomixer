@@ -14,3 +14,5 @@ npm-debug.log
 yarn-error.log
 .idea
 .editorconfig
+
+tests/Fixtures/EcMedia/test_*
