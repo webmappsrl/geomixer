@@ -17,10 +17,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Tests\TestCase;
 
-class EcMediaJobTest extends TestCase
-{
-    public function testJobExecuted()
-    {
+class EcMediaJobTest extends TestCase {
+    public function testJobExecuted() {
         $jobParameters = [
             'id' => 1,
         ];
@@ -50,8 +48,7 @@ class EcMediaJobTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testGetExifDataJpg()
-    {
+    public function testGetExifDataJpg() {
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
 
         $exif_data = $ecMediaJobsServiceProvider->getImageExif(base_path() . '/tests/Fixtures/EcMedia/test.jpg');
@@ -65,39 +62,41 @@ class EcMediaJobTest extends TestCase
         $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
 
-    public function testImageNoExists()
-    {
+    public function testImageNoExists() {
         $image = base_path() . '/tests/Fixtures/EcMedia/test2.jpg';
         $this->assertFileDoesNotExist($image);
     }
 
-    public function testImageExists()
-    {
+    public function testImageExists() {
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
         $this->assertFileExists($image);
     }
 
-    public function testImageResize()
-    {
+    public function testImageResize() {
         $thumbnailSizes = [
             ['width' => 100, 'height' => 200],
             ['width' => 108, 'height' => 137],
         ];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
-        $pathinfo = pathinfo($image);
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         foreach ($thumbnailSizes as $size) {
             $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $size['width'], $size['height']);
             $ecMediaJobsServiceProvider->imgResize($image, $size['width'], $size['height']);
             $cloudImage = $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
             $this->assertFileExists($resizedFileName);
-            $this->assertFileExists($cloudImage);
+            $ch = curl_init($cloudImage);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+            curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            $this->assertSame(200, $code);
+            curl_close($ch);
         }
     }
 
-    public function testImageResizeTooSmall()
-    {
+    public function testImageResizeTooSmall() {
         $thumbnailSizes = [
             ['width' => 10000, 'height' => 10000],
         ];
