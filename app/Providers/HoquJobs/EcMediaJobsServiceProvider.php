@@ -153,7 +153,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
-        $filename = pathinfo($imagePath)['filename'];
+        $filename = pathinfo($imagePath)['filename'] . '.' . pathinfo($imagePath)['extension'];
 
         $cloudPath = 'EcMedia/' . $filename;
         Storage::disk('s3')->put('EcMedia/' . $filename, file_get_contents($imagePath));
