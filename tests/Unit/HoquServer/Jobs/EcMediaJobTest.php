@@ -80,7 +80,7 @@ class EcMediaJobTest extends TestCase
     public function testImageResize()
     {
         $thumbnailSizes = [
-            ['width' => 108, 'height' => 148],
+            ['width' => 100, 'height' => 200],
             ['width' => 108, 'height' => 137],
         ];
 
@@ -90,9 +90,26 @@ class EcMediaJobTest extends TestCase
         foreach ($thumbnailSizes as $size) {
             $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $size['width'], $size['height']);
             $ecMediaJobsServiceProvider->imgResize($image, $size['width'], $size['height']);
-            $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
+            $cloudImage = $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
             $this->assertFileExists($resizedFileName);
+            $this->assertFileExists($cloudImage);
         }
+    }
 
+    public function testImageResizeTooSmall()
+    {
+        $thumbnailSizes = [
+            ['width' => 10000, 'height' => 10000],
+        ];
+
+        $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
+        $pathinfo = pathinfo($image);
+        $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
+        foreach ($thumbnailSizes as $size) {
+            $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $size['width'], $size['height']);
+            $ecMediaJobsServiceProvider->imgResize($image, $size['width'], $size['height']);
+            $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
+            $this->assertFileDoesNotExist($resizedFileName);
+        }
     }
 }

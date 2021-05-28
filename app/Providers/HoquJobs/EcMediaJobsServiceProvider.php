@@ -76,9 +76,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
             foreach ($this->thumbnailSizes as $size) {
                 $imageResize = $this->imgResize($imagePath, $size['width'], $size['height']);
-                $thumbnailUrl = $this->uploadEcMediaImageResize($imageResize, $size['width'], $size['height']);
-                $key = $size['width'] . 'x' . $size['height'];
-                array_push($thumbnailList, [$key => $thumbnailUrl]);
+                if (file_exists($imageResize)) {
+                    $thumbnailUrl = $this->uploadEcMediaImageResize($imageResize, $size['width'], $size['height']);
+                    $key = $size['width'] . 'x' . $size['height'];
+                    array_push($thumbnailList, [$key => $thumbnailUrl]);
+                }
             }
             $imageCloudUrl = Storage::cloud()->url($imagePath);
             $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
@@ -172,9 +174,9 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             return response()->json('Element does not exists', 404);
 
         $filename = basename($imagePath);
-
-        Storage::disk('s3')->put('EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename, file_get_contents($imagePath));
-        return Storage::cloud()->url($imagePath);
+        $cloudPath = 'EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename;
+        Storage::disk('s3')->put($cloudPath, file_get_contents($imagePath));
+        return Storage::cloud()->url($cloudPath);
     }
 
     /**
@@ -186,6 +188,10 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      */
     public function imgResize($imagePath, $width, $height)
     {
+        list($imgWidth, $imgHeight) = getimagesize($imagePath);
+        if ($imgWidth < $width || $imgHeight < $height) {
+            return response()->json('The image is too small for resize', 400);
+        }
         $img = Image::make($imagePath);
         $pathinfo = pathinfo($imagePath);
         $newPathImage = $pathinfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width, $height);
