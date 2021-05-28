@@ -117,4 +117,10 @@ class EcMediaJobTest extends TestCase {
 
         $this->fail("The image should not be resized correctly but something went right");
     }
+
+    public function testXXX() {
+        $service = $this->partialMock(GeohubServiceProvider::class);
+
+        $service->getEcMediaImage(49);
+    }
 }
