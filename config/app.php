@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'version' => '0.1.1c.15',
+    'version' => '0.1.1c.15.1',
 
     /*
     |--------------------------------------------------------------------------
@@ -196,7 +196,8 @@ return [
         /**
          * Hoqu Jobs
          */
-        App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider::class
+        App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider::class,
+        App\Providers\HoquJobs\EcMediaJobsServiceProvider::class
 
     ],
 
