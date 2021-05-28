@@ -57,7 +57,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
 
         $exif = $this->getImageExif($imagePath);
         $ids = [];
-        $ecMediaCoordinatesJson = null;
+        $ecMediaCoordinatesJson = [];
         if (isset($exif['coordinates'])) {
             $ecMediaCoordinatesJson = [
                 'type' => 'Point',
