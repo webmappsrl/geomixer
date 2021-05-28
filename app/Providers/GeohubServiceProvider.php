@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
@@ -13,6 +14,16 @@ define('GET_EC_MEDIA_ENDPOINT', '/api/ec/media/');
 define('GET_EC_MEDIA_IMAGE_PATH_ENDPOINT', '/api/ec/media/image/');
 define('GET_EC_MEDIA_ENRICH', '/api/ec/media/update/');
 define('GET_ENDPOINT', '/api/');
+define('CONTENT_TYPE_IMAGE_MAPPING', [
+    'image/bmp' => 'bmp',
+    'image/gif' => 'gif',
+    'image/vnd.microsoft.icon' => 'ico',
+    'image/jpeg' => 'jpg',
+    'image/png' => 'png',
+    'image/svg+xml' => 'svg',
+    'image/tiff' => 'tif',
+    'image/webp' => 'webp'
+]);
 
 class GeohubServiceProvider extends ServiceProvider {
     /**
@@ -103,6 +114,7 @@ class GeohubServiceProvider extends ServiceProvider {
      * @return string the EcMedia selected by id
      *
      * @throws HttpException if the HTTP request fails
+     * @throws Exception
      */
     public function getEcMediaImage(int $id): string {
         $url = config('geohub.base_url') . GET_EC_MEDIA_IMAGE_PATH_ENDPOINT . $id;
@@ -114,16 +126,19 @@ class GeohubServiceProvider extends ServiceProvider {
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
         $result = curl_exec($ch);
-        Log::info($url);
 
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         curl_close($ch);
 
         if ($code >= 400)
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
 
-        $filename = substr(str_shuffle(MD5(microtime())), 0, 5);
+        if (!isset(CONTENT_TYPE_IMAGE_MAPPING[$contentType]))
+            throw new Exception('Content type not supported: ' . $contentType);
+
+        $filename = $id . '.' . CONTENT_TYPE_IMAGE_MAPPING[$contentType];
         Storage::disk('local')->put('ec_media/' . $filename, $result);
 
         return Storage::disk('local')->path('ec_media/' . $filename);
