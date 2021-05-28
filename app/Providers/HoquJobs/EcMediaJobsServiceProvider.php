@@ -2,21 +2,18 @@
 
 namespace App\Providers\HoquJobs;
 
-use App\Models\EcMedia;
-use App\Models\TaxonomyWhere;
 use App\Providers\GeohubServiceProvider;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\Facades\Image;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
-
 class EcMediaJobsServiceProvider extends ServiceProvider
 {
-    private $thumbnailSizes = [
+    private array $thumbnailSizes = [
         ['width' => 108, 'height' => 148],
         ['width' => 108, 'height' => 137],
         ['width' => 225, 'height' => 100],
@@ -50,10 +47,10 @@ class EcMediaJobsServiceProvider extends ServiceProvider
     /**
      *
      *
+     * @throws Exception
      */
     public function enrichJob(array $params): void
     {
-
         $thumbnailList = [];
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
@@ -64,6 +61,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         $exif = $this->getImageExif($imagePath);
         $ids = [];
+        $ecMediaCoordinatesJson = null;
         if (isset($exif['coordinates'])) {
             $ecMediaCoordinatesJson = [
                 'type' => 'Point',
@@ -84,11 +82,9 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             }
             $imageCloudUrl = Storage::cloud()->url($imagePath);
             $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
-
-        } catch (\Exception $e) {
-            throw new \Exception('Upload Failed');
+        } catch (Exception $e) {
+            throw new Exception('Upload Failed');
         }
-
         //unlink($imagePath);
     }
 
@@ -97,12 +93,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      *
      * @return array the array with coordinates
      * @throws HttpException if the HTTP request fails
-     * @throws \Exception if image does not have GPS metadata
+     * @throws Exception if image does not have GPS metadata
      *
      */
-    public function getImageExif($imagePath): array
+    public function getImageExif(string $imagePath): array
     {
-
         if (!file_exists($imagePath)) {
             throw new HttpException(404);
         }
@@ -110,7 +105,6 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         $data = Image::make($imagePath)->exif();
 
         if (in_array('GPSLatitude', $data) && in_array('GPSLongitude', $data)) {
-
             //Calculate Latitude with degrees, minutes and seconds
 
             $latDegrees = $data['GPSLatitude'][0];
@@ -145,18 +139,17 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             $coordinates = [$imgLongitude, $imgLatitude];
 
             return array('coordinates' => $coordinates);
-
         } else {
             return [];
         }
-
     }
 
     /**
      * @param string $imagePath the path of the image to upload
-     * @return \Illuminate\Http\JsonResponse
+     *
+     * @return JsonResponse
      */
-    public function uploadEcMediaImage($imagePath)
+    public function uploadEcMediaImage(string $imagePath): JsonResponse
     {
         if (!file_exists($imagePath))
             return response()->json('Element does not exists', 404);
@@ -164,12 +157,12 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         $filename = pathinfo($imagePath)['filename'];
 
         Storage::disk('s3')->put('EcMedia/' . $filename, file_get_contents($imagePath));
+
         return response()->json('Upload Completed');
     }
 
-    public function uploadEcMediaImageResize($imagePath, $width, $height)
+    public function uploadEcMediaImageResize(string $imagePath, int $width, int $height)
     {
-
         if (!file_exists($imagePath))
             return response()->json('Element does not exists', 404);
 
@@ -186,15 +179,17 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      *
      * @return string the new path image
      */
-    public function imgResize($imagePath, $width, $height)
+    public function imgResize(string $imagePath, int $width, int $height): string
     {
+    
         list($imgWidth, $imgHeight) = getimagesize($imagePath);
         if ($imgWidth < $width || $imgHeight < $height) {
             return response()->json('The image is too small for resize', 400);
         }
+
         $img = Image::make($imagePath);
-        $pathinfo = pathinfo($imagePath);
-        $newPathImage = $pathinfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width, $height);
+        $pathInfo = pathinfo($imagePath);
+        $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width, $height);
         $img->resize($width, $height, function ($const) {
             $const->aspectRatio();
         })->save($newPathImage);
@@ -204,16 +199,15 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
     /**
      * @param string $imagePath absolute path of file
-     * @param $width
-     * @param $height
+     * @param int $width
+     * @param int $height
      *
      * @return string
      */
-    public function resizedFileName($imagePath, $width, $height)
+    public function resizedFileName(string $imagePath, int $width, int $height): string
     {
-        $pathinfo = pathinfo($imagePath);
-        return $pathinfo['filename'] . '_' . $width . 'x' . $height . '.' . $pathinfo['extension'];
+        $pathInfo = pathinfo($imagePath);
+
+        return $pathInfo['filename'] . '_' . $width . 'x' . $height . '.' . $pathInfo['extension'];
     }
-
-
 }
