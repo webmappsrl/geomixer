@@ -74,8 +74,12 @@ class EcMediaJobTest extends TestCase {
 
     public function testImageResize() {
         $thumbnailSizes = [
-            ['width' => 100, 'height' => 200],
+            ['width' => 108, 'height' => 148],
             ['width' => 108, 'height' => 137],
+            ['width' => 225, 'height' => 100],
+            ['width' => 118, 'height' => 138],
+            ['width' => 108, 'height' => 139],
+            ['width' => 118, 'height' => 117],
         ];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
