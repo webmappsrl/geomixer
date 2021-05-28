@@ -85,14 +85,8 @@ class EcMediaJobTest extends TestCase {
             $ecMediaJobsServiceProvider->imgResize($image, $size['width'], $size['height']);
             $cloudImage = $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
             $this->assertFileExists($resizedFileName);
-            $ch = curl_init($cloudImage);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            $this->assertSame(200, $code);
-            curl_close($ch);
+            $headers = get_headers($cloudImage);
+            $this->assertTrue(stripos($headers[0], "200 OK") >= 0);
         }
     }
 
