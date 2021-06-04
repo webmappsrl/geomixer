@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Providers\HoquJobs\EcTrackJobsServiceProvider;
 use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
 use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
 
 define('ENRICH_EC_MEDIA', 'enrich_ec_media');
+define('ENRICH_EC_TRACK', 'enrich_ec_track');
 define('UPDATE_GEOMIXER_TAXONOMY_WHERE', 'update_geomixer_taxonomy_where');
 define('UPDATE_UGC_TAXONOMY_WHERES', 'update_ugc_taxonomy_wheres');
 
@@ -109,6 +111,10 @@ class HoquServer extends Command implements SignalableCommandInterface
                     $parameters = json_decode($job['parameters'], true);
 
                     switch ($job["job"]) {
+                        case ENRICH_EC_TRACK;
+                            $service = app(EcTrackJobsServiceProvider::class);
+                            $service->enrichJob($parameters);
+                            break;
                         case ENRICH_EC_MEDIA;
                             $service = app(EcMediaJobsServiceProvider::class);
                             $service->enrichJob($parameters);
