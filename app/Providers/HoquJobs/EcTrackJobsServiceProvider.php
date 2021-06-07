@@ -33,7 +33,9 @@ class EcTrackJobsServiceProvider extends ServiceProvider
     }
 
     /**
-     * @param array $params
+     * Job to update the ecTrack with distance comp
+     * @param array $params job parameters
+     *
      */
     public function enrichJob(array $params): void
     {
@@ -52,14 +54,14 @@ class EcTrackJobsServiceProvider extends ServiceProvider
     }
 
     /**
-     * @param array $geometry
+     * Calculate the distance comp from geometry in KM
+     * @param array $geometry the ecTrack geometry
+     * @return float the distance comp in KMs
      */
     public function getDistanceComp(array $geometry): float
     {
         $distanceQuery = "SELECT ST_Length(ST_GeomFromGeoJSON('" . json_encode($geometry) . "')::geography)/1000 as length";
         $distance = DB::select(DB::raw($distanceQuery));
-        Log::channel('stdout')->info($distance[0]->length);
-        Log::channel('stdout')->info(json_encode($geometry));
         return $distance[0]->length;
     }
 }

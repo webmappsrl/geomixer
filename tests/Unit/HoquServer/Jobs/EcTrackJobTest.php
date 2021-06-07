@@ -4,9 +4,9 @@ namespace Tests\Unit\HoquServer\Jobs;
 
 
 use App\Console\Commands\HoquServer;
-use App\Providers\EcTrackJobsServiceProvider;
 use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
+use App\Providers\HoquJobs\EcTrackJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +37,7 @@ class EcTrackJobTest extends TestCase
                 ->andReturn(200);
         });
 
-        $this->mock(EcTrackJobsServiceProvider::class, function ($mock) use ($job) {
+        $this->mock(EcTrackJobsServiceProvider::class, function ($mock) use ($jobParameters) {
             $mock->shouldReceive('enrichJob')
                 ->once()
                 ->andReturn();
@@ -54,4 +54,6 @@ class EcTrackJobTest extends TestCase
         $distance = DB::select(DB::raw($distanceQuery));
         $this->assertIsNumeric($distance[0]->lenght);
     }
+
+
 }

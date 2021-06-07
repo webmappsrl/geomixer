@@ -384,6 +384,8 @@ class GeohubServiceProvider extends ServiceProvider
     }
 
     /**
+     * Update the ecTrack in geohub by ID
+     *
      * @param int $id
      * @param float $destanceComp
      * @param array $whereIds
