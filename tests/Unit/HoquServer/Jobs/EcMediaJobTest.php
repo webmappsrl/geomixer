@@ -67,7 +67,7 @@ class EcMediaJobTest extends TestCase
         $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
 
-    public function testImageNoExists()
+    public function _testImageNoExists()
     {
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         $image = base_path() . '/tests/Fixtures/EcMedia/test2.jpg';
