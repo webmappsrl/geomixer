@@ -452,7 +452,7 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Post to Geohub the parameters to update to EcPoi.
      *
-     * @param int $id the ecMedia id
+     * @param int $id the ecPoi id
      * @param array $whereIds the ids of associated Where
      *
      * @return int the http code of the request
