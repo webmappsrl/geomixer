@@ -15,6 +15,8 @@ define('GET_EC_TRACK_ENDPOINT', '/api/ec/track/');
 define('GET_EC_TRACK_ENRICH', '/api/ec/track/update/');
 define('GET_EC_MEDIA_IMAGE_PATH_ENDPOINT', '/api/ec/media/image/');
 define('GET_EC_MEDIA_ENRICH', '/api/ec/media/update/');
+define('GET_EC_POI_ENDPOINT', '/api/ec/poi/');
+define('GET_EC_POI_ENRICH', '/api/ec/poi/update/');
 define('GET_ENDPOINT', '/api/');
 define('CONTENT_TYPE_IMAGE_MAPPING', [
     'image/bmp' => 'bmp',
@@ -418,6 +420,71 @@ class GeohubServiceProvider extends ServiceProvider
         curl_close($ch);
         if ($code >= 400)
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+
+        return $code;
+    }
+
+    public function getEcPoi(int $id): array
+    {
+        $url = config('geohub.base_url') . GET_EC_POI_ENDPOINT . $id;
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $result = curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($code >= 400) {
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
+
+        return json_decode($result, true);
+    }
+
+    /**
+     * Post to Geohub the parameters to update to EcPoi.
+     *
+     * @param int $id the ecMedia id
+     * @param array $whereIds the ids of associated Where
+     *
+     * @return int the http code of the request
+     *
+     */
+    public function setWheresToEcPoi(int $id, array $whereIds): int
+    {
+        $url = config('geohub.base_url') . GET_EC_POI_ENRICH . $id;
+        $payload = [
+            'where_ids' => $whereIds,
+        ];
+        $headers = [
+            "Accept: application/json",
+            "Content-Type:application/json"
+        ];
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        if ($code >= 400) {
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
         return $code;
     }
