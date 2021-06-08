@@ -199,6 +199,7 @@ return [
         App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider::class,
         App\Providers\HoquJobs\EcMediaJobsServiceProvider::class,
         App\Providers\HoquJobs\EcTrackJobsServiceProvider::class,
+        App\Providers\HoquJobs\EcPoiJobsServiceProvider::class,
 
     ],
 
