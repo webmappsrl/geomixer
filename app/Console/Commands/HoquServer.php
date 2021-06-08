@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Providers\HoquJobs\EcTrackJobsServiceProvider;
 use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
+use App\Providers\HoquJobs\EcPoiJobsServiceProvider;
 use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Exception;
@@ -11,17 +13,20 @@ use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
 
 define('ENRICH_EC_MEDIA', 'enrich_ec_media');
+define('ENRICH_EC_TRACK', 'enrich_ec_track');
+define('ENRICH_EC_POI', 'enrich_ec_poi');
 define('UPDATE_GEOMIXER_TAXONOMY_WHERE', 'update_geomixer_taxonomy_where');
 define('UPDATE_UGC_TAXONOMY_WHERES', 'update_ugc_taxonomy_wheres');
 
 define('JOBS', [
     ENRICH_EC_MEDIA,
+    ENRICH_EC_TRACK,
+    ENRICH_EC_POI,
     UPDATE_GEOMIXER_TAXONOMY_WHERE,
     UPDATE_UGC_TAXONOMY_WHERES
 ]);
 
-class HoquServer extends Command implements SignalableCommandInterface
-{
+class HoquServer extends Command implements SignalableCommandInterface {
     /**
      * The name and signature of the console command.
      *
@@ -42,8 +47,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return void
      */
-    public function __construct(HoquServiceProvider $hoquServiceProvider)
-    {
+    public function __construct(HoquServiceProvider $hoquServiceProvider) {
         parent::__construct();
 
         $this->hoquServiceProvider = $hoquServiceProvider;
@@ -55,8 +59,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return array
      */
-    public function getSubscribedSignals(): array
-    {
+    public function getSubscribedSignals(): array {
         return [SIGINT];
     }
 
@@ -65,8 +68,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @param int $signal the signal number
      */
-    public function handleSignal(int $signal): void
-    {
+    public function handleSignal(int $signal): void {
         switch ($signal) {
             case SIGINT:
                 Log::channel('stdout')->warning("  [CTRL - C] Performing soft interruption. Terminating job before closing");
@@ -80,8 +82,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return int
      */
-    public function handle(): int
-    {
+    public function handle(): int {
         while (!$this->interrupted) {
             $result = $this->executeHoquJob();
             if (!$result)
@@ -96,8 +97,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return bool true if a job has been executed
      */
-    public function executeHoquJob(): bool
-    {
+    public function executeHoquJob(): bool {
         try {
             Log::channel('stdout')->info('Retrieving new job from HOQU');
             $job = $this->hoquServiceProvider->pull(JOBS);
@@ -109,8 +109,16 @@ class HoquServer extends Command implements SignalableCommandInterface
                     $parameters = json_decode($job['parameters'], true);
 
                     switch ($job["job"]) {
+                        case ENRICH_EC_TRACK;
+                            $service = app(EcTrackJobsServiceProvider::class);
+                            $service->enrichJob($parameters);
+                            break;
                         case ENRICH_EC_MEDIA;
                             $service = app(EcMediaJobsServiceProvider::class);
+                            $service->enrichJob($parameters);
+                            break;
+                        case ENRICH_EC_POI;
+                            $service = app(EcPoiJobsServiceProvider::class);
                             $service->enrichJob($parameters);
                             break;
                         case UPDATE_GEOMIXER_TAXONOMY_WHERE;
