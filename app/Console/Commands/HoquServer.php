@@ -20,13 +20,13 @@ define('UPDATE_UGC_TAXONOMY_WHERES', 'update_ugc_taxonomy_wheres');
 
 define('JOBS', [
     ENRICH_EC_MEDIA,
+    ENRICH_EC_TRACK,
     ENRICH_EC_POI,
     UPDATE_GEOMIXER_TAXONOMY_WHERE,
     UPDATE_UGC_TAXONOMY_WHERES
 ]);
 
-class HoquServer extends Command implements SignalableCommandInterface
-{
+class HoquServer extends Command implements SignalableCommandInterface {
     /**
      * The name and signature of the console command.
      *
@@ -47,8 +47,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return void
      */
-    public function __construct(HoquServiceProvider $hoquServiceProvider)
-    {
+    public function __construct(HoquServiceProvider $hoquServiceProvider) {
         parent::__construct();
 
         $this->hoquServiceProvider = $hoquServiceProvider;
@@ -60,8 +59,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return array
      */
-    public function getSubscribedSignals(): array
-    {
+    public function getSubscribedSignals(): array {
         return [SIGINT];
     }
 
@@ -70,8 +68,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @param int $signal the signal number
      */
-    public function handleSignal(int $signal): void
-    {
+    public function handleSignal(int $signal): void {
         switch ($signal) {
             case SIGINT:
                 Log::channel('stdout')->warning("  [CTRL - C] Performing soft interruption. Terminating job before closing");
@@ -85,8 +82,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return int
      */
-    public function handle(): int
-    {
+    public function handle(): int {
         while (!$this->interrupted) {
             $result = $this->executeHoquJob();
             if (!$result)
@@ -101,8 +97,7 @@ class HoquServer extends Command implements SignalableCommandInterface
      *
      * @return bool true if a job has been executed
      */
-    public function executeHoquJob(): bool
-    {
+    public function executeHoquJob(): bool {
         try {
             Log::channel('stdout')->info('Retrieving new job from HOQU');
             $job = $this->hoquServiceProvider->pull(JOBS);
