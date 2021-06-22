@@ -91,6 +91,14 @@ return [
             'prefix_indexes' => true,
         ],
 
+        'osm' => [
+            'driver' => 'pgsql',
+            'host' => env('OSM_DB_HOST', '127.0.0.1'),
+            'port' => env('OSM_DB_PORT', '5432'),
+            'database' => env('OSM_DB_DATABASE', ''),
+            'username' => env('OSM_DB_USER', ''),
+            'password' => env('OSM_DB_PASSWORD', ''),
+        ],
     ],
 
     /*
