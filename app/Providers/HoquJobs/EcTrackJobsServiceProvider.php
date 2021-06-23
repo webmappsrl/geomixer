@@ -2,6 +2,7 @@
 
 namespace App\Providers\HoquJobs;
 
+use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -58,6 +59,11 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         }
 
         /**
+         * Retrieve 3D profile by geometry e DEM file.
+         */
+        $payload['geometry'] = $this->get3DDemProfile($ecTrack['geometry']);
+
+        /**
          * Retrieve computed distance by geometry.
          */
         //$distanceComp = $this->getDistanceComp($ecTrack['geometry']);
@@ -96,5 +102,24 @@ class EcTrackJobsServiceProvider extends ServiceProvider
 
 
         return $geometry;
+    }
+
+    public function get3DDemProfile($bidimensional_geometry)
+    {
+        $tridimensional_geometry = $bidimensional_geometry;
+        if (
+            !is_null($bidimensional_geometry)
+            && is_array($bidimensional_geometry)
+            && isset($bidimensional_geometry['type'])
+            && isset($bidimensional_geometry['coordinates'])
+        ) {
+            $tridimensional_geometry = [];
+            $tridimensional_geometry['type'] = $bidimensional_geometry['type'];
+            foreach ($bidimensional_geometry['coordinates'] as $point) {
+                $tridimensional_geometry['coordinates'][] = [$point[0], $point[1], Dem::getEle($point[1], $point[0])];
+            }
+        }
+
+        return $tridimensional_geometry;
     }
 }

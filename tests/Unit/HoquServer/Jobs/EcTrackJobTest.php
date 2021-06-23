@@ -2,16 +2,12 @@
 
 namespace Tests\Unit\HoquServer\Jobs;
 
-
 use App\Console\Commands\HoquServer;
-use App\Providers\GeohubServiceProvider;
-use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
 use App\Providers\HoquJobs\EcTrackJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-
 
 class EcTrackJobTest extends TestCase
 {
