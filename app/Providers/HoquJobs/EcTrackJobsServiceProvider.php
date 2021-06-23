@@ -5,7 +5,6 @@ namespace App\Providers\HoquJobs;
 use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
@@ -61,7 +60,8 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         /**
          * Retrieve 3D profile by geometry e DEM file.
          */
-        $payload['geometry'] = $this->get3DDemProfile($ecTrack['geometry']);
+        $computedParameters = $this->getComputedParameters($ecTrack['geometry']);
+        $payload['geometry'] = $computedParameters['geometry']);
 
         /**
          * Retrieve computed distance by geometry.
@@ -104,8 +104,9 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         return $geometry;
     }
 
-    public function get3DDemProfile($bidimensional_geometry)
+    public function getComputedParameters($bidimensional_geometry)
     {
+        $computedParameters = [];
         $tridimensional_geometry = $bidimensional_geometry;
         if (
             !is_null($bidimensional_geometry)
@@ -114,10 +115,17 @@ class EcTrackJobsServiceProvider extends ServiceProvider
             && isset($bidimensional_geometry['coordinates'])
         ) {
             $tridimensional_geometry = [];
+            $ele_max = $ele_min = null;
             $tridimensional_geometry['type'] = $bidimensional_geometry['type'];
             foreach ($bidimensional_geometry['coordinates'] as $point) {
-                $tridimensional_geometry['coordinates'][] = [$point[0], $point[1], Dem::getEle($point[1], $point[0])];
+                $zeta = Dem::getEle($point[1], $point[0]);
+                if ($zeta > $ele_max) {
+                    $ele_max = $zeta;
+                }
+                $tridimensional_geometry['coordinates'][] = [$point[0], $point[1], $zeta];
             }
+
+            $computedParameters['geometry'] = $tridimensional_geometry;
         }
 
         return $tridimensional_geometry;
