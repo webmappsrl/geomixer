@@ -41,16 +41,37 @@ class EcTrackJobsServiceProvider extends ServiceProvider
     {
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
-        if (!isset($params['id']) || empty($params['id']))
+        if (!isset($params['id']) || empty($params['id'])) {
             throw new MissingMandatoryParametersException('The parameter "id" is missing but required. The operation can not be completed');
+        }
 
         $ecTrack = $geohubServiceProvider->getEcTrack($params['id']);
-        $distanceComp = $this->getDistanceComp($ecTrack['geometry']);
-        $ids = [];
-        if (isset($ecTrack['geometry'])) {
-            $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
+        $payload = [];
+
+        /**
+         * Retrieve geometry from OSM by osmid.
+         */
+        $importMethod = $ecTrack['import_method'];
+        if ('osm' === $importMethod && !is_null($ecTrack['source_id'])) {
+            $ecTrack['geometry'] = $this->retrieveOsmGeometry($ecTrack['source_id']);
+            $payload['geometry'] = $ecTrack['geometry'];
         }
-        $geohubServiceProvider->updateEcTrack($params['id'], $distanceComp, $ids);
+
+        /**
+         * Retrieve computed distance by geometry.
+         */
+        //$distanceComp = $this->getDistanceComp($ecTrack['geometry']);
+        $payload['distance_comp'] = $this->getDistanceComp($ecTrack['geometry']);
+
+        /**
+         * Retrieve taxonomyWheres by geometry.
+         */
+        if (isset($ecTrack['geometry'])) {
+            //$ids = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
+            $payload['ids'] = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
+        }
+
+        $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }
 
     /**
@@ -62,6 +83,18 @@ class EcTrackJobsServiceProvider extends ServiceProvider
     {
         $distanceQuery = "SELECT ST_Length(ST_GeomFromGeoJSON('" . json_encode($geometry) . "')::geography)/1000 as length";
         $distance = DB::select(DB::raw($distanceQuery));
+
         return $distance[0]->length;
+    }
+
+    /**
+     * Retrieve track geometry by OSM ID
+     */
+    public function retrieveOsmGeometry($osmid)
+    {
+        $geometry = null;
+
+
+        return $geometry;
     }
 }

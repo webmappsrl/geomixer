@@ -386,20 +386,28 @@ class GeohubServiceProvider extends ServiceProvider
     }
 
     /**
-     * Update the ecTrack in geohub by ID
+     * Update the ecTrack in geohub by ID.
      *
      * @param int $id
-     * @param float $destanceComp
-     * @param array $whereIds
+     * @param array $parameters
+     * 
      * @return int
      */
-    public function UpdateEcTrack(int $id, float $distanceComp, array $whereIds): int
+    public function updateEcTrack(int $id, array $parameters = []): int
     {
         $url = config('geohub.base_url') . GET_EC_TRACK_ENRICH . $id;
-        $payload = [
-            'where_ids' => $whereIds,
-            'distance_comp' => $distanceComp,
-        ];
+
+        $payload = [];
+        if (isset($parameters['geometry'])) {
+            $payload['geometry'] = $parameters['geometry'];
+        }
+        if (isset($parameters['distance_comp'])) {
+            $payload['distance_comp'] = $parameters['distance_comp'];
+        }
+        if (isset($parameters['ids'])) {
+            $payload['where_ids'] = $parameters['ids'];
+        }
+        
         $headers = [
             "Accept: application/json",
             "Content-Type:application/json"
@@ -420,8 +428,10 @@ class GeohubServiceProvider extends ServiceProvider
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
-        if ($code >= 400)
+
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
         return $code;
     }
