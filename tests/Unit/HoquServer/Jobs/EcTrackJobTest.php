@@ -54,6 +54,4 @@ class EcTrackJobTest extends TestCase
         $distance = DB::select(DB::raw($distanceQuery));
         $this->assertIsNumeric($distance[0]->lenght);
     }
-
-
 }
