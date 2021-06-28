@@ -26,4 +26,34 @@ ENDOFQUERY;
             return $res[0]->zeta;
         }
     }
+
+    /**
+     * @param string $geojson_geometry
+     * @return string
+     */
+    public static function add3D(string $geojson_geometry): string
+    {
+        $geomArray = json_decode($geojson_geometry, true);
+        if (!isset($geomArray['type'])) {
+            throw new \Exception('No type found');
+        }
+        switch ($geomArray['type']) {
+            case 'Point':
+                $geomArray['coordinates'][2] = self::getEle($geomArray['coordinates'][0], $geomArray['coordinates'][1]);
+                break;
+            case 'LineString':
+                $new_coord = [];
+                foreach ($geomArray['coordinates'] as $point) {
+                    $point[2] = self::getEle($point[0], $point[1]);
+                    $new_coord[] = $point;
+                }
+                $geomArray['coordinates'] = $new_coord;
+                break;
+            default:
+                throw new \Exception('Type ' . $geomArray['type'] . ' not supprted');
+
+        }
+        return json_encode($geomArray);
+
+    }
 }
