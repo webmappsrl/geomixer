@@ -3,15 +3,27 @@
 namespace Tests\Unit\HoquServer\Jobs;
 
 use App\Console\Commands\HoquServer;
+use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquJobs\EcTrackJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Mockery;
 use Tests\TestCase;
 
 class EcTrackJobTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function loadDem()
+    {
+        static $first = true;
+        if ($first) {
+            Artisan::call('geomixer:import_dem', ['name' => 'pisa_dem_100mx100m.sql']);
+            $first = false;
+        }
+    }
 
     public function testJobExecuted()
     {
@@ -49,5 +61,53 @@ class EcTrackJobTest extends TestCase
         $distanceQuery = "SELECT ST_Length(ST_GeomFromText('LINESTRING(11 43, 12 43, 12 44, 11 44)')) as lenght";
         $distance = DB::select(DB::raw($distanceQuery));
         $this->assertIsNumeric($distance[0]->lenght);
+    }
+
+    /**
+     * 2. GEOMIXER: il job enrich_track calcola ele_max
+     * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track
+     */
+    public function testEleMax()
+    {
+        $this->loadDem();
+        $trackId = 1;
+        $params = ['id' => $trackId];
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class);
+        $ecTrack = [
+            'type' => 'Feature',
+            'properties' => [
+                'id' => $trackId,
+            ],
+            'geometry' => [
+                'type' => 'LineString',
+                'coordinates' => [
+                    [
+                        10.495,
+                        43.758
+                    ],
+                    [
+                        10.447,
+                        43.740
+                    ]
+                ]
+            ]
+        ];
+        $this->mock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+            $mock->shouldReceive('getEcTrack')
+                ->with($trackId)
+                ->once()
+                ->andReturn($ecTrack);
+
+            $mock->shouldReceive('updateEcTrack')
+                ->with($trackId, Mockery::on(function ($payload) {
+                    return isset($payload['ele_max'])
+                        && $payload['ele_max'] == 776;
+                }))
+                ->once()
+                ->andReturn(200);
+        });
+
+        $ecTrackService->enrichJob($params);
+
     }
 }

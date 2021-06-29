@@ -56,4 +56,20 @@ ENDOFQUERY;
         return json_encode($geomArray);
 
     }
+
+    /**
+     * @param string $geom geojson geometry string
+     * @return array hash with computed ele info from 3d geometry (ele_max, ele_min, ascent, descent, time_forward, time_backward)
+     */
+    public static function getEleInfo(string $geom): array
+    {
+        $json = json_decode($geom, true);
+        $ele_max = -10000;
+        foreach ($json['coordinates'] as $point) {
+            if ($point[2] > $ele_max) {
+                $ele_max = $point[2];
+            }
+        }
+        return ['ele_max' => $ele_max];
+    }
 }

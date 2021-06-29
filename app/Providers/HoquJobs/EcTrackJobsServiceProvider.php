@@ -37,6 +37,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider
      * Job to update the ecTrack with distance comp
      * @param array $params job parameters
      *
+     * @throws \Exception
      */
     public function enrichJob(array $params): void
     {
@@ -51,17 +52,25 @@ class EcTrackJobsServiceProvider extends ServiceProvider
 
         /**
          * Retrieve geometry from OSM by osmid.
+         * @TODO: implementare
          */
-        $importMethod = $ecTrack['import_method'];
-        if ('osm' === $importMethod && !is_null($ecTrack['source_id'])) {
-            $ecTrack['geometry'] = $this->retrieveOsmGeometry($ecTrack['source_id']);
-            $payload['geometry'] = $ecTrack['geometry'];
-        }
+//        $importMethod = $ecTrack['import_method'];
+//        if ('osm' === $importMethod && !is_null($ecTrack['source_id'])) {
+//            $ecTrack['geometry'] = $this->retrieveOsmGeometry($ecTrack['source_id']);
+//            $payload['geometry'] = $ecTrack['geometry'];
+//        }
 
         /**
          * Retrieve 3D profile by geometry e DEM file.
          */
-        $payload['geometry'] = $this->get3DDemProfile($ecTrack['geometry']);
+        $geom3D_string = Dem::add3D(json_encode($ecTrack['geometry']));
+        // $payload['geometry'] = $this->get3DDemProfile($ecTrack['geometry']);
+
+        /**
+         * COmpute EleMAX
+         */
+        $info_ele = Dem::getEleInfo($geom3D_string);
+        $payload['ele_max'] = $info_ele['ele_max'];
 
         /**
          * Retrieve computed distance by geometry.
@@ -104,6 +113,11 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         return $geometry;
     }
 
+    /**
+     * TODO: removeme
+     * @param $bidimensional_geometry
+     * @return array
+     */
     public function get3DDemProfile($bidimensional_geometry)
     {
         $tridimensional_geometry = $bidimensional_geometry;
