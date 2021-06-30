@@ -71,6 +71,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider
          */
         $info_ele = Dem::getEleInfo($geom3D_string);
         $payload['ele_max'] = $info_ele['ele_max'];
+        $payload['ele_min'] = $info_ele['ele_min'];
 
         /**
          * Retrieve computed distance by geometry.

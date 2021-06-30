@@ -65,11 +65,18 @@ ENDOFQUERY;
     {
         $json = json_decode($geom, true);
         $ele_max = -10000;
+        $ele_min = 10000;
         foreach ($json['coordinates'] as $point) {
             if ($point[2] > $ele_max) {
                 $ele_max = $point[2];
             }
+            if ($point[2] < $ele_min) {
+                $ele_min = $point[2];
+            }
         }
-        return ['ele_max' => $ele_max];
+        return [
+            'ele_max' => $ele_max,
+            'ele_min' => $ele_min
+        ];
     }
 }

@@ -40,7 +40,33 @@ class DemGetEleInfoTest extends TestCase
         $this->assertIsArray($info);
         $this->assertTrue(isset($info['ele_max']));
         $this->assertEquals(2, $info['ele_max']);
-        
+
+    }
+
+    public function testEleMinLineString()
+    {
+        $this->loadDem();
+        $geom = '{
+            "type": "LineString",
+            "coordinates": [
+            [
+                10.495,
+                43.758,
+                1
+            ],
+            [
+                10.447,
+                43.740,
+                2
+            ]
+        ]
+      }';
+
+        $info = Dem::getEleInfo($geom);
+        $this->assertIsArray($info);
+        $this->assertTrue(isset($info['ele_min']));
+        $this->assertEquals(1, $info['ele_min']);
+
     }
 
 }
