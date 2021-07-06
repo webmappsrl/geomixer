@@ -18,3 +18,4 @@ yarn-error.log
 .history
 *.code-workspace
 geodata/
+tests/Fixtures/EcMedia/test_resize_*
