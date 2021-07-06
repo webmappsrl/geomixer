@@ -18,6 +18,7 @@ define("THUMBNAIL_SIZES", [
     ['width' => 118, 'height' => 138],
     ['width' => 108, 'height' => 139],
     ['width' => 118, 'height' => 117],
+    ['width' => 335, 'height' => 250],
 ]);
 
 class EcMediaJobsServiceProvider extends ServiceProvider
@@ -245,7 +246,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         if (!isset($params['thumbnails']) || empty($params['thumbnails']))
             throw new MissingMandatoryParametersException('The parameter "thumbnails" is missing but required. The operation can not be completed');
         $thumbUrls = json_decode($params['thumbnails']);
-        $awsPath = explode('https://ecmedia.s3.eu-central-1.amazonaws.com', $params['url']);
+        $awsPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $params['url']);
         $awsPathImage = $awsPath[1];
 
         try {
@@ -256,7 +257,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         }
 
         foreach ($thumbUrls as $thumb) {
-            $thumbPath = explode('https://ecmedia.s3.eu-central-1.amazonaws.com', $thumb);
+            $thumbPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $thumb);
             $thumbPath = $thumbPath[1];
             try {
                 Storage::disk('s3')->delete($thumbPath);

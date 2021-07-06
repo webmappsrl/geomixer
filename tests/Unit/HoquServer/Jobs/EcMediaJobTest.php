@@ -92,9 +92,10 @@ class EcMediaJobTest extends TestCase
             ['width' => 118, 'height' => 138],
             ['width' => 108, 'height' => 139],
             ['width' => 118, 'height' => 117],
+            ['width' => 335, 'height' => 250],
         ];
 
-        $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
+        $image = base_path() . '/tests/Fixtures/EcMedia/test_resize.jpg';
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         foreach ($thumbnailSizes as $size) {
             $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $size['width'], $size['height']);
@@ -127,26 +128,36 @@ class EcMediaJobTest extends TestCase
 
     public function testDeleteAwsImagesWhenDeleteMedia()
     {
-        Storage::disk('s3')->put('EcMedia/', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test.jpg'));
-        Storage::disk('s3')->put('EcMedia/Resize/108x137/', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_108x137.jpg'));
-        Storage::disk('s3')->put('EcMedia/Resize/108x139/', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_108x139.jpg'));
-        Storage::disk('s3')->put('EcMedia/Resize/118x117/', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_118x117.jpg'));
-        Storage::disk('s3')->put('EcMedia/Resize/118x138/', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_118x138.jpg'));
-        Storage::disk('s3')->put('EcMedia/Resize/225x100/', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_225x100.jpg'));
+        $thumbnailSizes = [
+            ['width' => 108, 'height' => 148],
+            ['width' => 108, 'height' => 137],
+            ['width' => 225, 'height' => 100],
+            ['width' => 118, 'height' => 138],
+            ['width' => 108, 'height' => 139],
+            ['width' => 118, 'height' => 117],
+            ['width' => 335, 'height' => 250],
+        ];
+
+        Storage::disk('s3')->put('/EcMedia/test.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test.jpg'));
+        foreach ($thumbnailSizes as $size) {
+            Storage::disk('s3')->put('/EcMedia/Resize/' . $size['width'] . 'x' . $size['height'] . '/test_' . $size['width'] . 'x' . $size['height'] . '.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_' . $size['width'] . 'x' . $size['height'] . '.jpg'));
+        }
+
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
-        $url = 'https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/26.jpg';
-        $thumbnails = '{"108x148":"https:\/\/ecmedia.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x148\/test_108x148.jpg",
-        "108x137":"https:\/\/ecmedia.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x137\/test_108x137.jpg",
-        "225x100":"https:\/\/ecmedia.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/225x100\/test_225x100.jpg",
-        "118x138":"https:\/\/ecmedia.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x138\/test_118x138.jpg",
-        "108x139":"https:\/\/ecmedia.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x139\/test_108x139.jpg",
-        "118x117":"https:\/\/ecmedia.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x117\/test_118x117.jpg"}';
+        $url = 'https://wmptest.s3.eu-central-1.amazonaws.com/EcMedia/26.jpg';
+        $thumbnails = '{"108x148":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x148\/test_108x148.jpg",
+        "108x137":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x137\/test_108x137.jpg",
+        "225x100":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/225x100\/test_225x100.jpg",
+        "118x138":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x138\/test_118x138.jpg",
+        "108x139":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x139\/test_108x139.jpg",
+        "118x117":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x117\/test_118x117.jpg",
+        "335x250":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/335x250\/test_335x250.jpg"}';
         $params = ['url' => $url,
             'thumbnails' => $thumbnails];
         $ecMediaJobsServiceProvider->deleteImagesJob($params);
 
-        $headers = get_headers(Storage::cloud()->url('EcMedia/test.jpg'));
+        $headers = get_headers(Storage::cloud()->url('/EcMedia/test.jpg'));
         $this->assertEquals($headers[0], 'HTTP/1.1 404 Not Found');
-        
+
     }
 }
