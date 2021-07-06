@@ -19,6 +19,7 @@ define("THUMBNAIL_SIZES", [
     ['width' => 108, 'height' => 139],
     ['width' => 118, 'height' => 117],
     ['width' => 335, 'height' => 250],
+    ['width' => 400, 'height' => 200],
 ]);
 
 class EcMediaJobsServiceProvider extends ServiceProvider

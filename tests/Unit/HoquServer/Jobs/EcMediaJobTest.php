@@ -93,6 +93,7 @@ class EcMediaJobTest extends TestCase
             ['width' => 108, 'height' => 139],
             ['width' => 118, 'height' => 117],
             ['width' => 335, 'height' => 250],
+            ['width' => 400, 'height' => 200],
         ];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test_resize.jpg';
@@ -136,6 +137,7 @@ class EcMediaJobTest extends TestCase
             ['width' => 108, 'height' => 139],
             ['width' => 118, 'height' => 117],
             ['width' => 335, 'height' => 250],
+            ['width' => 400, 'height' => 200],
         ];
 
         Storage::disk('s3')->put('/EcMedia/test.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test.jpg'));
@@ -144,14 +146,15 @@ class EcMediaJobTest extends TestCase
         }
 
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
-        $url = 'https://wmptest.s3.eu-central-1.amazonaws.com/EcMedia/26.jpg';
+        $url = 'https://wmptest.s3.eu-central-1.amazonaws.com/EcMedia/test.jpg';
         $thumbnails = '{"108x148":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x148\/test_108x148.jpg",
         "108x137":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x137\/test_108x137.jpg",
         "225x100":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/225x100\/test_225x100.jpg",
         "118x138":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x138\/test_118x138.jpg",
         "108x139":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x139\/test_108x139.jpg",
         "118x117":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x117\/test_118x117.jpg",
-        "335x250":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/335x250\/test_335x250.jpg"}';
+        "335x250":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/335x250\/test_335x250.jpg",
+        "400x200":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/400x200\/test_400x200.jpg"}';
         $params = ['url' => $url,
             'thumbnails' => $thumbnails];
         $ecMediaJobsServiceProvider->deleteImagesJob($params);
