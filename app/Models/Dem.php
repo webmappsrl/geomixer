@@ -10,9 +10,34 @@ class Dem extends Model
 {
     use HasFactory;
 
+    /**
+     * Postgis version (used to switch query string from 3.1 to 3.2)
+     * @return string
+     */
+    public static function getPostGisVersion(): string
+    {
+        $query = 'SELECT PostGIS_Version();';
+        $res = DB::select(DB::raw($query));
+        $info = explode(' ', $res[0]->postgis_version);
+        return $info[0];
+    }
+
     public static function getEle($lon, $lat)
     {
-        $query = <<<ENDOFQUERY
+        switch (self::getPostGisVersion()) {
+            case '3.2':
+                $query = <<<ENDOFQUERY
+SELECT
+ST_Value(dem.rast,ST_FlipCoordinates(ST_Transform(ST_GeomFromText('POINT($lon $lat)', 4326),3035))) AS zeta
+FROM
+   dem
+WHERE
+ST_Intersects(dem.rast, ST_FlipCoordinates(ST_Transform(ST_GeomFromText('POINT($lon $lat)', 4326),3035)))
+   ;
+ENDOFQUERY;
+                break;
+            default :
+                $query = <<<ENDOFQUERY
 SELECT
 ST_Value(dem.rast,ST_Transform(ST_GeomFromText('POINT($lon $lat)', 4326),3035)) AS zeta
 FROM
@@ -21,6 +46,8 @@ WHERE
 ST_Intersects(dem.rast, ST_Transform(ST_GeomFromText('POINT($lon $lat)', 4326),3035))
    ;
 ENDOFQUERY;
+                break;
+        }
         $res = DB::select(DB::raw($query));
         if (is_array($res) && count($res) > 0) {
             return $res[0]->zeta;
