@@ -94,16 +94,16 @@ class EcMediaJobTest extends TestCase
             ['width' => 118, 'height' => 117],
             ['width' => 335, 'height' => 250],
             ['width' => 1440, 'height' => 500],
-            ['width' => 1920, 'height' => ''],
+            ['width' => 1920, 'height' => 0],
         ];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test_resize.jpg';
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         foreach ($thumbnailSizes as $size) {
             $resizedFileName = base_path() . '/tests/Fixtures/EcMedia/' . $ecMediaJobsServiceProvider->resizedFileName($image, $size['width'], $size['height']);
-            if ($size['width'] == '') {
+            if ($size['width'] == 0) {
                 $ecMediaJobsServiceProvider->imgResizeSingleDimension($image, $size['height'], 'height');
-            } elseif ($size['height'] == '') {
+            } elseif ($size['height'] == 0) {
                 $ecMediaJobsServiceProvider->imgResizeSingleDimension($image, $size['width'], 'width');
             } else
 
@@ -145,7 +145,7 @@ class EcMediaJobTest extends TestCase
             ['width' => 118, 'height' => 117],
             ['width' => 335, 'height' => 250],
             ['width' => 1440, 'height' => 500],
-            ['width' => 1920, 'height' => ''],
+            ['width' => 1920, 'height' => 0],
         ];
 
         Storage::disk('s3')->put('/EcMedia/test.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test.jpg'));

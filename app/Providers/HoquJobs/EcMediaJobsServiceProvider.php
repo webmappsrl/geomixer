@@ -21,7 +21,7 @@ define("THUMBNAIL_SIZES", [
     ['width' => 335, 'height' => 250],
     ['width' => 400, 'height' => 200],
     ['width' => 1440, 'height' => 500],
-    ['width' => 1920, 'height' => ''],
+    ['width' => 1920, 'height' => 0],
 ]);
 
 class EcMediaJobsServiceProvider extends ServiceProvider
@@ -78,9 +78,9 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         foreach (THUMBNAIL_SIZES as $size) {
             try {
-                if ($size['width'] == '') {
+                if ($size['width'] == 0) {
                     $imageResize = $this->imgResizeSingleDimension($imagePath, $size['height'], 'height');
-                } elseif ($size['height'] == '') {
+                } elseif ($size['height'] == 0) {
                     $imageResize = $this->imgResizeSingleDimension($imagePath, $size['width'], 'width');
                 }
                 $imageResize = $this->imgResize($imagePath, $size['width'], $size['height']);
@@ -180,20 +180,25 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      * Upload an already resized image to the s3 bucket
      *
      * @param string $imagePath the resized image
-     * @param type $width the image width
-     * @param type $height the image height
+     * @param int $width the image width
+     * @param int $height the image height
      *
      * @return string the uploaded image url
      *
      * @throws Exception
      */
-    public function uploadEcMediaImageResize(string $imagePath, $width, $height): string
+    public function uploadEcMediaImageResize(string $imagePath, int $width, int $height): string
     {
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
         $filename = basename($imagePath);
-        $cloudPath = 'EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename;
+        if ($width == 0)
+            $cloudPath = 'EcMedia/Resize/x' . $height . DIRECTORY_SEPARATOR . $filename;
+        elseif ($height == 0)
+            $cloudPath = 'EcMedia/Resize/' . $width . 'x' . DIRECTORY_SEPARATOR . $filename;
+        else
+            $cloudPath = 'EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename;
         Storage::disk('s3')->put($cloudPath, file_get_contents($imagePath));
 
         return Storage::cloud()->url($cloudPath);
@@ -258,7 +263,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
             $img = Image::make($imagePath);
             $pathInfo = pathinfo($imagePath);
-            $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $dim, $height = '');
+            $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $dim, $height = 0);
             $img->fit($dim, null, function ($const) {
                 $const->aspectRatio();
             })->save($newPathImage);
@@ -272,16 +277,20 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      * Helper to get the filename of a resized image
      *
      * @param string $imagePath absolute path of file
-     * @param type $width the image width
-     * @param type $height the image height
+     * @param int $width the image width
+     * @param int $height the image height
      *
      * @return string
      */
-    public function resizedFileName(string $imagePath, $width, $height): string
+    public function resizedFileName(string $imagePath, int $width, int $height): string
     {
         $pathInfo = pathinfo($imagePath);
-
-        return $pathInfo['filename'] . '_' . $width . 'x' . $height . '.' . $pathInfo['extension'];
+        if ($width == 0)
+            return $pathInfo['filename'] . '_x' . $height . '.' . $pathInfo['extension'];
+        elseif ($height == 0)
+            return $pathInfo['filename'] . '_' . $width . 'x.' . $pathInfo['extension'];
+        else
+            return $pathInfo['filename'] . '_' . $width . 'x' . $height . '.' . $pathInfo['extension'];
     }
 
     /**
