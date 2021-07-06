@@ -64,7 +64,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider
          * Retrieve 3D profile by geometry e DEM file.
          */
         $geom3D_string = Dem::add3D(json_encode($ecTrack['geometry']));
-        // $payload['geometry'] = $this->get3DDemProfile($ecTrack['geometry']);
+        $payload['geometry'] = json_decode($geom3D_string, true);
 
         /**
          * COmpute EleMAX

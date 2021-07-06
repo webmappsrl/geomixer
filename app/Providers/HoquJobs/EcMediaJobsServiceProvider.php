@@ -18,17 +18,19 @@ define("THUMBNAIL_SIZES", [
     ['width' => 118, 'height' => 138],
     ['width' => 108, 'height' => 139],
     ['width' => 118, 'height' => 117],
+    ['width' => 335, 'height' => 250],
+    ['width' => 400, 'height' => 200],
+    ['width' => 1440, 'height' => 500],
+    ['width' => 1920, 'height' => 0],
 ]);
 
-class EcMediaJobsServiceProvider extends ServiceProvider
-{
+class EcMediaJobsServiceProvider extends ServiceProvider {
     /**
      * Register services.
      *
      * @return void
      */
-    public function register()
-    {
+    public function register() {
         $this->app->bind(EcMediaJobsServiceProvider::class, function ($app) {
             return new EcMediaJobsServiceProvider($app);
         });
@@ -39,8 +41,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot() {
         //
     }
 
@@ -49,8 +50,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      *
      * @throws Exception
      */
-    public function enrichJob(array $params): void
-    {
+    public function enrichJob(array $params): void {
         $thumbnailList = [];
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
@@ -74,6 +74,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         foreach (THUMBNAIL_SIZES as $size) {
             try {
+                if ($size['width'] == 0) {
+                    $imageResize = $this->imgResizeSingleDimension($imagePath, $size['height'], 'height');
+                } elseif ($size['height'] == 0) {
+                    $imageResize = $this->imgResizeSingleDimension($imagePath, $size['width'], 'width');
+                }
                 $imageResize = $this->imgResize($imagePath, $size['width'], $size['height']);
                 if (file_exists($imageResize)) {
                     $thumbnailUrl = $this->uploadEcMediaImageResize($imageResize, $size['width'], $size['height']);
@@ -98,8 +103,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      *
      * @throws Exception
      */
-    public function getImageExif(string $imagePath): array
-    {
+    public function getImageExif(string $imagePath): array {
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
@@ -154,8 +158,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      *
      * @throws Exception
      */
-    public function uploadEcMediaImage(string $imagePath): string
-    {
+    public function uploadEcMediaImage(string $imagePath): string {
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
@@ -171,20 +174,24 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      * Upload an already resized image to the s3 bucket
      *
      * @param string $imagePath the resized image
-     * @param int $width the image width
-     * @param int $height the image height
+     * @param int    $width     the image width
+     * @param int    $height    the image height
      *
      * @return string the uploaded image url
      *
      * @throws Exception
      */
-    public function uploadEcMediaImageResize(string $imagePath, int $width, int $height): string
-    {
+    public function uploadEcMediaImageResize(string $imagePath, int $width, int $height): string {
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
         $filename = basename($imagePath);
-        $cloudPath = 'EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename;
+        if ($width == 0)
+            $cloudPath = 'EcMedia/Resize/x' . $height . DIRECTORY_SEPARATOR . $filename;
+        elseif ($height == 0)
+            $cloudPath = 'EcMedia/Resize/' . $width . 'x' . DIRECTORY_SEPARATOR . $filename;
+        else
+            $cloudPath = 'EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename;
         Storage::disk('s3')->put($cloudPath, file_get_contents($imagePath));
 
         return Storage::cloud()->url($cloudPath);
@@ -194,15 +201,14 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      * Resize the given image to the specified width and height
      *
      * @param string $imagePath the path of the image
-     * @param int $width the new width
-     * @param int $height the new height
+     * @param int    $width     the new width
+     * @param int    $height    the new height
      *
      * @return string the new path image
      *
      * @throws ImageException
      */
-    public function imgResize(string $imagePath, int $width, int $height): string
-    {
+    public function imgResize(string $imagePath, int $width, int $height): string {
         list($imgWidth, $imgHeight) = getimagesize($imagePath);
         if ($imgWidth < $width || $imgHeight < $height)
             throw new ImageException("The image is too small to resize - required size: $width, $height - actual size: $imgWidth, $imgHeight");
@@ -218,34 +224,76 @@ class EcMediaJobsServiceProvider extends ServiceProvider
     }
 
     /**
+     * Resize the given image to the specified width and height
+     *
+     * @param string $imagePath the path of the image
+     * @param int    $dim       the new width or height
+     * @param string $type      the width or height
+     *
+     * @return string the new path image
+     *
+     * @throws ImageException
+     */
+    public function imgResizeSingleDimension(string $imagePath, int $dim, string $type): string {
+        list($imgWidth, $imgHeight) = getimagesize($imagePath);
+        if ($type == 'height') {
+            if ($imgHeight < $dim)
+                throw new ImageException("The image is too small to resize ");
+
+            $img = Image::make($imagePath);
+            $pathInfo = pathinfo($imagePath);
+            $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width = '', $dim);
+            $img->fit(null, $dim, function ($const) {
+                $const->aspectRatio();
+            })->save($newPathImage);
+
+            return $newPathImage;
+        } elseif ($type == 'width') {
+            if ($imgWidth < $dim)
+                throw new ImageException("The image is too small to resize ");
+
+            $img = Image::make($imagePath);
+            $pathInfo = pathinfo($imagePath);
+            $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $dim, $height = 0);
+            $img->fit($dim, null, function ($const) {
+                $const->aspectRatio();
+            })->save($newPathImage);
+
+            return $newPathImage;
+        }
+    }
+
+    /**
      * Helper to get the filename of a resized image
      *
      * @param string $imagePath absolute path of file
-     * @param int $width the image width
-     * @param int $height the image height
+     * @param int    $width     the image width
+     * @param int    $height    the image height
      *
      * @return string
      */
-    public function resizedFileName(string $imagePath, int $width, int $height): string
-    {
+    public function resizedFileName(string $imagePath, int $width, int $height): string {
         $pathInfo = pathinfo($imagePath);
-
-        return $pathInfo['filename'] . '_' . $width . 'x' . $height . '.' . $pathInfo['extension'];
+        if ($width == 0)
+            return $pathInfo['filename'] . '_x' . $height . '.' . $pathInfo['extension'];
+        elseif ($height == 0)
+            return $pathInfo['filename'] . '_' . $width . 'x.' . $pathInfo['extension'];
+        else
+            return $pathInfo['filename'] . '_' . $width . 'x' . $height . '.' . $pathInfo['extension'];
     }
 
     /**
      * @param array $params the id of the media
      *
      */
-    public function deleteImagesJob(array $params)
-    {
+    public function deleteImagesJob(array $params) {
         $geohubServiceProvider = app(GeohubServiceProvider::class);
         if (!isset($params['url']) || empty($params['url']))
             throw new MissingMandatoryParametersException('The parameter "url" is missing but required. The operation can not be completed');
         if (!isset($params['thumbnails']) || empty($params['thumbnails']))
             throw new MissingMandatoryParametersException('The parameter "thumbnails" is missing but required. The operation can not be completed');
         $thumbUrls = json_decode($params['thumbnails']);
-        $awsPath = explode('https://ecmedia.s3.eu-central-1.amazonaws.com', $params['url']);
+        $awsPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $params['url']);
         $awsPathImage = $awsPath[1];
 
         try {
@@ -256,16 +304,14 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         }
 
         foreach ($thumbUrls as $thumb) {
-            $thumbPath = explode('https://ecmedia.s3.eu-central-1.amazonaws.com', $thumb);
+            $thumbPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $thumb);
             $thumbPath = $thumbPath[1];
             try {
                 Storage::disk('s3')->delete($thumbPath);
                 Log::info('Resized ' . $thumbPath . 'Image deleted');
-
             } catch (Exception $e) {
                 throw new Exception("Resize " . $thumbPath . "cannot be deleted");
             }
-
         }
     }
 }
