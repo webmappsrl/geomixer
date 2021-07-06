@@ -49,7 +49,7 @@ class ImportDem extends Command
             // DOWNLOAD FROM https://tiles.webmapp.it/geodata/dem/$name
             if (!file_exists(base_path('geodata/dem'))) {
                 Log::notice('Creating dir geodata/dem');
-                system("mkdir -p " . base_path('geodata/dem'));
+                exec("mkdir -p " . base_path('geodata/dem'));
             }
             Log::notice("Downloading: from $url to $path");
             file_put_contents($path, file_get_contents($url));
@@ -76,8 +76,8 @@ class ImportDem extends Command
         if (!empty($username)) {
             $username = "-U $username";
         }
-        $cmd = "$cmd psql -h $host -d $dbname $username < $path";
+        $cmd = "$cmd psql --quiet -h $host -d $dbname $username < $path 2> /dev/null";
         Log::info("CMD: $cmd");
-        $out = system($cmd);
+        $out = exec($cmd);
     }
 }
