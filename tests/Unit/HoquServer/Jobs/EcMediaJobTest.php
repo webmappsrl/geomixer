@@ -93,7 +93,7 @@ class EcMediaJobTest extends TestCase
             ['width' => 108, 'height' => 139],
             ['width' => 118, 'height' => 117],
             ['width' => 335, 'height' => 250],
-            ['width' => 400, 'height' => 200],
+            ['width' => 1440, 'height' => 500],
         ];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test_resize.jpg';
@@ -137,7 +137,7 @@ class EcMediaJobTest extends TestCase
             ['width' => 108, 'height' => 139],
             ['width' => 118, 'height' => 117],
             ['width' => 335, 'height' => 250],
-            ['width' => 400, 'height' => 200],
+            ['width' => 1440, 'height' => 500],
         ];
 
         Storage::disk('s3')->put('/EcMedia/test.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test.jpg'));
@@ -154,7 +154,8 @@ class EcMediaJobTest extends TestCase
         "108x139":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x139\/test_108x139.jpg",
         "118x117":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x117\/test_118x117.jpg",
         "335x250":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/335x250\/test_335x250.jpg",
-        "400x200":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/400x200\/test_400x200.jpg"}';
+        "400x200":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/400x200\/test_400x200.jpg",
+        "1440x500":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/1440x500\/test_1440x500.jpg"}';
         $params = ['url' => $url,
             'thumbnails' => $thumbnails];
         $ecMediaJobsServiceProvider->deleteImagesJob($params);

@@ -17,5 +17,4 @@ yarn-error.log
 .editorconfig
 .history
 *.code-workspace
-tests/Fixtures/EcMedia/test_*
 geodata/
