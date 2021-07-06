@@ -19,10 +19,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Tests\TestCase;
 
-class EcMediaJobTest extends TestCase
-{
-    public function testJobExecuted()
-    {
+class EcMediaJobTest extends TestCase {
+    public function testJobExecuted() {
         $jobParameters = [
             'id' => 1,
         ];
@@ -52,8 +50,7 @@ class EcMediaJobTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testGetExifDataJpg()
-    {
+    public function testGetExifDataJpg() {
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
 
         $exif_data = $ecMediaJobsServiceProvider->getImageExif(base_path() . '/tests/Fixtures/EcMedia/test.jpg');
@@ -67,8 +64,7 @@ class EcMediaJobTest extends TestCase
         $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
 
-    public function _testImageNoExists()
-    {
+    public function _testImageNoExists() {
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         $image = base_path() . '/tests/Fixtures/EcMedia/test2.jpg';
         try {
@@ -77,14 +73,12 @@ class EcMediaJobTest extends TestCase
         }
     }
 
-    public function testImageExists()
-    {
+    public function testImageExists() {
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
         $this->assertFileExists($image);
     }
 
-    public function testImageResize()
-    {
+    public function testImageResize() {
         $thumbnailSizes = [
             ['width' => 108, 'height' => 148],
             ['width' => 108, 'height' => 137],
@@ -115,8 +109,7 @@ class EcMediaJobTest extends TestCase
         }
     }
 
-    public function testImageResizeTooSmall()
-    {
+    public function testImageResizeTooSmall() {
         $thumbnailSize = ['width' => 10000, 'height' => 10000];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
@@ -134,8 +127,8 @@ class EcMediaJobTest extends TestCase
         $this->fail("The image should not be resized correctly but something went right");
     }
 
-    public function testDeleteAwsImagesWhenDeleteMedia()
-    {
+    // TODO: make the test NOT use AWS and use local filesystem
+    public function _testDeleteAwsImagesWhenDeleteMedia() {
         $thumbnailSizes = [
             ['width' => 108, 'height' => 148],
             ['width' => 108, 'height' => 137],
@@ -171,6 +164,5 @@ class EcMediaJobTest extends TestCase
 
         $headers = get_headers(Storage::cloud()->url('/EcMedia/test.jpg'));
         $this->assertEquals($headers[0], 'HTTP/1.1 404 Not Found');
-
     }
 }
