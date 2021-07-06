@@ -286,8 +286,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
      * @param array $params the id of the media
      *
      */
-    // TODO: make the test NOT use AWS and use a local filesystem
-    public function _deleteImagesJob(array $params) {
+    public function deleteImagesJob(array $params) {
         $geohubServiceProvider = app(GeohubServiceProvider::class);
         if (!isset($params['url']) || empty($params['url']))
             throw new MissingMandatoryParametersException('The parameter "url" is missing but required. The operation can not be completed');
