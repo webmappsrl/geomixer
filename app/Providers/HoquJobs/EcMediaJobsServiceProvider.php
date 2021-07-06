@@ -21,6 +21,7 @@ define("THUMBNAIL_SIZES", [
     ['width' => 335, 'height' => 250],
     ['width' => 400, 'height' => 200],
     ['width' => 1440, 'height' => 500],
+    ['width' => 1920, 'height' => ''],
 ]);
 
 class EcMediaJobsServiceProvider extends ServiceProvider
@@ -77,6 +78,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         foreach (THUMBNAIL_SIZES as $size) {
             try {
+                if ($size['width'] == '') {
+                    $imageResize = $this->imgResizeSingleDimension($imagePath, $size['height'], 'height');
+                } elseif ($size['height'] == '') {
+                    $imageResize = $this->imgResizeSingleDimension($imagePath, $size['width'], 'width');
+                }
                 $imageResize = $this->imgResize($imagePath, $size['width'], $size['height']);
                 if (file_exists($imageResize)) {
                     $thumbnailUrl = $this->uploadEcMediaImageResize($imageResize, $size['width'], $size['height']);
@@ -174,14 +180,14 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      * Upload an already resized image to the s3 bucket
      *
      * @param string $imagePath the resized image
-     * @param int $width the image width
-     * @param int $height the image height
+     * @param type $width the image width
+     * @param type $height the image height
      *
      * @return string the uploaded image url
      *
      * @throws Exception
      */
-    public function uploadEcMediaImageResize(string $imagePath, int $width, int $height): string
+    public function uploadEcMediaImageResize(string $imagePath, $width, $height): string
     {
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
@@ -221,15 +227,57 @@ class EcMediaJobsServiceProvider extends ServiceProvider
     }
 
     /**
+     * Resize the given image to the specified width and height
+     *
+     * @param string $imagePath the path of the image
+     * @param int $dim the new width or height
+     * @param string $type the width or height
+     *
+     * @return string the new path image
+     *
+     * @throws ImageException
+     */
+    public function imgResizeSingleDimension(string $imagePath, int $dim, string $type): string
+    {
+        list($imgWidth, $imgHeight) = getimagesize($imagePath);
+        if ($type == 'height') {
+            if ($imgHeight < $dim)
+                throw new ImageException("The image is too small to resize ");
+
+            $img = Image::make($imagePath);
+            $pathInfo = pathinfo($imagePath);
+            $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width = '', $dim);
+            $img->fit(null, $dim, function ($const) {
+                $const->aspectRatio();
+            })->save($newPathImage);
+
+            return $newPathImage;
+        } elseif ($type == 'width') {
+            if ($imgWidth < $dim)
+                throw new ImageException("The image is too small to resize ");
+
+            $img = Image::make($imagePath);
+            $pathInfo = pathinfo($imagePath);
+            $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $dim, $height = '');
+            $img->fit($dim, null, function ($const) {
+                $const->aspectRatio();
+            })->save($newPathImage);
+
+            return $newPathImage;
+        }
+
+    }
+
+    /**
      * Helper to get the filename of a resized image
      *
      * @param string $imagePath absolute path of file
-     * @param int $width the image width
-     * @param int $height the image height
+     * @param type $width the image width
+     * @param type $height the image height
      *
      * @return string
      */
-    public function resizedFileName(string $imagePath, int $width, int $height): string
+    public function resizedFileName(string $imagePath, $width, $height): string
     {
         $pathInfo = pathinfo($imagePath);
 
