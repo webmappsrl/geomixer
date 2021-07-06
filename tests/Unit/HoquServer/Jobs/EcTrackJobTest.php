@@ -158,4 +158,60 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
 
     }
+
+    /**
+     * 2. GEOMIXER: il job enrich_track calcola il 3D di una lineString
+     * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track con geometria 3D calcolata
+     */
+    public function testAdd3D()
+    {
+        $this->loadDem();
+        $trackId = 1;
+        $params = ['id' => $trackId];
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class);
+        $ecTrack = [
+            'type' => 'Feature',
+            'properties' => [
+                'id' => $trackId,
+            ],
+            'geometry' => [
+                'type' => 'LineString',
+                'coordinates' => [
+                    [
+                        10.495,
+                        43.758
+                    ],
+                    [
+                        10.447,
+                        43.740
+                    ]
+                ]
+            ]
+        ];
+        $this->mock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+            $mock->shouldReceive('getEcTrack')
+                ->with($trackId)
+                ->once()
+                ->andReturn($ecTrack);
+
+            $mock->shouldReceive('updateEcTrack')
+                ->with($trackId, Mockery::on(function ($payload) {
+                    return isset($payload['geometry'])
+                        && $payload['geometry']['type'] == 'LineString'
+                        && $payload['geometry']['coordinates'][0][0] == 10.495
+                        && $payload['geometry']['coordinates'][0][1] == 43.758
+                        && $payload['geometry']['coordinates'][0][2] == 776
+                        && $payload['geometry']['coordinates'][1][0] == 10.447
+                        && $payload['geometry']['coordinates'][1][1] == 43.740
+                        && $payload['geometry']['coordinates'][1][2] == -1;
+                }))
+                ->once()
+                ->andReturn(200);
+        });
+
+        $ecTrackService->enrichJob($params);
+
+    }
+
+
 }
