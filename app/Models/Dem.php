@@ -126,6 +126,12 @@ ENDOFQUERY;
             $descent += $descent_value;
         }
 
+        /**
+         * 3. Geomixer calcola time_forward (distance+ascent/100)/3 risultato in ore, distance in Km, ascent in m
+         * @todo: calcolare dalla distance.
+         */
+
+
         return [
             'ele_max' => $ele_max,
             'ele_min' => $ele_min,
