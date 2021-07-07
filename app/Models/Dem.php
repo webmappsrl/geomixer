@@ -99,6 +99,8 @@ ENDOFQUERY;
         $ele_min = 10000;
         $ascent = 0;
         $descent = 0;
+        $duration_forward = 0;
+        $duration_backward = 0;
         $delta_ascents = $delta_descents = [];
         foreach ($json['coordinates'] as $j => $point) {
             if ($point[2] > $ele_max) {
@@ -124,11 +126,19 @@ ENDOFQUERY;
             $descent += $descent_value;
         }
 
+        /**
+         * 3. Geomixer calcola time_forward (distance+ascent/100)/3 risultato in ore, distance in Km, ascent in m
+         * @todo: calcolare dalla distance.
+         */
+
+
         return [
             'ele_max' => $ele_max,
             'ele_min' => $ele_min,
             'ascent' => $ascent,
             'descent' => $descent,
+            'duration_forward' => $duration_forward,
+            'duration_backward' => $duration_backward,
         ];
     }
 }
