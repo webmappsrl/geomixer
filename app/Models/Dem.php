@@ -98,6 +98,7 @@ ENDOFQUERY;
         $ele_max = -10000;
         $ele_min = 10000;
         $ascent = 0;
+        $descent = 0;
         $delta_ascents = [];
         foreach ($json['coordinates'] as $j => $point) {
             if ($point[2] > $ele_max) {
@@ -120,7 +121,8 @@ ENDOFQUERY;
         return [
             'ele_max' => $ele_max,
             'ele_min' => $ele_min,
-            'ascent' => $ascent
+            'ascent' => $ascent,
+            'descent' => $descent,
         ];
     }
 }
