@@ -120,6 +120,6 @@ class DemComputeDescentTest extends TestCase
         $info = Dem::getEleInfo($geom);
         $this->assertIsArray($info);
         $this->assertTrue(isset($info['descent']));
-        $this->assertEquals(0, $info['descent']);
+        $this->assertEquals(241, $info['descent']);
     }
 }
