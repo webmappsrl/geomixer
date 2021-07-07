@@ -314,7 +314,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             throw new MissingMandatoryParametersException('The parameter "thumbnails" is missing but required. The operation can not be completed');
         $thumbUrls = json_decode($params['thumbnails']);
         $awsPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $params['url']);
-        $awsPathImage = $awsPath[1];
+        $awsPathImage = $awsPath[0];
 
         try {
             Storage::disk('s3')->delete($awsPathImage);
@@ -325,7 +325,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
 
         foreach ($thumbUrls as $thumb) {
             $thumbPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $thumb);
-            $thumbPath = $thumbPath[1];
+            $thumbPath = $thumbPath[0];
             try {
                 Storage::disk('s3')->delete($thumbPath);
                 Log::info('Resized ' . $thumbPath . 'Image deleted');

@@ -6,7 +6,7 @@ use App\Models\Dem;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
-class DemComputeAscentTest extends TestCase
+class DemComputeDescentTest extends TestCase
 {
     public function loadDem()
     {
@@ -17,7 +17,7 @@ class DemComputeAscentTest extends TestCase
         }
     }
 
-    public function testAscent()
+    public function testDescent()
     {
         $this->loadDem();
         $geom = '{
@@ -119,7 +119,7 @@ class DemComputeAscentTest extends TestCase
         $geom = Dem::add3D($geom);
         $info = Dem::getEleInfo($geom);
         $this->assertIsArray($info);
-        $this->assertTrue(isset($info['ascent']));
-        $this->assertEquals(312, $info['ascent']);
+        $this->assertTrue(isset($info['descent']));
+        $this->assertEquals(241, $info['descent']);
     }
 }

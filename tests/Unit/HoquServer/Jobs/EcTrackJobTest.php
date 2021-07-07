@@ -117,6 +117,53 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
+    /**
+     * 2. GEOMIXER: il job enrich_track calcola ele_min
+     * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track
+     */
+    public function testEleMin()
+    {
+        $this->loadDem();
+        $trackId = 1;
+        $params = ['id' => $trackId];
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class);
+        $ecTrack = [
+            'type' => 'Feature',
+            'properties' => [
+                'id' => $trackId,
+            ],
+            'geometry' => [
+                'type' => 'LineString',
+                'coordinates' => [
+                    [
+                        10.495,
+                        43.758
+                    ],
+                    [
+                        10.447,
+                        43.740
+                    ]
+                ]
+            ]
+        ];
+        $this->mock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+            $mock->shouldReceive('getEcTrack')
+                ->with($trackId)
+                ->once()
+                ->andReturn($ecTrack);
+
+            $mock->shouldReceive('updateEcTrack')
+                ->with($trackId, Mockery::on(function ($payload) {
+                    return isset($payload['ele_min'])
+                        && $payload['ele_min'] == -1;
+                }))
+                ->once()
+                ->andReturn(200);
+        });
+
+        $ecTrackService->enrichJob($params);
+    }
+
     public function testAscent()
     {
         $this->loadDem();
@@ -231,11 +278,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    /**
-     * 2. GEOMIXER: il job enrich_track calcola ele_min
-     * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track
-     */
-    public function testEleMin()
+    public function testDescent()
     {
         $this->loadDem();
         $trackId = 1;
@@ -250,27 +293,98 @@ class EcTrackJobTest extends TestCase
                 'type' => 'LineString',
                 'coordinates' => [
                     [
-                        10.495,
-                        43.758
+                        10.440509,
+                        43.764120,
                     ],
                     [
-                        10.447,
-                        43.740
+                        10.442032,
+                        43.765654,
+                    ],
+                    [
+                        10.442891,
+                        43.767065,
+                    ],
+                    [
+                        10.443770,
+                        43.768800,
+                    ],
+                    [
+                        10.444521,
+                        43.769761,
+                    ],
+                    [
+                        10.445637,
+                        43.770566,
+                    ],
+                    [
+                        10.447204,
+                        43.771496,
+                    ],
+                    [
+                        10.448534,
+                        43.772457,
+                    ],
+                    [
+                        10.449156,
+                        43.772767,
+                    ],
+                    [
+                        10.449907,
+                        43.772953,
+                    ],
+                    [
+                        10.451173,
+                        43.772643,
+                    ],
+                    [
+                        10.452096,
+                        43.771636,
+                    ],
+                    [
+                        10.452804,
+                        43.769776,
+                    ],
+                    [
+                        10.453169,
+                        43.768118,
+                    ],
+                    [
+                        10.453362,
+                        43.766553,
+                    ],
+                    [
+                        10.453062,
+                        43.765267,
+                    ],
+                    [
+                        10.451045,
+                        43.763841,
+                    ],
+                    [
+                        10.449178,
+                        43.763764,
                     ]
                 ]
             ]
         ];
-        $this->mock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+
+        $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
                 ->andReturn($ecTrack);
 
-            $mock->shouldReceive('updateEcTrack')
-                ->with($trackId, Mockery::on(function ($payload) {
-                    return isset($payload['ele_min'])
-                        && $payload['ele_min'] == -1;
-                }))
+            $mock->shouldReceive('_executePutCurl')
+                ->with(
+                    Mockery::on(function () {
+                        return true;
+                    }),
+                    Mockery::on(function ($payload) {
+                        return isset($payload['descent'])
+                            && $payload['descent'] == 241;
+                    })
+                )
                 ->once()
                 ->andReturn(200);
         });
