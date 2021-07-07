@@ -423,7 +423,6 @@ class GeohubServiceProvider extends ServiceProvider
         }
 
         return $this->_executePutCurl($url, $payload);
-
     }
 
     /**
