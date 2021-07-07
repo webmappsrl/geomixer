@@ -221,7 +221,7 @@ class EcTrackJobTest extends TestCase
                     }),
                     Mockery::on(function ($payload) {
                         return isset($payload['ascent'])
-                            && $payload['ascent'] == 0;
+                            && $payload['ascent'] == 312;
                     })
                 )
                 ->once()
