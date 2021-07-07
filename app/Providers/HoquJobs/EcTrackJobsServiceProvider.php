@@ -73,6 +73,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         $payload['ele_max'] = $info_ele['ele_max'];
         $payload['ele_min'] = $info_ele['ele_min'];
         $payload['ascent'] = $info_ele['ascent'];
+        $payload['descent'] = $info_ele['descent'];
 
         /**
          * Retrieve computed distance by geometry.
