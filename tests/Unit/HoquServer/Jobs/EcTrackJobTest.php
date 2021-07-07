@@ -117,6 +117,56 @@ class EcTrackJobTest extends TestCase
 
     }
 
+    public function testAscent()
+    {
+        $this->loadDem();
+        $trackId = 1;
+        $params = ['id' => $trackId];
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class);
+        $ecTrack = [
+            'type' => 'Feature',
+            'properties' => [
+                'id' => $trackId,
+            ],
+            'geometry' => [
+                'type' => 'LineString',
+                'coordinates' => [
+                    [
+                        10.495,
+                        43.758
+                    ],
+                    [
+                        10.447,
+                        43.740
+                    ]
+                ]
+            ]
+        ];
+
+        $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+
+            $mock->shouldReceive('getEcTrack')
+                ->with($trackId)
+                ->once()
+                ->andReturn($ecTrack);
+
+            $mock->shouldReceive('_executePutCurl')
+                ->with(Mockery::on(function () {
+                    return true;
+                }),
+                    Mockery::on(function ($payload) {
+                        return isset($payload['ascent'])
+                            && $payload['ascent'] == 0;
+                    }))
+                ->once()
+                ->andReturn(200);
+
+        });
+
+        $ecTrackService->enrichJob($params);
+
+    }
+
     /**
      * 2. GEOMIXER: il job enrich_track calcola ele_min
      * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track
