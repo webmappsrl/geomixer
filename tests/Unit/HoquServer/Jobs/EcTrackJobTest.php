@@ -92,19 +92,25 @@ class EcTrackJobTest extends TestCase
                 ]
             ]
         ];
-        $this->mock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+
+        $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
                 ->andReturn($ecTrack);
 
-            $mock->shouldReceive('updateEcTrack')
-                ->with($trackId, Mockery::on(function ($payload) {
-                    return isset($payload['ele_max'])
-                        && $payload['ele_max'] == 776;
-                }))
+            $mock->shouldReceive('_executePutCurl')
+                ->with(Mockery::on(function () {
+                    return true;
+                }),
+                    Mockery::on(function ($payload) {
+                        return isset($payload['ele_max'])
+                            && $payload['ele_max'] == 776;
+                    }))
                 ->once()
                 ->andReturn(200);
+
         });
 
         $ecTrackService->enrichJob($params);

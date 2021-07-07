@@ -86,7 +86,6 @@ class EcTrackJobsServiceProvider extends ServiceProvider
             //$ids = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
             $payload['ids'] = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
         }
-
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }
 
