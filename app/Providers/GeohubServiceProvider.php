@@ -398,16 +398,30 @@ class GeohubServiceProvider extends ServiceProvider
         $url = config('geohub.base_url') . GET_EC_TRACK_ENRICH . $id;
 
         $payload = [];
-        if (isset($parameters['geometry'])) {
-            $payload['geometry'] = $parameters['geometry'];
+        $fields = [
+            'geometry',
+            'distance_comp',
+            'distance',
+            'ele_min',
+            'ele_max',
+            'ele_from',
+            'ele_to',
+            'ascent',
+            'descent',
+            'duration_forward',
+            'duration_backward',
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($parameters[$field])) {
+                $payload[$field] = $parameters[$field];
+            }
         }
-        if (isset($parameters['distance_comp'])) {
-            $payload['distance_comp'] = $parameters['distance_comp'];
-        }
+
         if (isset($parameters['ids'])) {
             $payload['where_ids'] = $parameters['ids'];
         }
-        
+
         $headers = [
             "Accept: application/json",
             "Content-Type:application/json"
