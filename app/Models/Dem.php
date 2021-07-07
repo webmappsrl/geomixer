@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Dem extends Model {
+class Dem extends Model
+{
     use HasFactory;
 
     /**
@@ -14,7 +15,8 @@ class Dem extends Model {
      *
      * @return string
      */
-    public static function getPostGisVersion(): string {
+    public static function getPostGisVersion(): string
+    {
         $query = 'SELECT postgis_full_version() as version;';
         $res = DB::select(DB::raw($query));
         $info = explode(' ', explode('"', $res[0]->version)[1]);
@@ -22,7 +24,8 @@ class Dem extends Model {
         return $info[0];
     }
 
-    public static function getEle($lon, $lat) {
+    public static function getEle($lon, $lat)
+    {
         switch (self::getPostGisVersion()) {
             case '3.1.2':
                 $query = <<<ENDOFQUERY
@@ -58,7 +61,8 @@ ENDOFQUERY;
      *
      * @return string
      */
-    public static function add3D(string $geojson_geometry): string {
+    public static function add3D(string $geojson_geometry): string
+    {
         $geomArray = json_decode($geojson_geometry, true);
         if (!isset($geomArray['type'])) {
             throw new \Exception('No type found');
@@ -88,10 +92,12 @@ ENDOFQUERY;
      * @return array hash with computed ele info from 3d geometry (ele_max, ele_min, ascent, descent, time_forward,
      *               time_backward)
      */
-    public static function getEleInfo(string $geom): array {
+    public static function getEleInfo(string $geom): array
+    {
         $json = json_decode($geom, true);
         $ele_max = -10000;
         $ele_min = 10000;
+        $ascent = -1;
         foreach ($json['coordinates'] as $point) {
             if ($point[2] > $ele_max) {
                 $ele_max = $point[2];
@@ -103,7 +109,8 @@ ENDOFQUERY;
 
         return [
             'ele_max' => $ele_max,
-            'ele_min' => $ele_min
+            'ele_min' => $ele_min,
+            'ascent' => $ascent
         ];
     }
 }
