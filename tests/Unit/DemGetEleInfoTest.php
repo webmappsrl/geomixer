@@ -40,7 +40,6 @@ class DemGetEleInfoTest extends TestCase
         $this->assertIsArray($info);
         $this->assertTrue(isset($info['ele_max']));
         $this->assertEquals(2, $info['ele_max']);
-
     }
 
     public function testEleMinLineString()
@@ -66,7 +65,5 @@ class DemGetEleInfoTest extends TestCase
         $this->assertIsArray($info);
         $this->assertTrue(isset($info['ele_min']));
         $this->assertEquals(1, $info['ele_min']);
-
     }
-
 }

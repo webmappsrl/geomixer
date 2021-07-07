@@ -97,14 +97,24 @@ ENDOFQUERY;
         $json = json_decode($geom, true);
         $ele_max = -10000;
         $ele_min = 10000;
-        $ascent = -1;
-        foreach ($json['coordinates'] as $point) {
+        $ascent = 0;
+        $delta_ascents = [];
+        foreach ($json['coordinates'] as $j => $point) {
             if ($point[2] > $ele_max) {
                 $ele_max = $point[2];
             }
             if ($point[2] < $ele_min) {
                 $ele_min = $point[2];
             }
+            if ($j > 0) {
+                if ($point[2] > $json['coordinates'][($j - 1)][2]) {
+                    $delta_ascents[] = $point[2] - $json['coordinates'][($j - 1)][2];
+                }
+            }
+        }
+
+        foreach ($delta_ascents as $ascent_value) {
+            $ascent += $ascent_value;
         }
 
         return [
