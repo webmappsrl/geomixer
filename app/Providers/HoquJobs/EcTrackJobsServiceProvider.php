@@ -70,20 +70,19 @@ class EcTrackJobsServiceProvider extends ServiceProvider
          * COmpute EleMAX
          */
         $info_ele = Dem::getEleInfo($geom3D_string);
-        $payload['ele_max'] = $info_ele['ele_max'];
-        $payload['ele_min'] = $info_ele['ele_min'];
-        $payload['ele_from'] = $info_ele['ele_from'];
-        $payload['ele_to'] = $info_ele['ele_to'];
-        $payload['ascent'] = $info_ele['ascent'];
-        $payload['descent'] = $info_ele['descent'];
-        $payload['duration_forward'] = $info_ele['duration_forward'];
-        $payload['duration_backward'] = $info_ele['duration_backward'];
+        $payload['ele_max'] = is_null($info_ele['ele_max']) ? 0 : $info_ele['ele_max'];
+        $payload['ele_min'] = is_null($info_ele['ele_min']) ? 0 : $info_ele['ele_min'];
+        $payload['ele_from'] = is_null($info_ele['ele_from']) ? 0 : $info_ele['ele_from'];
+        $payload['ele_to'] = is_null($info_ele['ele_to']) ? 0 : $info_ele['ele_to'];
+        $payload['ascent'] = is_null($info_ele['ascent']) ? 0 : $info_ele['ascent'];
+        $payload['descent'] = is_null($info_ele['descent']) ? 0 : $info_ele['descent'];
+        $payload['duration_forward'] = is_null($info_ele['duration_forward']) ? 0 : $info_ele['duration_forward'];
+        $payload['duration_backward'] = is_null($info_ele['duration_backward']) ? 0 : $info_ele['duration_backward'];
 
         /**
          * Retrieve computed distance by geometry.
          */
-        //$distanceComp = $this->getDistanceComp($ecTrack['geometry']);
-        $distance = $this->getDistanceComp($ecTrack['geometry']);
+        $distance = round($this->getDistanceComp($ecTrack['geometry']), 1);
         $payload['distance'] = $distance;
         $payload['distance_comp'] = $distance;
 
