@@ -390,7 +390,7 @@ class GeohubServiceProvider extends ServiceProvider
      *
      * @param int $id
      * @param array $parameters
-     * 
+     *
      * @return int
      */
     public function updateEcTrack(int $id, array $parameters = []): int
@@ -398,16 +398,43 @@ class GeohubServiceProvider extends ServiceProvider
         $url = config('geohub.base_url') . GET_EC_TRACK_ENRICH . $id;
 
         $payload = [];
-        if (isset($parameters['geometry'])) {
-            $payload['geometry'] = $parameters['geometry'];
+        $fields = [
+            'geometry',
+            'distance_comp',
+            'distance',
+            'ele_min',
+            'ele_max',
+            'ele_from',
+            'ele_to',
+            'ascent',
+            'descent',
+            'duration_forward',
+            'duration_backward',
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($parameters[$field])) {
+                $payload[$field] = $parameters[$field];
+            }
         }
-        if (isset($parameters['distance_comp'])) {
-            $payload['distance_comp'] = $parameters['distance_comp'];
-        }
+
         if (isset($parameters['ids'])) {
             $payload['where_ids'] = $parameters['ids'];
         }
-        
+
+        return $this->_executePutCurl($url, $payload);
+    }
+
+    /**
+     * Executes a CURL (PUT) request and returns http code
+     *
+     * @param string $url PUT URL
+     * @param array $payload Data array
+     * @return int CURL CODE
+     * @throws HttpException When code is greater than 400
+     */
+    public function _executePutCurl(string $url, array $payload): int
+    {
         $headers = [
             "Accept: application/json",
             "Content-Type:application/json"
