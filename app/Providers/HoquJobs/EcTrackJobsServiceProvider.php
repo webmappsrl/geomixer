@@ -72,6 +72,8 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         $info_ele = Dem::getEleInfo($geom3D_string);
         $payload['ele_max'] = $info_ele['ele_max'];
         $payload['ele_min'] = $info_ele['ele_min'];
+        $payload['ele_from'] = $info_ele['ele_from'];
+        $payload['ele_to'] = $info_ele['ele_to'];
         $payload['ascent'] = $info_ele['ascent'];
         $payload['descent'] = $info_ele['descent'];
         $payload['duration_forward'] = $info_ele['duration_forward'];
@@ -81,7 +83,9 @@ class EcTrackJobsServiceProvider extends ServiceProvider
          * Retrieve computed distance by geometry.
          */
         //$distanceComp = $this->getDistanceComp($ecTrack['geometry']);
-        $payload['distance_comp'] = $this->getDistanceComp($ecTrack['geometry']);
+        $distance = $this->getDistanceComp($ecTrack['geometry']);
+        $payload['distance'] = $distance;
+        $payload['distance_comp'] = $distance;
 
         /**
          * Retrieve taxonomyWheres by geometry.
