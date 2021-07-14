@@ -68,8 +68,8 @@ class TaxonomyActivityJobsServiceProvider extends ServiceProvider
 
         switch ($identifier) {
             case 'hiking':
-                $duration['forward'] = $this->calculateBySpeed($distance, 10, $tilt[0]);
-                $duration['backward'] = $this->calculateBySpeed($distance, 10, $tilt[1]);
+                $duration['forward'] = $this->calculateBySpeed($distance, 1.0, $tilt[0]);
+                $duration['backward'] = $this->calculateBySpeed($distance, 1.0, $tilt[1]);
                 break;
             case 'cycling':
                 $duration['forward'] = $this->calculateBySpeed($distance, 3.5, $tilt[0]);
