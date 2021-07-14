@@ -109,8 +109,9 @@ class GeohubServiceProvider extends ServiceProvider
         $error = curl_error($ch);
         curl_close($ch);
 
-        if ($code >= 400)
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
         return json_decode($result, true);
     }
@@ -140,8 +141,9 @@ class GeohubServiceProvider extends ServiceProvider
         $error = curl_error($ch);
         curl_close($ch);
 
-        if ($code >= 400)
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
         return json_decode($result, true);
     }
@@ -173,11 +175,13 @@ class GeohubServiceProvider extends ServiceProvider
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         curl_close($ch);
 
-        if ($code >= 400)
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
-        if (!isset(CONTENT_TYPE_IMAGE_MAPPING[$contentType]))
+        if (!isset(CONTENT_TYPE_IMAGE_MAPPING[$contentType])) {
             throw new Exception('Content type not supported: ' . $contentType);
+        }
 
         $filename = $id . '.' . CONTENT_TYPE_IMAGE_MAPPING[$contentType];
         Storage::disk('local')->put('ec_media/' . $filename, $result);
@@ -226,11 +230,13 @@ class GeohubServiceProvider extends ServiceProvider
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
-        if ($code >= 400)
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
-        if (!isset($result) || empty($result))
+        if (!isset($result) || empty($result)) {
             throw new MissingResourceException('The ' . $featureType . ' with id ' . $id . ' does not exists');
+        }
 
         return json_decode($result, true);
     }
@@ -288,8 +294,10 @@ class GeohubServiceProvider extends ServiceProvider
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
-        if ($code >= 400)
+
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
         return $code;
     }
@@ -330,8 +338,10 @@ class GeohubServiceProvider extends ServiceProvider
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
-        if ($code >= 400)
+
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
         return $code;
     }
@@ -379,8 +389,10 @@ class GeohubServiceProvider extends ServiceProvider
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
-        if ($code >= 400)
+
+        if ($code >= 400) {
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
 
         return $code;
     }
@@ -410,6 +422,7 @@ class GeohubServiceProvider extends ServiceProvider
             'descent',
             'duration_forward',
             'duration_backward',
+            'duration',
         ];
 
         foreach ($fields as $field) {

@@ -794,4 +794,127 @@ class EcTrackJobTest extends TestCase
 
         $ecTrackService->enrichJob($params);
     }
+
+    public function testDurationByActivities()
+    {
+        $this->loadDem();
+        $trackId = 1;
+        $params = ['id' => $trackId];
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class);
+        $ecTrack = [
+            'type' => 'Feature',
+            'properties' => [
+                'id' => $trackId,
+                'duration' => [
+                    'hiking' => [
+                        'forward' => 0,
+                        'backward' => 0,
+                    ],
+                    'cycling' => [
+                        'forward' => 0,
+                        'backward' => 0,
+                    ],
+                ]
+            ],
+            'geometry' => [
+                'type' => 'LineString',
+                'coordinates' => [
+                    [
+                        10.440509,
+                        43.764120,
+                    ],
+                    [
+                        10.442032,
+                        43.765654,
+                    ],
+                    [
+                        10.442891,
+                        43.767065,
+                    ],
+                    [
+                        10.443770,
+                        43.768800,
+                    ],
+                    [
+                        10.444521,
+                        43.769761,
+                    ],
+                    [
+                        10.445637,
+                        43.770566,
+                    ],
+                    [
+                        10.447204,
+                        43.771496,
+                    ],
+                    [
+                        10.448534,
+                        43.772457,
+                    ],
+                    [
+                        10.449156,
+                        43.772767,
+                    ],
+                    [
+                        10.449907,
+                        43.772953,
+                    ],
+                    [
+                        10.451173,
+                        43.772643,
+                    ],
+                    [
+                        10.452096,
+                        43.771636,
+                    ],
+                    [
+                        10.452804,
+                        43.769776,
+                    ],
+                    [
+                        10.453169,
+                        43.768118,
+                    ],
+                    [
+                        10.453362,
+                        43.766553,
+                    ],
+                    [
+                        10.453062,
+                        43.765267,
+                    ],
+                    [
+                        10.451045,
+                        43.763841,
+                    ],
+                    [
+                        10.449178,
+                        43.763764,
+                    ]
+                ]
+            ]
+        ];
+
+        $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+
+            $mock->shouldReceive('getEcTrack')
+                ->with($trackId)
+                ->once()
+                ->andReturn($ecTrack);
+
+            $mock->shouldReceive('_executePutCurl')
+                ->with(
+                    Mockery::on(function () {
+                        return true;
+                    }),
+                    Mockery::on(function ($payload) {
+                        return 99 == $payload['duration']['hiking']['forward'] && 16 == $payload['duration']['cycling']['backward'];
+                    })
+                )
+                ->once()
+                ->andReturn(200);
+        });
+
+        $ecTrackService->enrichJob($params);
+    }
 }

@@ -93,6 +93,16 @@ class EcTrackJobsServiceProvider extends ServiceProvider
             //$ids = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
             $payload['ids'] = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
         }
+
+        /**
+         * Calculate durations by activity.
+         */
+        if (isset($ecTrack['properties']['duration']) && isset($distance)) {
+            $taxonomyActivityJobServiceProvider = app(TaxonomyActivityJobsServiceProvider::class);
+            $payload['duration'] = $taxonomyActivityJobServiceProvider->calculateDuration($ecTrack['properties']['duration'], $distance, [$info_ele['ascent'], $info_ele['descent']]);
+        }
+
+
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }
 
