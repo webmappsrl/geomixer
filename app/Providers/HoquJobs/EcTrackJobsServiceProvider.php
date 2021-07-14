@@ -97,9 +97,9 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         /**
          * Calculate durations by activity.
          */
-        if (isset($ecTrack['properties']['duration'])) {
+        if (isset($ecTrack['properties']['duration']) && isset($distance)) {
             $taxonomyActivityJobServiceProvider = app(TaxonomyActivityJobsServiceProvider::class);
-            $payload['duration'] = $taxonomyActivityJobServiceProvider->calculateDuration($ecTrack['properties']['duration']);
+            $payload['duration'] = $taxonomyActivityJobServiceProvider->calculateDuration($ecTrack['properties']['duration'], $distance, [$info_ele['ascent'], $info_ele['descent']]);
         }
 
 
