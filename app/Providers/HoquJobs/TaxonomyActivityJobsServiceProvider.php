@@ -68,23 +68,15 @@ class TaxonomyActivityJobsServiceProvider extends ServiceProvider
 
         switch ($identifier) {
             case 'hiking':
-                $duration['forward'] = $this->calculateBySpeed($distance, 1.0, $tilt[0]);
-                $duration['backward'] = $this->calculateBySpeed($distance, 1.0, $tilt[1]);
+                $duration['forward'] = ceil(($distance + $tilt[0] / 100) / 3.5 * 60);
+                $duration['backward'] = ceil(($distance + $tilt[1] / 100) / 3.5 * 60);
                 break;
             case 'cycling':
-                $duration['forward'] = $this->calculateBySpeed($distance, 3.5, $tilt[0]);
-                $duration['backward'] = $this->calculateBySpeed($distance, 3.5, $tilt[1]);
+                $duration['forward'] = ceil($distance / 10 * 60);
+                $duration['backward'] = ceil($distance / 10 * 60);
                 break;
         }
 
         return $duration;
-    }
-
-    /**
-     * duration_forward (distance+ascent/100)/3 risultato in ore, distance in Km, ascent in m.
-     */
-    protected function calculateBySpeed(float $distance, float $speed, float $tilt): float
-    {
-        return ceil(($distance + $tilt / 100) / $speed * 60);
     }
 }
