@@ -795,7 +795,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    public function testDurationForwardByActivities()
+    public function testDurationByActivities()
     {
         $this->loadDem();
         $trackId = 1;
