@@ -109,7 +109,6 @@ class TaxonomyWhereJobsServiceProvider extends ServiceProvider
         $coordinates = $ecMediaJobsServiceProvider->enrichJob();
 
         $ids = $this->associateWhere($coordinates);
-
     }
 
     /**
@@ -119,14 +118,16 @@ class TaxonomyWhereJobsServiceProvider extends ServiceProvider
      */
     public function associateWhere(array $geometry)
     {
-        return TaxonomyWhere::whereRaw(
+        $ids = TaxonomyWhere::whereRaw(
             'public.ST_Intersects('
-            . 'public.ST_Force2D('
-            . "public.ST_GeomFromGeojson('"
-            . json_encode($geometry)
-            . "')"
-            . ")"
-            . ', geometry)'
+                . 'public.ST_Force2D('
+                . "public.ST_GeomFromGeojson('"
+                . json_encode($geometry)
+                . "')"
+                . ")"
+                . ', geometry)'
         )->get()->pluck('id')->toArray();
+
+        return $ids;
     }
 }

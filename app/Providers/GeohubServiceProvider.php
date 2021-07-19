@@ -439,6 +439,36 @@ class GeohubServiceProvider extends ServiceProvider
     }
 
     /**
+     * Update the ecPoi in geohub by ID.
+     *
+     * @param int $id
+     * @param array $parameters
+     *
+     * @return int
+     */
+    public function updateEcPoi(int $id, array $parameters = []): int
+    {
+        $url = config('geohub.base_url') . GET_EC_POI_ENRICH . $id;
+
+        $payload = [];
+        $fields = [
+            'ele',
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($parameters[$field])) {
+                $payload[$field] = $parameters[$field];
+            }
+        }
+
+        if (isset($parameters['ids'])) {
+            $payload['where_ids'] = $parameters['ids'];
+        }
+
+        return $this->_executePutCurl($url, $payload);
+    }
+
+    /**
      * Executes a CURL (PUT) request and returns http code
      *
      * @param string $url PUT URL
@@ -508,7 +538,7 @@ class GeohubServiceProvider extends ServiceProvider
      * @return int the http code of the request
      *
      */
-    public function setWheresToEcPoi(int $id, array $whereIds): int
+    public function updateEcPoiOld(int $id, array $whereIds): int
     {
         $url = config('geohub.base_url') . GET_EC_POI_ENRICH . $id;
         $payload = [
