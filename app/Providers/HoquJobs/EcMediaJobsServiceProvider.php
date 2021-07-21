@@ -24,8 +24,15 @@ define("THUMBNAIL_SIZES", [
     ['width' => 1920, 'height' => 0],
 ]);
 
+if (config('geomixer.use_local_storage') == false) {
+    define("STORAGE", 's3');
+} else {
+    define("STORAGE", 'public');
+}
+
 class EcMediaJobsServiceProvider extends ServiceProvider
 {
+
     /**
      * Register services.
      *
@@ -55,6 +62,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      */
     public function enrichJob(array $params): void
     {
+        
         $thumbnailList = [];
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
@@ -174,15 +182,18 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      */
     public function uploadEcMediaImage(string $imagePath): string
     {
+
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
         $filename = pathinfo($imagePath)['filename'] . '.' . pathinfo($imagePath)['extension'];
 
         $cloudPath = 'EcMedia/' . $filename;
-        Storage::disk('s3')->put('EcMedia/' . $filename, file_get_contents($imagePath));
-
-        return Storage::cloud()->url($cloudPath);
+        Storage::disk(STORAGE)->put('EcMedia/' . $filename, file_get_contents($imagePath));
+        if (STORAGE == 's3')
+            return Storage::cloud()->url($cloudPath);
+        else
+            return Storage::url($cloudPath);
     }
 
     /**
@@ -208,9 +219,12 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             $cloudPath = 'EcMedia/Resize/' . $width . 'x' . DIRECTORY_SEPARATOR . $filename;
         else
             $cloudPath = 'EcMedia/Resize/' . $width . 'x' . $height . DIRECTORY_SEPARATOR . $filename;
-        Storage::disk('s3')->put($cloudPath, file_get_contents($imagePath));
+        Storage::disk(STORAGE)->put($cloudPath, file_get_contents($imagePath));
 
-        return Storage::cloud()->url($cloudPath);
+        if (STORAGE == 's3')
+            return Storage::cloud()->url($cloudPath);
+        else
+            return Storage::url($cloudPath);
     }
 
     /**
@@ -314,7 +328,11 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             throw new MissingMandatoryParametersException('The parameter "thumbnails" is missing but required. The operation can not be completed');
         $thumbUrls = json_decode($params['thumbnails']);
         $awsPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $params['url']);
-        $awsPathImage = $awsPath[0];
+
+        if (STORAGE == 's3')
+            $awsPathImage = $awsPath[0];
+        else
+            $awsPathImage = $awsPath[0];
 
         try {
             Storage::disk('s3')->delete($awsPathImage);
