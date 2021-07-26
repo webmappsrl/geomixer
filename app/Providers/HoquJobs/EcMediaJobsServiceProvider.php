@@ -62,7 +62,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
      */
     public function enrichJob(array $params): void
     {
-        
+
         $thumbnailList = [];
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
@@ -83,6 +83,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         }
 
         $imageCloudUrl = $this->uploadEcMediaImage($imagePath);
+
 
         foreach (THUMBNAIL_SIZES as $size) {
             try {
@@ -193,7 +194,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         if (STORAGE == 's3')
             return Storage::cloud()->url($cloudPath);
         else
-            return Storage::url($cloudPath);
+            return Storage::disk('public')->url($cloudPath);
     }
 
     /**
@@ -224,7 +225,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         if (STORAGE == 's3')
             return Storage::cloud()->url($cloudPath);
         else
-            return Storage::url($cloudPath);
+            return Storage::disk('public')->url($cloudPath);
     }
 
     /**
@@ -332,23 +333,32 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         if (STORAGE == 's3')
             $awsPathImage = $awsPath[0];
         else
-            $awsPathImage = $awsPath[0];
+            $awsPathImage = config('geomixer.APP_URL') . "/storage" . $awsPath[1];
+
 
         try {
-            Storage::disk('s3')->delete($awsPathImage);
+            if (STORAGE == 's3')
+                Storage::disk(STORAGE)->delete($awsPathImage);
+            else
+                Storage::disk(STORAGE)->delete($awsPath[1]);
             Log::info('Original Image deleted');
         } catch (Exception $e) {
             throw new Exception("Original Image cannot be deleted");
         }
 
         foreach ($thumbUrls as $thumb) {
-            $thumbPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $thumb);
-            $thumbPath = $thumbPath[0];
+            if (STORAGE == 's3') {
+                $thumbPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $thumb);
+                $thumbPath = $thumbPath[0];
+            } else {
+                $thumbPath = explode(config('geomixer.APP_URL'), $thumb);
+                $thumbPath = $thumbPath[0];
+            }
             try {
-                Storage::disk('s3')->delete($thumbPath);
+                Storage::disk(STORAGE)->delete($thumbPath);
                 Log::info('Resized ' . $thumbPath . 'Image deleted');
             } catch (Exception $e) {
-                throw new Exception("Resize " . $thumbPath . "cannot be deleted");
+                throw new Exception("Resize " . $thumbPath . " cannot be deleted");
             }
         }
     }

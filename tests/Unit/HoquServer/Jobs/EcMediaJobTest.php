@@ -149,6 +149,7 @@ class EcMediaJobTest extends TestCase
     // TODO: make the test NOT use AWS and use local filesystem
     public function testDeleteAwsImagesWhenDeleteMedia()
     {
+        
         $thumbnailSizes = [
             ['width' => 108, 'height' => 148],
             ['width' => 108, 'height' => 137],
