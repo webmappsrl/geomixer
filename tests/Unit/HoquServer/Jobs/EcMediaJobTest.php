@@ -19,8 +19,10 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Tests\TestCase;
 
+
 class EcMediaJobTest extends TestCase
 {
+
     public function testJobExecuted()
     {
         $jobParameters = [
@@ -97,6 +99,13 @@ class EcMediaJobTest extends TestCase
             ['width' => 1920, 'height' => 0],
         ];
 
+        if (config('geomixer.use_local_storage') == false) {
+            $storage = 's3';
+        } else {
+            $storage = 'public';
+        }
+
+
         $image = base_path() . '/tests/Fixtures/EcMedia/test_resize.jpg';
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         foreach ($thumbnailSizes as $size) {
@@ -110,8 +119,11 @@ class EcMediaJobTest extends TestCase
                 $ecMediaJobsServiceProvider->imgResize($image, $size['width'], $size['height']);
             $cloudImage = $ecMediaJobsServiceProvider->uploadEcMediaImageResize($resizedFileName, $size['width'], $size['height']);
             $this->assertFileExists($resizedFileName);
-            $headers = get_headers($cloudImage);
-            $this->assertTrue(stripos($headers[0], "200 OK") >= 0);
+            if ($storage == 's3') {
+                $headers = get_headers($cloudImage);
+                $this->assertTrue(stripos($headers[0], "200 OK") >= 0);
+            }
+
         }
     }
 
@@ -137,6 +149,7 @@ class EcMediaJobTest extends TestCase
     // TODO: make the test NOT use AWS and use local filesystem
     public function testDeleteAwsImagesWhenDeleteMedia()
     {
+        
         $thumbnailSizes = [
             ['width' => 108, 'height' => 148],
             ['width' => 108, 'height' => 137],
@@ -149,14 +162,22 @@ class EcMediaJobTest extends TestCase
             ['width' => 1920, 'height' => 0],
         ];
 
-        Storage::disk('s3')->put('/EcMedia/test.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test.jpg'));
-        foreach ($thumbnailSizes as $size) {
-            Storage::disk('s3')->put('/EcMedia/Resize/' . $size['width'] . 'x' . $size['height'] . '/test_' . $size['width'] . 'x' . $size['height'] . '.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_' . $size['width'] . 'x' . $size['height'] . '.jpg'));
+        if (config('geomixer.use_local_storage') == false) {
+            $storage = 's3';
+        } else {
+            $storage = 'public';
         }
 
+        Storage::disk($storage)->put('/EcMedia/test.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test.jpg'));
+        foreach ($thumbnailSizes as $size) {
+            Storage::disk($storage)->put('/EcMedia/Resize/' . $size['width'] . 'x' . $size['height'] . '/test_' . $size['width'] . 'x' . $size['height'] . '.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_' . $size['width'] . 'x' . $size['height'] . '.jpg'));
+        }
+
+
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
-        $url = 'https://wmptest.s3.eu-central-1.amazonaws.com/EcMedia/test.jpg';
-        $thumbnails = '{"108x148":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x148\/test_108x148.jpg",
+        if ($storage == 's3') {
+            $url = 'https://wmptest.s3.eu-central-1.amazonaws.com/EcMedia/test.jpg';
+            $thumbnails = '{"108x148":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x148\/test_108x148.jpg",
         "108x137":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/108x137\/test_108x137.jpg",
         "225x100":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/225x100\/test_225x100.jpg",
         "118x138":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/118x138\/test_118x138.jpg",
@@ -166,11 +187,28 @@ class EcMediaJobTest extends TestCase
         "400x200":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/400x200\/test_400x200.jpg",
         "1440x500":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/1440x500\/test_1440x500.jpg",
         "1920x":"https:\/\/wmptest.s3.eu-central-1.amazonaws.com\/EcMedia\/Resize\/1920x\/test_1920x.jpg"}';
-        $params = ['url' => $url,
-            'thumbnails' => $thumbnails];
-        $ecMediaJobsServiceProvider->deleteImagesJob($params);
+            $params = ['url' => $url,
+                'thumbnails' => $thumbnails];
+            $ecMediaJobsServiceProvider->deleteImagesJob($params);
 
-        $headers = get_headers(Storage::cloud()->url('/EcMedia/test.jpg'));
-        $this->assertEquals($headers[0], 'HTTP/1.1 404 Not Found');
+            $headers = get_headers(Storage::cloud()->url('/EcMedia/test.jpg'));
+            $this->assertEquals($headers[0], 'HTTP/1.1 404 Not Found');
+        } else {
+            $url = 'https://wmptest.s3.eu-central-1.amazonaws.com/EcMedia/test.jpg';
+            $thumbnails = '{"108x148":"/EcMedia\/Resize\/108x148\/test_108x148.jpg",
+        "108x137":"/EcMedia\/Resize\/108x137\/test_108x137.jpg",
+        "225x100":"/EcMedia\/Resize\/225x100\/test_225x100.jpg",
+        "118x138":"/EcMedia\/Resize\/118x138\/test_118x138.jpg",
+        "108x139":"/EcMedia\/Resize\/108x139\/test_108x139.jpg",
+        "118x117":"/EcMedia\/Resize\/118x117\/test_118x117.jpg",
+        "335x250":"/EcMedia\/Resize\/335x250\/test_335x250.jpg",
+        "400x200":"/EcMedia\/Resize\/400x200\/test_400x200.jpg",
+        "1440x500":"/EcMedia\/Resize\/1440x500\/test_1440x500.jpg",
+        "1920x":"/EcMedia\/Resize\/1920x\/test_1920x.jpg"}';
+            $params = ['url' => $url,
+                'thumbnails' => $thumbnails];
+            $ecMediaJobsServiceProvider->deleteImagesJob($params);
+            $this->assertFileDoesNotExist($url);
+        }
     }
 }

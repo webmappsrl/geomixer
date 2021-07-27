@@ -54,11 +54,11 @@ class EcTrackJobsServiceProvider extends ServiceProvider
          * Retrieve geometry from OSM by osmid.
          * @TODO: implementare
          */
-//        $importMethod = $ecTrack['import_method'];
-//        if ('osm' === $importMethod && !is_null($ecTrack['source_id'])) {
-//            $ecTrack['geometry'] = $this->retrieveOsmGeometry($ecTrack['source_id']);
-//            $payload['geometry'] = $ecTrack['geometry'];
-//        }
+        //        $importMethod = $ecTrack['import_method'];
+        //        if ('osm' === $importMethod && !is_null($ecTrack['source_id'])) {
+        //            $ecTrack['geometry'] = $this->retrieveOsmGeometry($ecTrack['source_id']);
+        //            $payload['geometry'] = $ecTrack['geometry'];
+        //        }
 
         /**
          * Retrieve 3D profile by geometry e DEM file.
@@ -101,7 +101,6 @@ class EcTrackJobsServiceProvider extends ServiceProvider
             $taxonomyActivityJobServiceProvider = app(TaxonomyActivityJobsServiceProvider::class);
             $payload['duration'] = $taxonomyActivityJobServiceProvider->calculateDuration($ecTrack['properties']['duration'], $distance, [$info_ele['ascent'], $info_ele['descent']]);
         }
-
 
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }

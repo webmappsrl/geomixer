@@ -2,6 +2,7 @@
 
 namespace App\Providers\HoquJobs;
 
+use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
 use Exception;
 use Illuminate\Support\ServiceProvider;
@@ -45,9 +46,16 @@ class EcPoiJobsServiceProvider extends ServiceProvider
         }
 
         $ecPoi = $geohubServiceProvider->getEcPoi($params['id']);
-
-        $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecPoi['geometry']);
-
-        $geohubServiceProvider->setWheresToEcPoi($params['id'], $ids);
+        
+        $ele = 0;
+        if (isset($ecPoi['geometry'])) {
+            $payload['ids'] = $taxonomyWhereJobServiceProvider->associateWhere($ecPoi['geometry']);
+            $coordinates = $ecPoi["geometry"]["coordinates"];
+            $ele = Dem::getEle($coordinates[0], $coordinates[1]);
+        }
+        
+        $payload['ele'] = $ele;
+        
+        $geohubServiceProvider->updateEcPoi($params['id'], $payload);
     }
 }
