@@ -4,20 +4,18 @@ namespace App\Providers\HoquJobs;
 
 use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
+use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
-class EcTrackJobsServiceProvider extends ServiceProvider
-{
+class EcTrackJobsServiceProvider extends ServiceProvider {
     /**
      * Register services.
      *
      * @return void
      */
-    public function register()
-    {
+    public function register() {
         $this->app->bind(EcTrackJobsServiceProvider::class, function ($app) {
             return new EcTrackJobsServiceProvider($app);
         });
@@ -28,19 +26,18 @@ class EcTrackJobsServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot() {
         //
     }
 
     /**
      * Job to update the ecTrack with distance comp
+     *
      * @param array $params job parameters
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function enrichJob(array $params): void
-    {
+    public function enrichJob(array $params): void {
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
         if (!isset($params['id']) || empty($params['id'])) {
@@ -52,7 +49,8 @@ class EcTrackJobsServiceProvider extends ServiceProvider
 
         /**
          * Retrieve geometry from OSM by osmid.
-         * @TODO: implementare
+         *
+         * @TODO: implement
          */
         //        $importMethod = $ecTrack['import_method'];
         //        if ('osm' === $importMethod && !is_null($ecTrack['source_id'])) {
@@ -67,17 +65,17 @@ class EcTrackJobsServiceProvider extends ServiceProvider
         $payload['geometry'] = json_decode($geom3D_string, true);
 
         /**
-         * COmpute EleMAX
+         * Compute EleMAX
          */
         $info_ele = Dem::getEleInfo($geom3D_string);
-        $payload['ele_max'] = is_null($info_ele['ele_max']) ? 0 : $info_ele['ele_max'];
-        $payload['ele_min'] = is_null($info_ele['ele_min']) ? 0 : $info_ele['ele_min'];
-        $payload['ele_from'] = is_null($info_ele['ele_from']) ? 0 : $info_ele['ele_from'];
-        $payload['ele_to'] = is_null($info_ele['ele_to']) ? 0 : $info_ele['ele_to'];
+        $payload['ele_max'] = $info_ele['ele_max'];
+        $payload['ele_min'] = $info_ele['ele_min'];
+        $payload['ele_from'] = $info_ele['ele_from'];
+        $payload['ele_to'] = $info_ele['ele_to'];
         $payload['ascent'] = is_null($info_ele['ascent']) ? 0 : $info_ele['ascent'];
         $payload['descent'] = is_null($info_ele['descent']) ? 0 : $info_ele['descent'];
-        $payload['duration_forward'] = is_null($info_ele['duration_forward']) ? 0 : $info_ele['duration_forward'];
-        $payload['duration_backward'] = is_null($info_ele['duration_backward']) ? 0 : $info_ele['duration_backward'];
+        $payload['duration_forward'] = $info_ele['duration_forward'];
+        $payload['duration_backward'] = $info_ele['duration_backward'];
 
         /**
          * Retrieve computed distance by geometry.
@@ -107,11 +105,12 @@ class EcTrackJobsServiceProvider extends ServiceProvider
 
     /**
      * Calculate the distance comp from geometry in KM
+     *
      * @param array $geometry the ecTrack geometry
+     *
      * @return float the distance comp in KMs
      */
-    public function getDistanceComp(array $geometry): float
-    {
+    public function getDistanceComp(array $geometry): float {
         $distanceQuery = "SELECT ST_Length(ST_GeomFromGeoJSON('" . json_encode($geometry) . "')::geography)/1000 as length";
         $distance = DB::select(DB::raw($distanceQuery));
 
@@ -121,21 +120,20 @@ class EcTrackJobsServiceProvider extends ServiceProvider
     /**
      * Retrieve track geometry by OSM ID
      */
-    public function retrieveOsmGeometry($osmid)
-    {
+    public function retrieveOsmGeometry($osmid) {
         $geometry = null;
-
 
         return $geometry;
     }
 
     /**
-     * TODO: removeme
+     * TODO: remove me
+     *
      * @param $bidimensional_geometry
+     *
      * @return array
      */
-    public function get3DDemProfile($bidimensional_geometry)
-    {
+    public function get3DDemProfile($bidimensional_geometry) {
         $tridimensional_geometry = $bidimensional_geometry;
         if (
             !is_null($bidimensional_geometry)
