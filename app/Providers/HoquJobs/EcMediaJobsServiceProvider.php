@@ -319,7 +319,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
         if (STORAGE == 's3')
             $awsPathImage = $awsPath[0];
         else
-            $awsPathImage = config('geomixer.APP_URL') . "/storage" . $awsPath[1];
+            $awsPathImage = config('app.url') . "/storage" . $awsPath[1];
 
         try {
             if (STORAGE == 's3')
@@ -336,7 +336,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
                 $thumbPath = explode('https://' . config('filesystems.disks.s3.bucket') . '.s3.eu-central-1.amazonaws.com', $thumb);
                 $thumbPath = $thumbPath[0];
             } else {
-                $thumbPath = explode(config('geomixer.APP_URL'), $thumb);
+                $thumbPath = explode(config('app.url'), $thumb);
                 $thumbPath = $thumbPath[0];
             }
             try {

@@ -1,6 +1,5 @@
 <?php
 
 return [
-    'use_local_storage' => true,
-    'APP_URL' => 'http://geomixer.test',
+    'use_local_storage' => env('USE_LOCAL_STORAGE', false),
 ];
