@@ -29,15 +29,13 @@ define('CONTENT_TYPE_IMAGE_MAPPING', [
     'image/webp' => 'webp'
 ]);
 
-class GeohubServiceProvider extends ServiceProvider
-{
+class GeohubServiceProvider extends ServiceProvider {
     /**
      * Register services.
      *
      * @return void
      */
-    public function register()
-    {
+    public function register() {
         $this->app->singleton(GeohubServiceProvider::class, function ($app) {
             return new GeohubServiceProvider($app);
         });
@@ -48,8 +46,7 @@ class GeohubServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot() {
         //
     }
 
@@ -62,8 +59,7 @@ class GeohubServiceProvider extends ServiceProvider
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getTaxonomyWhere(int $id): array
-    {
+    public function getTaxonomyWhere(int $id): array {
         $url = config('geohub.base_url') . GET_TAXONOMY_WHERE_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -93,8 +89,7 @@ class GeohubServiceProvider extends ServiceProvider
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getEcTrack(int $id): array
-    {
+    public function getEcTrack(int $id): array {
         $url = config('geohub.base_url') . GET_EC_TRACK_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -125,8 +120,7 @@ class GeohubServiceProvider extends ServiceProvider
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getEcMedia(int $id): array
-    {
+    public function getEcMedia(int $id): array {
         $url = config('geohub.base_url') . GET_EC_MEDIA_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -158,8 +152,7 @@ class GeohubServiceProvider extends ServiceProvider
      * @throws HttpException if the HTTP request fails
      * @throws Exception
      */
-    public function getEcMediaImage(int $id): string
-    {
+    public function getEcMediaImage(int $id): string {
         $url = config('geohub.base_url') . GET_EC_MEDIA_IMAGE_PATH_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -192,22 +185,21 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Return a geojson with the given ugc feature
      *
-     * @param int $id the id of the ugc feature to retrieve
+     * @param int    $id   the id of the ugc feature to retrieve
      * @param string $type the type of the ugc feature
      *
      * @return array the geojson of the Ugc in the geohub
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getUgcFeature(int $id, string $type): array
-    {
+    public function getUgcFeature(int $id, string $type): array {
         return $this->getFeature($id, 'ugc/' . $type);
     }
 
     /**
      * Return a geojson with the given feature
      *
-     * @param int $id
+     * @param int    $id
      * @param string $featureType
      *
      * @return array the feature geojson
@@ -215,8 +207,7 @@ class GeohubServiceProvider extends ServiceProvider
      * @throws HttpException
      * @throws MissingResourceException
      */
-    public function getFeature(int $id, string $featureType): array
-    {
+    public function getFeature(int $id, string $featureType): array {
         $url = config('geohub.base_url') . GET_ENDPOINT . $featureType . "/geojson/" . $id;
         $ch = curl_init($url);
 
@@ -244,32 +235,30 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Post to Geohub the where ids that need to be associated with the specified ugc feature
      *
-     * @param int $id the ugc feature id
+     * @param int    $id          the ugc feature id
      * @param string $featureType the ugc feature type
-     * @param array $whereIds the where ids
+     * @param array  $whereIds    the where ids
      *
      * @return int the http code of the request
      *
      * @throws HttpException
      */
-    public function setWheresToUgcFeature(int $id, string $featureType, array $whereIds): int
-    {
+    public function setWheresToUgcFeature(int $id, string $featureType, array $whereIds): int {
         return $this->setWheresToFeature($id, 'ugc/' . $featureType, $whereIds);
     }
 
     /**
      * Post to Geohub the where ids that need to be associated with the specified feature
      *
-     * @param int $id the feature id
+     * @param int    $id          the feature id
      * @param string $featureType the feature type
-     * @param array $whereIds the where ids
+     * @param array  $whereIds    the where ids
      *
      * @return int the http code of the request
      *
      * @throws HttpException
      */
-    public function setWheresToFeature(int $id, string $featureType, array $whereIds): int
-    {
+    public function setWheresToFeature(int $id, string $featureType, array $whereIds): int {
         $url = config('geohub.base_url') . GET_ENDPOINT . $featureType . "/taxonomy_where";
         $payload = [
             'id' => $id,
@@ -305,15 +294,14 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Post to Geohub the where ids that need to be associated with the specified EcMedia
      *
-     * @param int $id the EcMedia id
+     * @param int   $id       the EcMedia id
      * @param array $whereIds the where ids
      *
      * @return int the http code of the request
      *
      * @throws HttpException
      */
-    public function setEcMediaToWhere(int $id, array $whereIds): int
-    {
+    public function setEcMediaToWhere(int $id, array $whereIds): int {
         $url = config('geohub.base_url') . GET_ENDPOINT . "/taxonomy_where";
         $payload = [
             'id' => $id,
@@ -349,18 +337,17 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Post to Geohub the parameters to update to EcMedia
      *
-     * @param int $id the ecMedia id
-     * @param array $exif the image exif data
-     * @param array $geometry the geometry of the ecMedia
+     * @param int    $id            the ecMedia id
+     * @param array  $exif          the image exif data
+     * @param array  $geometry      the geometry of the ecMedia
      * @param string $imageUrl
-     * @param array $whereIds the ids of associated Where
-     * @param array $thumbnailUrls the list of thumbnails of ecMedia
+     * @param array  $whereIds      the ids of associated Where
+     * @param array  $thumbnailUrls the list of thumbnails of ecMedia
      *
      * @return int the http code of the request
      *
      */
-    public function setExifAndUrlToEcMedia(int $id, array $exif, array $geometry, string $imageUrl, array $whereIds, array $thumbnailUrls): int
-    {
+    public function setExifAndUrlToEcMedia(int $id, array $exif, array $geometry, string $imageUrl, array $whereIds, array $thumbnailUrls): int {
         $url = config('geohub.base_url') . GET_EC_MEDIA_ENRICH . $id;
         $payload = [
             'exif' => $exif,
@@ -400,13 +387,12 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Update the ecTrack in geohub by ID.
      *
-     * @param int $id
+     * @param int   $id
      * @param array $parameters
      *
      * @return int
      */
-    public function updateEcTrack(int $id, array $parameters = []): int
-    {
+    public function updateEcTrack(int $id, array $parameters = []): int {
         $url = config('geohub.base_url') . GET_EC_TRACK_ENRICH . $id;
 
         $payload = [];
@@ -423,6 +409,7 @@ class GeohubServiceProvider extends ServiceProvider
             'duration_forward',
             'duration_backward',
             'duration',
+            'slope'
         ];
 
         foreach ($fields as $field) {
@@ -441,13 +428,12 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Update the ecPoi in geohub by ID.
      *
-     * @param int $id
+     * @param int   $id
      * @param array $parameters
      *
      * @return int
      */
-    public function updateEcPoi(int $id, array $parameters = []): int
-    {
+    public function updateEcPoi(int $id, array $parameters = []): int {
         $url = config('geohub.base_url') . GET_EC_POI_ENRICH . $id;
 
         $payload = [];
@@ -471,13 +457,13 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Executes a CURL (PUT) request and returns http code
      *
-     * @param string $url PUT URL
-     * @param array $payload Data array
+     * @param string $url     PUT URL
+     * @param array  $payload Data array
+     *
      * @return int CURL CODE
      * @throws HttpException When code is greater than 400
      */
-    public function _executePutCurl(string $url, array $payload): int
-    {
+    public function _executePutCurl(string $url, array $payload): int {
         $headers = [
             "Accept: application/json",
             "Content-Type:application/json"
@@ -506,8 +492,7 @@ class GeohubServiceProvider extends ServiceProvider
         return $code;
     }
 
-    public function getEcPoi(int $id): array
-    {
+    public function getEcPoi(int $id): array {
         $url = config('geohub.base_url') . GET_EC_POI_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -532,14 +517,13 @@ class GeohubServiceProvider extends ServiceProvider
     /**
      * Post to Geohub the parameters to update to EcPoi.
      *
-     * @param int $id the ecPoi id
+     * @param int   $id       the ecPoi id
      * @param array $whereIds the ids of associated Where
      *
      * @return int the http code of the request
      *
      */
-    public function updateEcPoiOld(int $id, array $whereIds): int
-    {
+    public function updateEcPoiOld(int $id, array $whereIds): int {
         $url = config('geohub.base_url') . GET_EC_POI_ENRICH . $id;
         $payload = [
             'where_ids' => $whereIds,
