@@ -26,7 +26,7 @@ class Dem extends Model {
         return $info[0];
     }
 
-    public static function getEle($lon, $lat) {
+    public static function getEle($lon, $lat): ?int {
         switch (self::getPostGisVersion()) {
             case '3.1.2':
                 $query = <<<ENDOFQUERY
@@ -53,7 +53,7 @@ ENDOFQUERY;
         }
         $res = DB::select(DB::raw($query));
         if (is_array($res) && count($res) > 0) {
-            return $res[0]->zeta;
+            return intval($res[0]->zeta);
         }
 
         return null;

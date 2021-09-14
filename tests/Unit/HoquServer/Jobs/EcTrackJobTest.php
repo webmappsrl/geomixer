@@ -9,15 +9,14 @@ use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
 
-class EcTrackJobTest extends TestCase
-{
+class EcTrackJobTest extends TestCase {
     use RefreshDatabase;
 
-    public function loadDem()
-    {
+    public function loadDem() {
         static $first = true;
         if ($first) {
             Artisan::call('geomixer:import_dem', ['name' => 'pisa_dem_100mx100m.sql']);
@@ -25,8 +24,7 @@ class EcTrackJobTest extends TestCase
         }
     }
 
-    public function testJobExecuted()
-    {
+    public function testJobExecuted() {
         $jobParameters = [
             'id' => 1,
         ];
@@ -56,8 +54,7 @@ class EcTrackJobTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testDistanceCalc()
-    {
+    public function testDistanceCalc() {
         $distanceQuery = "SELECT ST_Length(ST_GeomFromText('LINESTRING(11 43, 12 43, 12 44, 11 44)')) as lenght";
         $distance = DB::select(DB::raw($distanceQuery));
         $this->assertIsNumeric($distance[0]->lenght);
@@ -67,8 +64,7 @@ class EcTrackJobTest extends TestCase
      * 2. GEOMIXER: il job enrich_track calcola ele_max
      * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track
      */
-    public function testEleMax()
-    {
+    public function testEleMax() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -94,7 +90,6 @@ class EcTrackJobTest extends TestCase
         ];
 
         $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
-
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
@@ -121,8 +116,7 @@ class EcTrackJobTest extends TestCase
      * 2. GEOMIXER: il job enrich_track calcola ele_min
      * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track
      */
-    public function testEleMin()
-    {
+    public function testEleMin() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -164,8 +158,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    public function testAscent()
-    {
+    public function testAscent() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -255,7 +248,6 @@ class EcTrackJobTest extends TestCase
         ];
 
         $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
-
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
@@ -278,8 +270,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    public function testDescent()
-    {
+    public function testDescent() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -369,7 +360,6 @@ class EcTrackJobTest extends TestCase
         ];
 
         $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
-
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
@@ -392,8 +382,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    public function testDurationForward()
-    {
+    public function testDurationForward() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -483,7 +472,6 @@ class EcTrackJobTest extends TestCase
         ];
 
         $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
-
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
@@ -506,8 +494,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    public function testDurationBackward()
-    {
+    public function testDurationBackward() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -597,7 +584,6 @@ class EcTrackJobTest extends TestCase
         ];
 
         $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
-
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
@@ -610,7 +596,7 @@ class EcTrackJobTest extends TestCase
                     }),
                     Mockery::on(function ($payload) {
                         return isset($payload['duration_backward']);
-//                            && $payload['duration_backward'] == 0;
+                        //                            && $payload['duration_backward'] == 0;
                     })
                 )
                 ->once()
@@ -620,8 +606,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    public function testAllEleInfo()
-    {
+    public function testAllEleInfo() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -711,7 +696,6 @@ class EcTrackJobTest extends TestCase
         ];
 
         $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
-
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
@@ -746,8 +730,7 @@ class EcTrackJobTest extends TestCase
      * 2. GEOMIXER: il job enrich_track calcola il 3D di una lineString
      * 3. GEOMIXER: il job enrich_track deve chiamare API di update dell track con geometria 3D calcolata
      */
-    public function testAdd3D()
-    {
+    public function testAdd3D() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -795,8 +778,7 @@ class EcTrackJobTest extends TestCase
         $ecTrackService->enrichJob($params);
     }
 
-    public function testDurationByActivities()
-    {
+    public function testDurationByActivities() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -896,7 +878,6 @@ class EcTrackJobTest extends TestCase
         ];
 
         $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
-
             $mock->shouldReceive('getEcTrack')
                 ->with($trackId)
                 ->once()
@@ -909,6 +890,97 @@ class EcTrackJobTest extends TestCase
                     }),
                     Mockery::on(function ($payload) {
                         return 99 == $payload['duration']['hiking']['forward'] && 16 == $payload['duration']['cycling']['backward'];
+                    })
+                )
+                ->once()
+                ->andReturn(200);
+        });
+
+        $ecTrackService->enrichJob($params);
+    }
+
+    /**
+     * @test
+     */
+    public function check_slope_calculation() {
+        $geometry = [
+            'type' => 'LineString',
+            'coordinates' => [
+                [1, 1, 0],
+                [1, 1, 100],
+                [1, 1, 50],
+                [1, 1, 100],
+                [1, 1, 50],
+            ]
+        ];
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class, function ($mock) {
+            $mock->shouldReceive('getDistanceComp')
+                ->times(5)
+                ->andReturn(1);
+        });
+
+        $result = $ecTrackService->calculateSlopeValues($geometry);
+
+        $this->assertIsArray($result);
+        $this->assertCount(5, $result);
+        $this->assertEquals(10, $result[0]);
+        $this->assertEquals(5, $result[1]);
+        $this->assertEquals(0, $result[2]);
+        $this->assertEquals(0, $result[3]);
+        $this->assertEquals(-5, $result[4]);
+    }
+
+    /**
+     * @test
+     */
+    public function check_slope_on_job_completion() {
+        $this->loadDem();
+        $trackId = 1;
+        $params = ['id' => $trackId];
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class, function ($mock) {
+            $mock->shouldReceive('calculateSlopeValues')
+                ->once()
+                ->andReturn([10, 10, 10, 10]);
+        });
+        $ecTrack = [
+            'type' => 'Feature',
+            'properties' => [
+                'id' => $trackId
+            ],
+            'geometry' => [
+                'type' => 'LineString',
+                'coordinates' => [
+                    [
+                        10.440509,
+                        43.764120,
+                    ],
+                    [
+                        10.442032,
+                        43.765654,
+                    ],
+                    [
+                        10.442891,
+                        43.767065,
+                    ],
+                    [
+                        10.443770,
+                        43.768800,
+                    ]
+                ]
+            ]
+        ];
+
+        $this->partialMock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId) {
+            $mock->shouldReceive('getEcTrack')
+                ->with($trackId)
+                ->once()
+                ->andReturn($ecTrack);
+
+            $mock->shouldReceive('updateEcTrack')
+                ->with(
+                    $trackId,
+                    Mockery::on(function ($payload) {
+                        return isset($payload['slope']) ** is_array($payload['slope']) && count($payload['slope']) === 4;
                     })
                 )
                 ->once()

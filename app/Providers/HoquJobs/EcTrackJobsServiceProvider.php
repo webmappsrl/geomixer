@@ -6,6 +6,7 @@ use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
@@ -65,6 +66,13 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         $payload['geometry'] = json_decode($geom3D_string, true);
 
         /**
+         * Compute slope values
+         */
+        $slopeValues = $this->calculateSlopeValues($payload['geometry']);
+        if (isset($slopeValues))
+            $payload['slope'] = $slopeValues;
+
+        /**
          * Compute EleMAX
          */
         $info_ele = Dem::getEleInfo($geom3D_string);
@@ -101,6 +109,42 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         }
 
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
+    }
+
+    /**
+     *
+     * @param array $geometry
+     *
+     * @return array|null
+     */
+    public function calculateSlopeValues(array $geometry): ?array {
+        if (!isset($geometry['type'])
+            || !isset($geometry['coordinates'])
+            || $geometry['type'] !== 'LineString'
+            || !is_array($geometry['coordinates'])
+            || count($geometry['coordinates']) === 0)
+            return null;
+
+        $values = [];
+        foreach ($geometry['coordinates'] as $key => $coordinate) {
+            $firstPoint = $coordinate;
+            $lastPoint = $coordinate;
+            if ($key < count($geometry['coordinates']) - 1)
+                $lastPoint = $geometry['coordinates'][$key + 1];
+
+            if ($key > 0)
+                $firstPoint = $geometry['coordinates'][$key - 1];
+
+            $deltaY = $lastPoint[2] - $firstPoint[2];
+            $deltaX = $this->getDistanceComp(['type' => 'LineString', 'coordinates' => [$firstPoint, $lastPoint]]) * 1000;
+
+            $values[] = round($deltaY / $deltaX * 100, 1);
+        }
+
+        if (count($values) !== count($geometry['coordinates']))
+            return null;
+
+        return $values;
     }
 
     /**
