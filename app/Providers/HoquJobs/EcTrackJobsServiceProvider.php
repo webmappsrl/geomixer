@@ -68,7 +68,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         /**
          * Compute slope values
          */
-        $slopeValues = $this->_calculateSlopeValues($payload['geometry']);
+        $slopeValues = $this->calculateSlopeValues($payload['geometry']);
         if (isset($slopeValues))
             $payload['slope'] = $slopeValues;
 
@@ -111,7 +111,13 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }
 
-    private function _calculateSlopeValues(array $geometry): ?array {
+    /**
+     *
+     * @param array $geometry
+     *
+     * @return array|null
+     */
+    public function calculateSlopeValues(array $geometry): ?array {
         if (!isset($geometry['type'])
             || !isset($geometry['coordinates'])
             || $geometry['type'] !== 'LineString'
