@@ -124,7 +124,7 @@ class HoquServerTest extends TestCase {
     }
 
     public function test_not_supported_jobs() {
-        Config::set('geomixer.hoqu_jobs_not_supported', UPDATE_UGC_TAXONOMY_WHERES . ', test');
+        Config::set('geomixer.hoqu.jobs_not_supported', UPDATE_UGC_TAXONOMY_WHERES . ', test');
 
         $hoquServiceMock = $this->mock(HoquServiceProvider::class);
 
@@ -137,7 +137,7 @@ class HoquServerTest extends TestCase {
     }
 
     public function test_supported_jobs() {
-        Config::set('geomixer.hoqu_jobs_supported', UPDATE_UGC_TAXONOMY_WHERES . ', test');
+        Config::set('geomixer.hoqu.jobs_supported', UPDATE_UGC_TAXONOMY_WHERES . ', test');
 
         $hoquServiceMock = $this->mock(HoquServiceProvider::class);
 

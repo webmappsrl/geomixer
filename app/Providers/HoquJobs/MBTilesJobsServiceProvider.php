@@ -10,28 +10,6 @@ use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 define('TILES_TYPES', [
     'raster'
 ]);
-define('ZOOM_LEVELS', [
-    2 => [
-        'zooms' => 5,
-        'x' => [2, 2],
-        'y' => [1, 1]
-    ],
-    7 => [
-        'zooms' => 4,
-        'x' => [66, 70],
-        'y' => [44, 50]
-    ],
-    11 => [
-        'zooms' => 4,
-        'x' => [1061, 1129],
-        'y' => [719, 808]
-    ],
-    15 => [
-        'zooms' => 2,
-        'x' => [17112, 18070],//959
-        'y' => [11512, 12938]//1426
-    ]
-]);
 
 class MBTilesJobsServiceProvider extends ServiceProvider {
     /**
@@ -90,10 +68,11 @@ class MBTilesJobsServiceProvider extends ServiceProvider {
         $x = intval(strval($params['x']));
         $y = intval(strval($params['y']));
 
-        if (!in_array($zoom, array_keys(ZOOM_LEVELS)))
-            throw new Exception("The zoom level $zoom is not supported. Supported zoom levels are: " . implode(', ', array_keys(ZOOM_LEVELS)));
+        $zoomLevels = config('geomixer.hoqu.mbtiles.zoom_levels');
+        if (!in_array($zoom, array_keys($zoomLevels)))
+            throw new Exception("The zoom level $zoom is not supported. Supported zoom levels are: " . implode(', ', array_keys($zoomLevels)));
 
-        $zoomLevel = ZOOM_LEVELS[$zoom];
+        $zoomLevel = $zoomLevels[$zoom];
 
         if ($x < $zoomLevel['x'][0] || $x > $zoomLevel['x'][1])
             throw new Exception("The x coordinate is out of the supported bounds");

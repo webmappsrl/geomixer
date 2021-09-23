@@ -84,9 +84,9 @@ class HoquServer extends Command implements SignalableCommandInterface {
     }
 
     public function initializeJobs() {
-        if (config('geomixer.hoqu_jobs_supported') != null || config('geomixer.hoqu_jobs_not_supported') != null) {
-            if (config('geomixer.hoqu_jobs_supported') != null) {
-                $supported = explode(',', str_replace(' ', '', config('geomixer.hoqu_jobs_supported')));
+        if (config('geomixer.hoqu.jobs_supported') != null || config('geomixer.hoqu.jobs_not_supported') != null) {
+            if (config('geomixer.hoqu.jobs_supported') != null) {
+                $supported = explode(',', str_replace(' ', '', config('geomixer.hoqu.jobs_supported')));
                 $jobs = [];
                 foreach ($supported as $key => $job) {
                     if (in_array($job, JOBS))
@@ -94,8 +94,8 @@ class HoquServer extends Command implements SignalableCommandInterface {
                 }
             } else $jobs = JOBS;
 
-            if (config('geomixer.hoqu_jobs_not_supported') != null) {
-                $notSupported = explode(',', str_replace(' ', '', config('geomixer.hoqu_jobs_not_supported')));
+            if (config('geomixer.hoqu.jobs_not_supported') != null) {
+                $notSupported = explode(',', str_replace(' ', '', config('geomixer.hoqu.jobs_not_supported')));
                 foreach ($notSupported as $key => $job) {
                     if (in_array($job, $jobs)) {
                         unset($jobs[array_search($job, $jobs)]);
