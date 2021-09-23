@@ -5,6 +5,7 @@ namespace App\Providers\HoquJobs;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\MountManager;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
 define('TILES_TYPES', [
@@ -99,7 +100,12 @@ class MBTilesJobsServiceProvider extends ServiceProvider {
 
         $uploadPath = "$type/$zoom/$x/$y.mbtiles";
 
-        Storage::disk('mbtiles')->put($uploadPath, $mbtilesPath);
+        $mountManager = new MountManager([
+            'mbtiles' => Storage::disk('mbtiles')->getDriver(),
+            'local' => Storage::disk('local')->getDriver(),
+        ]);
+
+        $mountManager->copy('local://' . $mbtilesPath, 'mbtiles://' . $uploadPath);
 
         Storage::disk('local')->delete($mbtilesPath);
     }
