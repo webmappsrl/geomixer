@@ -15,7 +15,7 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
      *
      * @var string
      */
-    protected $signature = 'geomixer:generate_mbtiles_italy';
+    protected $signature = 'geomixer:generate_mbtiles_italy {--zoom= : The zoom to generate}';
     /**
      * The console command description.
      *
@@ -68,31 +68,34 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
     public function handle(): int {
         Log::channel('stdout')->info("Starting mbtiles generation");
         $zoomLevels = config('geomixer.hoqu.mbtiles.zoom_levels');
+        $zoomParameter = $this->option('zoom');
 
         foreach ($zoomLevels as $zoom => $config) {
-            for ($x = $config['x'][0]; $x <= $config['x'][1]; $x++) {
-                for ($y = $config['y'][0]; $y <= $config['y'][1]; $y++) {
-                    $exists = Storage::disk('mbtiles')->exists("/raster/$zoom/$x/$y.mbtiles");
-                    if (!$exists) {
-                        Log::channel('stdout')->info("Generating $zoom/$x/$y.mbtiles...");
-                        try {
-                            //                            $mbtilesJobsServiceProvider->generateMBTilesSquareJob([
-                            //                                'zoom' => $zoom,
-                            //                                'x' => $x,
-                            //                                'y' => $y
-                            //                            ]);
-                            Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles generated successfully");
-                        } catch (Exception $e) {
-                            Log::channel('stdout')->warning("Generation of $zoom/$x/$y.mbtiles encountered an error: " . $e->getMessage());
-                            Log::channel('stdout')->warning("Package $zoom/$x/$y.mbtiles skipped");
-                        }
-                    } else
-                        Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles already generated. Skipping");
+            if (is_null($zoomParameter) || $zoom == intval($zoomParameter)) {
+                for ($x = $config['x'][0]; $x <= $config['x'][1]; $x++) {
+                    for ($y = $config['y'][0]; $y <= $config['y'][1]; $y++) {
+                        $exists = Storage::disk('mbtiles')->exists("/raster/$zoom/$x/$y.mbtiles");
+                        if (!$exists) {
+                            Log::channel('stdout')->info("Generating $zoom/$x/$y.mbtiles...");
+                            try {
+                                //                            $mbtilesJobsServiceProvider->generateMBTilesSquareJob([
+                                //                                'zoom' => $zoom,
+                                //                                'x' => $x,
+                                //                                'y' => $y
+                                //                            ]);
+                                Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles generated successfully");
+                            } catch (Exception $e) {
+                                Log::channel('stdout')->warning("Generation of $zoom/$x/$y.mbtiles encountered an error: " . $e->getMessage());
+                                Log::channel('stdout')->warning("Package $zoom/$x/$y.mbtiles skipped");
+                            }
+                        } else
+                            Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles already generated. Skipping");
+                        if ($this->interrupted)
+                            break;
+                    }
                     if ($this->interrupted)
                         break;
                 }
-                if ($this->interrupted)
-                    break;
             }
             if ($this->interrupted)
                 break;
