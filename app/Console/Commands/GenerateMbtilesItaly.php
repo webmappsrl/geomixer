@@ -78,11 +78,11 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
                         if (!$exists) {
                             Log::channel('stdout')->info("Generating $zoom/$x/$y.mbtiles...");
                             try {
-                                //                            $mbtilesJobsServiceProvider->generateMBTilesSquareJob([
-                                //                                'zoom' => $zoom,
-                                //                                'x' => $x,
-                                //                                'y' => $y
-                                //                            ]);
+                                $mbtilesJobsServiceProvider->generateMBTilesSquareJob([
+                                    'zoom' => $zoom,
+                                    'x' => $x,
+                                    'y' => $y
+                                ]);
                                 Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles generated successfully");
                             } catch (Exception $e) {
                                 Log::channel('stdout')->warning("Generation of $zoom/$x/$y.mbtiles encountered an error: " . $e->getMessage());
