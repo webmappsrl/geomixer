@@ -9,15 +9,13 @@ use Illuminate\Support\ServiceProvider;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
-class TaxonomyActivityJobsServiceProvider extends ServiceProvider
-{
+class TaxonomyActivityJobsServiceProvider extends ServiceProvider {
     /**
      * Register services.
      *
      * @return void
      */
-    public function register()
-    {
+    public function register() {
         $this->app->bind(TaxonomyActivityJobsServiceProvider::class, function ($app) {
             return new TaxonomyActivityJobsServiceProvider($app);
         });
@@ -28,20 +26,18 @@ class TaxonomyActivityJobsServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot() {
         //
     }
 
     /**
      * @param array $activities
      * @param float $distance
-     * @param array $titl array of ascent and descent values
+     * @param array $tilt array of ascent and descent values
      *
      * @return array the computed values for the duration.
      */
-    public function calculateDuration(array $activities, float $distance, array $tilt): array
-    {
+    public function calculateDuration(array $activities, float $distance, array $tilt): array {
         $computed = [];
         foreach ($activities as $identifier => $values) {
             $computed[$identifier] = $this->calculateDurationByIdentifier($identifier, $distance, $tilt);
@@ -52,15 +48,14 @@ class TaxonomyActivityJobsServiceProvider extends ServiceProvider
 
     /**
      * Calculate backward and forward duration by identifier.
-     * 
+     *
      * @param string TaxonomyActivity identifier
      * @param float $distance
      * @param array $titl array of ascent and descent values
-     * 
+     *
      * @return array the forward and backward calculated array
      */
-    protected function calculateDurationByIdentifier(string $identifier, float $distance, array $tilt): array
-    {
+    protected function calculateDurationByIdentifier(string $identifier, float $distance, array $tilt): array {
         $duration = [
             'forward' => 0,
             'backward' => 0,

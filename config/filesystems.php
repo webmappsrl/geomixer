@@ -53,6 +53,16 @@ return [
             'visibility' => 'public',
         ],
 
+        'mbtiles' => [
+            'driver' => 's3',
+            'key' => env('AWS_MBTILES_ACCESS_KEY_ID', 'AKIAQ4UI2NKRBXKVWHHJ'),
+            'secret' => env('AWS_MBTILES_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_MBTILES_DEFAULT_REGION', 'eu-central-1'),
+            'bucket' => env('AWS_MBTILES_BUCKET', 'webmapp-mbtiles'),
+            'url' => env('AWS_MBTILES_URL'),
+            'endpoint' => env('AWS_MBTILES_ENDPOINT'),
+            'visibility' => 'public',
+        ],
     ],
 
     /*
