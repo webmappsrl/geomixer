@@ -116,12 +116,14 @@ class MBTilesJobsServiceProvider extends ServiceProvider {
      * @throws Exception
      */
     public function generateRasterMBTiles(int $minZoom, int $maxZoom, int $x, int $y): string {
-        $localPath = "mbtiles/{$minZoom}/{$x}/{$y}.mbtiles";
+        $localPath = "mbtiles/{$minZoom}_{$x}_{$y}.mbtiles";
+        if (!Storage::disk('local')->exists("mbtiles"))
+            Storage::disk('local')->makeDirectory("mbtiles");
         $path = Storage::disk('local')->path($localPath);
         $tilesPath = config('geomixer.raster_tiles_path');
 
         $bbox = $this->_getBBoxFromTileCoordinates($minZoom, $x, $y);
-        $command = "tl copy -z $minZoom -Z $maxZoom -b $bbox[0] $bbox[1] $bbox[2] $bbox[3] file://$tilesPath mbtiles://$path";
+        $command = "tl copy -z $minZoom -Z $maxZoom -b \"$bbox[0] $bbox[1] $bbox[2] $bbox[3]\" file://$tilesPath mbtiles://$path";
         $result = exec($command, $output, $resultCode);
 
         if (!$result)
@@ -144,9 +146,9 @@ class MBTilesJobsServiceProvider extends ServiceProvider {
 
         $bbox = [];
         $bbox[0] = $x / $n * 360 - 180;
-        $bbox[1] = atan(sinh(pi() * (1 - 2 * $y / $n))) * 180 / pi();
+        $bbox[1] = atan(sinh(pi() * (1 - 2 * ($y + 1) / $n))) * 180 / pi();
         $bbox[2] = ($x + 1) / $n * 360 - 180;
-        $bbox[3] = atan(sinh(pi() * (1 - 2 * ($y + 1) / $n))) * 180 / pi();
+        $bbox[3] = atan(sinh(pi() * (1 - 2 * $y / $n))) * 180 / pi();
 
         return $bbox;
     }
