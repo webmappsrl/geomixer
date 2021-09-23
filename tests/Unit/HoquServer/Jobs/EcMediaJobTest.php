@@ -4,27 +4,15 @@ namespace Tests\Unit\HoquServer\Jobs;
 
 use App\Console\Commands\HoquServer;
 use App\Models\EcMedia;
-use App\Models\TaxonomyWhere;
-use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
-use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Exception\ImageException;
-use Intervention\Image\Facades\Image;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Tests\TestCase;
 
-
-class EcMediaJobTest extends TestCase
-{
-
-    public function testJobExecuted()
-    {
+class EcMediaJobTest extends TestCase {
+    public function testJobExecuted() {
         $jobParameters = [
             'id' => 1,
         ];
@@ -54,8 +42,7 @@ class EcMediaJobTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testGetExifDataJpg()
-    {
+    public function testGetExifDataJpg() {
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
 
         $exif_data = $ecMediaJobsServiceProvider->getImageExif(base_path() . '/tests/Fixtures/EcMedia/test.jpg');
@@ -69,8 +56,7 @@ class EcMediaJobTest extends TestCase
         $this->assertEquals(43.781288888889, $exif_data['coordinates'][1]);
     }
 
-    public function _testImageNoExists()
-    {
+    public function _testImageNoExists() {
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         $image = base_path() . '/tests/Fixtures/EcMedia/test2.jpg';
         try {
@@ -79,14 +65,12 @@ class EcMediaJobTest extends TestCase
         }
     }
 
-    public function testImageExists()
-    {
+    public function testImageExists() {
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
         $this->assertFileExists($image);
     }
 
-    public function testImageResize()
-    {
+    public function testImageResize() {
         $thumbnailSizes = [
             ['width' => 108, 'height' => 148],
             ['width' => 108, 'height' => 137],
@@ -105,7 +89,6 @@ class EcMediaJobTest extends TestCase
             $storage = 'public';
         }
 
-
         $image = base_path() . '/tests/Fixtures/EcMedia/test_resize.jpg';
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         foreach ($thumbnailSizes as $size) {
@@ -123,12 +106,10 @@ class EcMediaJobTest extends TestCase
                 $headers = get_headers($cloudImage);
                 $this->assertTrue(stripos($headers[0], "200 OK") >= 0);
             }
-
         }
     }
 
-    public function testImageResizeTooSmall()
-    {
+    public function testImageResizeTooSmall() {
         $thumbnailSize = ['width' => 10000, 'height' => 10000];
 
         $image = base_path() . '/tests/Fixtures/EcMedia/test.jpg';
@@ -147,9 +128,7 @@ class EcMediaJobTest extends TestCase
     }
 
     // TODO: make the test NOT use AWS and use local filesystem
-    public function testDeleteAwsImagesWhenDeleteMedia()
-    {
-        
+    public function testDeleteAwsImagesWhenDeleteMedia() {
         $thumbnailSizes = [
             ['width' => 108, 'height' => 148],
             ['width' => 108, 'height' => 137],
@@ -172,7 +151,6 @@ class EcMediaJobTest extends TestCase
         foreach ($thumbnailSizes as $size) {
             Storage::disk($storage)->put('/EcMedia/Resize/' . $size['width'] . 'x' . $size['height'] . '/test_' . $size['width'] . 'x' . $size['height'] . '.jpg', file_get_contents(base_path() . '/tests/Fixtures/EcMedia/test_' . $size['width'] . 'x' . $size['height'] . '.jpg'));
         }
-
 
         $ecMediaJobsServiceProvider = $this->partialMock(EcMediaJobsServiceProvider::class);
         if ($storage == 's3') {

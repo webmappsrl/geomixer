@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'version' => '0.2.9.3',
+    'version' => '0.2.18.3',
 
     /*
     |--------------------------------------------------------------------------
@@ -201,6 +201,7 @@ return [
         App\Providers\HoquJobs\EcMediaJobsServiceProvider::class,
         App\Providers\HoquJobs\EcTrackJobsServiceProvider::class,
         App\Providers\HoquJobs\EcPoiJobsServiceProvider::class,
+        App\Providers\HoquJobs\MBTilesJobsServiceProvider::class,
 
     ],
 

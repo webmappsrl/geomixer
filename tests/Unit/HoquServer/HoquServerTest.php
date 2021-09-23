@@ -6,7 +6,8 @@ use App\Console\Commands\HoquServer;
 use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+use Mockery;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 use Tests\TestCase;
 
@@ -122,11 +123,30 @@ class HoquServerTest extends TestCase {
         $this->assertTrue($result);
     }
 
-    // TODO: implement
-    public function xtestJobUpdateTaxonomyWhereSupported() {
+    public function test_not_supported_jobs() {
+        Config::set('geomixer.hoqu.jobs_not_supported', UPDATE_UGC_TAXONOMY_WHERES . ', test');
+
+        $hoquServiceMock = $this->mock(HoquServiceProvider::class);
+
+        $hoquServer = new HoquServer($hoquServiceMock);
+        $hoquServer->initializeJobs();
+
+        $this->assertIsArray($hoquServer->jobs);
+        $this->assertFalse(in_array(UPDATE_UGC_TAXONOMY_WHERES, $hoquServer->jobs));
+        $this->assertFalse(in_array('test', $hoquServer->jobs));
     }
 
-    // TODO: implement
-    public function xtestJobUpdateWheresToFeatureSupported() {
+    public function test_supported_jobs() {
+        Config::set('geomixer.hoqu.jobs_supported', UPDATE_UGC_TAXONOMY_WHERES . ', test');
+
+        $hoquServiceMock = $this->mock(HoquServiceProvider::class);
+
+        $hoquServer = new HoquServer($hoquServiceMock);
+        $hoquServer->initializeJobs();
+
+        $this->assertIsArray($hoquServer->jobs);
+        $this->assertCount(1, $hoquServer->jobs);
+        $this->assertTrue(in_array(UPDATE_UGC_TAXONOMY_WHERES, $hoquServer->jobs));
+        $this->assertFalse(in_array('test', $hoquServer->jobs));
     }
 }
