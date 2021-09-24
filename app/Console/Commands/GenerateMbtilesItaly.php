@@ -15,7 +15,10 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
      *
      * @var string
      */
-    protected $signature = 'geomixer:generate_mbtiles_italy {--zoom= : The zoom to generate} {--x= : The x to generate of the zoom}';
+    protected $signature = 'geomixer:generate_mbtiles_italy
+        {--zoom= : The zoom to generate}
+        {--minX= : The min x to generate of the zoom}
+        {--maxX= : The max x to generate of the zoom}';
     /**
      * The console command description.
      *
@@ -70,12 +73,14 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
         Log::channel('stdout')->info("Starting mbtiles generation");
         $zoomLevels = config('geomixer.hoqu.mbtiles.zoom_levels');
         $zoomParameter = $this->option('zoom');
-        $xParameter = $this->option('x');
+        $minXParameter = $this->option('minX');
+        $maxXParameter = $this->option('maxX');
 
         foreach ($zoomLevels as $zoom => $config) {
             if (is_null($zoomParameter) || $zoom == intval($zoomParameter)) {
                 for ($x = $config['x'][0]; $x <= $config['x'][1]; $x++) {
-                    if (!isset($zoomParameter) || is_null($xParameter) || $x == intval($xParameter)) {
+                    if ((is_null($minXParameter) || $x >= intval($minXParameter)) &&
+                        (is_null($maxXParameter) || $x <= intval($maxXParameter))) {
                         for ($y = $config['y'][0]; $y <= $config['y'][1]; $y++) {
                             $exists = Storage::disk('mbtiles')->exists("/raster/$zoom/$x/$y.mbtiles");
                             if (!$exists) {
