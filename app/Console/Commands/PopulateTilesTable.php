@@ -41,12 +41,14 @@ class PopulateTilesTable extends Command {
         $zoomParameter = $this->option('zoom');
         Tiles::truncate();
 
-        try {
-            $zoomParameter = explode(',', $zoomParameter);
-            $zoomParameter = array_map('intval', $zoomParameter);
-        } catch (Exception $e) {
-            $zoomParameter = [];
-        }
+        if (isset($zoomParameter) && !empty($zoomParameter)) {
+            try {
+                $zoomParameter = explode(',', $zoomParameter);
+                $zoomParameter = array_map('intval', $zoomParameter);
+            } catch (Exception $e) {
+                $zoomParameter = [];
+            }
+        } else $zoomParameter = [];
 
         foreach ($zoomLevels as $zoom => $config) {
             if (count($zoomParameter) === 0 || in_array($zoom, $zoomParameter)) {
