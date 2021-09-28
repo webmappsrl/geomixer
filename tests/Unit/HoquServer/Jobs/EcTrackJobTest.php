@@ -930,10 +930,7 @@ class EcTrackJobTest extends TestCase {
         $this->assertEquals(-5, $result[4]);
     }
 
-    /**
-     * @test
-     */
-    public function check_slope_on_job_completion() {
+    public function test_slope_on_job_completion() {
         $this->loadDem();
         $trackId = 1;
         $params = ['id' => $trackId];
@@ -980,7 +977,131 @@ class EcTrackJobTest extends TestCase {
                 ->with(
                     $trackId,
                     Mockery::on(function ($payload) {
-                        return isset($payload['slope']) ** is_array($payload['slope']) && count($payload['slope']) === 4;
+                        return isset($payload['slope']) && is_array($payload['slope']) && count($payload['slope']) === 4;
+                    })
+                )
+                ->once()
+                ->andReturn(200);
+        });
+
+        $ecTrackService->enrichJob($params);
+    }
+
+    public function test_mbtiles_calculation() {
+        Artisan::call('geomixer:populate_tiles_table --zoom=2,7,11');
+        $geometry = [
+            "type" => "LineString",
+            "coordinates" => [
+                [
+                    10.402003526687622,
+                    43.716302425298494
+                ],
+                [
+                    10.401660203933716,
+                    43.715573499122414
+                ]
+            ]
+        ];
+        $expectedMBTiles = [
+            "2/2/1",
+            "7/67/46",
+            "11/1083/746",
+        ];
+
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class, function ($mock) {
+        });
+
+        $mbtiles = $ecTrackService->getMbtilesArray($geometry);
+
+        $this->assertIsArray($mbtiles);
+        $this->assertCount(count($expectedMBTiles), $mbtiles);
+        foreach ($expectedMBTiles as $id) {
+            $this->assertTrue(in_array($id, $mbtiles));
+        }
+    }
+
+    public function test_mbtiles_for_track_outside_mbtiles_bbox() {
+        Artisan::call('geomixer:populate_tiles_table --zoom=2,7,11');
+        $geometry = [
+            "type" => "LineString",
+            "coordinates" => [
+                [
+                    -10,
+                    -10
+                ],
+                [
+                    -11,
+                    -11
+                ]
+            ]
+        ];
+        $expectedMBTiles = [];
+
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class, function ($mock) {
+        });
+
+        $mbtiles = $ecTrackService->getMbtilesArray($geometry);
+
+        $this->assertIsArray($mbtiles);
+        $this->assertCount(count($expectedMBTiles), $mbtiles);
+        foreach ($expectedMBTiles as $id) {
+            $this->assertTrue(in_array($id, $mbtiles));
+        }
+    }
+
+    public function test_mbtiles_on_job_completion() {
+        $this->loadDem();
+        $trackId = 1;
+        $params = ['id' => $trackId];
+        $ecTrack = [
+            'type' => 'Feature',
+            'properties' => [
+                'id' => $trackId
+            ],
+            'geometry' => [
+                "type" => "LineString",
+                "coordinates" => [
+                    [
+                        10.402003526687622,
+                        43.716302425298494
+                    ],
+                    [
+                        10.401660203933716,
+                        43.715573499122414
+                    ]
+                ]
+            ]
+        ];
+        $expectedMBTiles = [
+            "2/2/1",
+            "7/67/46",
+            "11/1083/746",
+        ];
+
+        $ecTrackService = $this->partialMock(EcTrackJobsServiceProvider::class, function ($mock) use ($expectedMBTiles) {
+            $mock->shouldReceive('getMbtilesArray')
+                ->once()
+                ->andReturn($expectedMBTiles);
+        });
+
+        $this->mock(GeohubServiceProvider::class, function ($mock) use ($ecTrack, $trackId, $expectedMBTiles) {
+            $mock->shouldReceive('getEcTrack')
+                ->with($trackId)
+                ->once()
+                ->andReturn($ecTrack);
+
+            $mock->shouldReceive('updateEcTrack')
+                ->with(
+                    $trackId,
+                    Mockery::on(function ($payload) use ($expectedMBTiles) {
+                        if (isset($payload['mbtiles']) && is_array($payload['mbtiles']) && count($payload['mbtiles']) === count($expectedMBTiles)) {
+                            foreach ($expectedMBTiles as $value) {
+                                if (!in_array($value, $payload['mbtiles'])) return false;
+                            }
+
+                            return true;
+                        } else
+                            return false;
                     })
                 )
                 ->once()

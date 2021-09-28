@@ -5,7 +5,10 @@ namespace App\Console\Commands;
 use App\Providers\HoquJobs\MBTilesJobsServiceProvider;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
 
