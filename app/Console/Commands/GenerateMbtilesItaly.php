@@ -5,7 +5,10 @@ namespace App\Console\Commands;
 use App\Providers\HoquJobs\MBTilesJobsServiceProvider;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
 
@@ -15,7 +18,10 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
      *
      * @var string
      */
-    protected $signature = 'geomixer:generate_mbtiles_italy {--zoom= : The zoom to generate}';
+    protected $signature = 'geomixer:generate_mbtiles_italy
+        {--zoom= : The zoom to generate}
+        {--minX= : The min x to generate of the zoom}
+        {--maxX= : The max x to generate of the zoom}';
     /**
      * The console command description.
      *
@@ -54,8 +60,9 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
     public function handleSignal(int $signal): void {
         switch ($signal) {
             case SIGINT:
-                Log::channel('stdout')->warning("  [CTRL - C] Performing soft interruption. Terminating job before closing");
-                $this->interrupted = true;
+                // Log::channel('stdout')->warning("  [CTRL - C] Performing soft interruption. Terminating job before closing");
+                Log::channel('stdout')->warning("  [CTRL - C] To terminate use CTRL + Z");
+                // $this->interrupted = true;
                 break;
         }
     }
@@ -69,29 +76,34 @@ class GenerateMbtilesItaly extends Command implements SignalableCommandInterface
         Log::channel('stdout')->info("Starting mbtiles generation");
         $zoomLevels = config('geomixer.hoqu.mbtiles.zoom_levels');
         $zoomParameter = $this->option('zoom');
+        $minXParameter = $this->option('minX');
+        $maxXParameter = $this->option('maxX');
 
         foreach ($zoomLevels as $zoom => $config) {
             if (is_null($zoomParameter) || $zoom == intval($zoomParameter)) {
                 for ($x = $config['x'][0]; $x <= $config['x'][1]; $x++) {
-                    for ($y = $config['y'][0]; $y <= $config['y'][1]; $y++) {
-                        $exists = Storage::disk('mbtiles')->exists("/raster/$zoom/$x/$y.mbtiles");
-                        if (!$exists) {
-                            Log::channel('stdout')->info("Generating $zoom/$x/$y.mbtiles...");
-                            try {
-                                $this->mbtilesJobsServiceProvider->generateMBTilesSquareJob([
-                                    'zoom' => $zoom,
-                                    'x' => $x,
-                                    'y' => $y
-                                ]);
-                                Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles generated successfully");
-                            } catch (Exception $e) {
-                                Log::channel('stdout')->warning("Generation of $zoom/$x/$y.mbtiles encountered an error: " . $e->getMessage());
-                                Log::channel('stdout')->warning("Package $zoom/$x/$y.mbtiles skipped");
-                            }
-                        } else
-                            Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles already generated. Skipping");
-                        if ($this->interrupted)
-                            break;
+                    if ((is_null($minXParameter) || $x >= intval($minXParameter)) &&
+                        (is_null($maxXParameter) || $x <= intval($maxXParameter))) {
+                        for ($y = $config['y'][0]; $y <= $config['y'][1]; $y++) {
+                            $exists = Storage::disk('mbtiles')->exists("/raster/$zoom/$x/$y.mbtiles");
+                            if (!$exists) {
+                                Log::channel('stdout')->info("Generating $zoom/$x/$y.mbtiles...");
+                                try {
+                                    $this->mbtilesJobsServiceProvider->generateMBTilesSquareJob([
+                                        'zoom' => $zoom,
+                                        'x' => $x,
+                                        'y' => $y
+                                    ]);
+                                    Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles generated successfully");
+                                } catch (Exception $e) {
+                                    Log::channel('stdout')->warning("Generation of $zoom/$x/$y.mbtiles encountered an error: " . $e->getMessage());
+                                    Log::channel('stdout')->warning("Package $zoom/$x/$y.mbtiles skipped");
+                                }
+                            } else
+                                Log::channel('stdout')->info("Package $zoom/$x/$y.mbtiles already generated. Skipping");
+                            if ($this->interrupted)
+                                break;
+                        }
                     }
                     if ($this->interrupted)
                         break;

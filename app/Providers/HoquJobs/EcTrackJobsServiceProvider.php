@@ -5,8 +5,9 @@ namespace App\Providers\HoquJobs;
 use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
 use Exception;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
@@ -108,6 +109,8 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
             $payload['duration'] = $taxonomyActivityJobServiceProvider->calculateDuration($ecTrack['properties']['duration'], $distance, [$info_ele['ascent'], $info_ele['descent']]);
         }
 
+        $payload['mbtiles'] = $this->getMbtilesArray($payload['geometry']);
+
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }
 
@@ -171,27 +174,31 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
     }
 
     /**
-     * TODO: remove me
+     * Calculate the mbtiles that the track needs to use and return them as an array of strings
      *
-     * @param $bidimensional_geometry
+     * @param array $geometry
      *
      * @return array
      */
-    public function get3DDemProfile($bidimensional_geometry) {
-        $tridimensional_geometry = $bidimensional_geometry;
-        if (
-            !is_null($bidimensional_geometry)
-            && is_array($bidimensional_geometry)
-            && isset($bidimensional_geometry['type'])
-            && isset($bidimensional_geometry['coordinates'])
-        ) {
-            $tridimensional_geometry = [];
-            $tridimensional_geometry['type'] = $bidimensional_geometry['type'];
-            foreach ($bidimensional_geometry['coordinates'] as $point) {
-                $tridimensional_geometry['coordinates'][] = [$point[0], $point[1], Dem::getEle($point[1], $point[0])];
-            }
+    public function getMbtilesArray(array $geometry): array {
+        $dbResults = DB::select("SELECT
+	tiles.z AS z, tiles.x AS x, tiles.y AS y
+	FROM tiles,
+	(SELECT 
+		ST_Buffer(
+			ST_Transform(
+				ST_SetSRID(ST_GeomFromGeojson('" . json_encode($geometry) . "'), 4326),
+				3857
+			),
+			1000,
+			'endcap=round join=round'
+		) AS buffer) as track
+	WHERE ST_Intersects(ST_TileEnvelope(tiles.z, tiles.x, tiles.y), track.buffer);");
+
+        foreach ($dbResults as $row) {
+            $result[] = $row->z . '/' . $row->x . '/' . $row->y;
         }
 
-        return $tridimensional_geometry;
+        return $result ?? [];
     }
 }
