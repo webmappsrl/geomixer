@@ -193,7 +193,14 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
 			1000,
 			'endcap=round join=round'
 		) AS buffer) as track
-	WHERE ST_Intersects(ST_TileEnvelope(tiles.z, tiles.x, tiles.y), track.buffer);");
+	-- WHERE ST_Intersects(ST_TileEnvelope(tiles.z, tiles.x, tiles.y), track.buffer);
+	WHERE ST_Intersects(ST_Transform(ST_MakeEnvelope(
+tiles.x / POWER(2, tiles.z) * 360 - 180,
+ATAN(SINH(PI() * (1 - 2 * (tiles.y + 1) / POWER(2, tiles.z)))) * 180 / PI(),
+(tiles.x + 1) / POWER(2, tiles.z) * 360 - 180,
+ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
+4326),
+3857), track.buffer)");
 
         foreach ($dbResults as $row) {
             $result[] = $row->z . '/' . $row->x . '/' . $row->y;
