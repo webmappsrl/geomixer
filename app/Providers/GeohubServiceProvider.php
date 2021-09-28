@@ -409,7 +409,8 @@ class GeohubServiceProvider extends ServiceProvider {
             'duration_forward',
             'duration_backward',
             'duration',
-            'slope'
+            'slope',
+            'mbtiles'
         ];
 
         foreach ($fields as $field) {
