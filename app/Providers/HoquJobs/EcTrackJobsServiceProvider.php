@@ -127,7 +127,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         }
         $newGeojson = [
             'type' => 'Feature',
-            'properties' => $ecTrack['geometry'],
+            'properties' => $ecTrack['properties'],
             'geometry' => $payload['geometry']
         ];
         $this->generateElevationChartImages($newGeojson);
@@ -240,7 +240,7 @@ ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
     public function generateElevationChartImages(array $geojson): void {
         if (!isset($geojson['properties']['id']))
             return;
-        
+
         $localDisk = Storage::disk('local');
         $ecMediaDisk = Storage::disk('s3');
 
