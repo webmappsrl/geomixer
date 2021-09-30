@@ -4,6 +4,7 @@ namespace App\Providers\HoquJobs;
 
 use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
+use App\Providers\HoquServiceProvider;
 use Exception;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -113,6 +114,17 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         }
 
         $payload['mbtiles'] = $this->getMbtilesArray($payload['geometry']);
+        if (count($payload['mbtiles']) > 0) {
+            $hoquServiceProvider = app(HoquServiceProvider::class);
+            foreach ($payload['mbtiles'] as $mbtiles) {
+                $split = explode('/', $mbtiles);
+                $hoquServiceProvider->store(GENERATE_MBTILES_SQUARE, [
+                    'zoom' => intval($split[0]),
+                    'x' => intval($split[1]),
+                    'y' => intval($split[2])
+                ]);
+            }
+        }
         $newGeojson = [
             'type' => 'Feature',
             'properties' => $ecTrack['geometry'],
@@ -226,6 +238,9 @@ ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
      * @throws Exception when the generation fail
      */
     public function generateElevationChartImages(array $geojson): void {
+        if (!isset($geojson['properties']['id']))
+            return;
+        
         $localDisk = Storage::disk('local');
         $ecMediaDisk = Storage::disk('s3');
 
