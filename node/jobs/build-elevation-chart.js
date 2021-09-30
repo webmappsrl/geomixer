@@ -170,7 +170,7 @@ function getChartOptions(geojson) {
     surfaceValues
   );
   if (!usedSurfaces.includes(surface)) usedSurfaces.push(surface);
-  slopeValues.push([coordinates[0][2], coordinates[0][3] ?? 0]);
+  slopeValues.push([coordinates[0][2], coordinates[0][3] ? coordinates[0][3] : 0]);
 
   // Calculate track length and max/min altitude
   for (let i = 1; i < coordinates.length; i++) {
@@ -311,7 +311,7 @@ function _setSurfaceValue(
   locations,
   values
 ) {
-  let oldSurface = values?.[values.length - 1]?.surface;
+  let oldSurface = values && values[values.length - 1] && values[values.length - 1].surface ? values[values.length - 1].surface : null;
 
   if (oldSurface === surface) {
     // Merge the old surface segment with the new one
@@ -322,7 +322,7 @@ function _setSurfaceValue(
   } else {
     //Creare a new surface segment
     let nullElements = [];
-    if (values?.[values.length - 1]?.values) {
+    if (values && values[values.length - 1] && values[values.length - 1].values) {
       nullElements.length = values[values.length - 1].values.length;
       values[values.length - 1].values.push(value);
     }
