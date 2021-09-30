@@ -7,8 +7,11 @@ use App\Providers\GeohubServiceProvider;
 use Exception;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\MountManager;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
 class EcTrackJobsServiceProvider extends ServiceProvider {
@@ -110,6 +113,12 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         }
 
         $payload['mbtiles'] = $this->getMbtilesArray($payload['geometry']);
+        $newGeojson = [
+            'type' => 'Feature',
+            'properties' => $ecTrack['geometry'],
+            'geometry' => $payload['geometry']
+        ];
+        $this->generateElevationChartImages($newGeojson);
 
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }
@@ -207,5 +216,82 @@ ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
         }
 
         return $result ?? [];
+    }
+
+    /**
+     * Generate all the elevation chart images for the ec track
+     *
+     * @param array $geojson
+     *
+     * @throws Exception when the generation fail
+     */
+    public function generateElevationChartImages(array $geojson): void {
+        $localDisk = Storage::disk('local');
+        $ecMediaDisk = Storage::disk('s3');
+
+        if (!$localDisk->exists('elevation_charts')) {
+            $localDisk->makeDirectory('elevation_charts');
+        }
+        if (!$localDisk->exists('geojson')) {
+            $localDisk->makeDirectory('geojson');
+        }
+
+        $id = $geojson['properties']['id'];
+
+        $localDisk->put("geojson/$id.geojson", json_encode($geojson));
+
+        $src = $localDisk->path("geojson/$id.geojson");
+        $dest = $localDisk->path("elevation_charts/$id.svg");
+
+        $cmd = config('geomixer.node_executable') . " node/jobs/build-elevation-chart.js --geojson=$src --dest=$dest --type=svg";
+
+        Log::info("Running node command: {$cmd}");
+
+        $this->runElevationChartImageGeneration($cmd);
+
+        $localDisk->delete("geojson/$id.geojson");
+
+        if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/$id.svg")) {
+            if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/{$id}_old.svg"))
+                $ecMediaDisk->delete("ecmedia/ectrack/elevation_charts/{$id}_old.svg");
+            $ecMediaDisk->move("ecmedia/ectrack/elevation_charts/$id.svg", "ecmedia/ectrack/elevation_charts/{$id}_old.svg");
+        }
+        try {
+            $ecMediaDisk->writeStream("ecmedia/ectrack/elevation_charts/$id.svg", $localDisk->readStream("elevation_charts/$id.svg"));
+        } catch (Exception $e) {
+            Log::warning("The elevation chart image could not be written");
+            if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/{$id}_old.svg"))
+                $ecMediaDisk->move("ecmedia/ectrack/elevation_charts/{$id}_old.svg", "ecmedia/ectrack/elevation_charts/$id.svg");
+        }
+
+        if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/{$id}_old.svg"))
+            $ecMediaDisk->delete("ecmedia/ectrack/elevation_charts/{$id}_old.svg");
+    }
+
+    /**
+     * Run the effective image generation
+     *
+     * @param string $cmd
+     *
+     * @throws Exception
+     */
+    public function runElevationChartImageGeneration(string $cmd) {
+        $descriptorSpec = array(
+            0 => array("pipe", "r"),   // stdin is a pipe that the child will read from
+            1 => array("pipe", "w"),   // stdout is a pipe that the child will write to
+            2 => array("pipe", "w")    // stderr is a pipe that the child will write to
+        );
+        flush();
+
+        $process = proc_open($cmd, $descriptorSpec, $pipes, realpath('./'), array());
+        if (is_resource($process)) {
+            while ($s = fgets($pipes[1])) {
+                Log::info($s);
+                flush();
+            }
+
+            if ($s = fgets($pipes[2]))
+                throw new Exception($s);
+        }
     }
 }
