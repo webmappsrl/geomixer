@@ -97,7 +97,8 @@ class HoquServiceProvider extends ServiceProvider {
         if (is_null($acceptInstances)) $acceptInstances = [config('hoqu.geohub_domain')];
 
         Log::debug('Pulling a new job from HOQU:');
-        Log::debug('  instances: ' . json_encode($acceptInstances));
+        Log::debug('  instances: ' . implode(', ', $acceptInstances));
+        Log::debug('  jobs: ' . implode(', ', $jobs));
 
         $payload = [
             'id_server' => config('hoqu.server_id'),

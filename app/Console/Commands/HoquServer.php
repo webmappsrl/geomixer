@@ -83,6 +83,9 @@ class HoquServer extends Command implements SignalableCommandInterface {
         }
     }
 
+    /**
+     * Calculate the server executable jobs
+     */
     public function initializeJobs() {
         if (config('geomixer.hoqu.jobs_supported') != null || config('geomixer.hoqu.jobs_not_supported') != null) {
             if (config('geomixer.hoqu.jobs_supported') != null) {
