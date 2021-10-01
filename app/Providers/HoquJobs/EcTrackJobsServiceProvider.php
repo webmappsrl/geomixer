@@ -266,21 +266,21 @@ ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
 
         $localDisk->delete("geojson/$id.geojson");
 
-        if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/$id.svg")) {
-            if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/{$id}_old.svg"))
-                $ecMediaDisk->delete("ecmedia/ectrack/elevation_charts/{$id}_old.svg");
-            $ecMediaDisk->move("ecmedia/ectrack/elevation_charts/$id.svg", "ecmedia/ectrack/elevation_charts/{$id}_old.svg");
+        if ($ecMediaDisk->exists("ectrack/elevation_charts/$id.svg")) {
+            if ($ecMediaDisk->exists("ectrack/elevation_charts/{$id}_old.svg"))
+                $ecMediaDisk->delete("ectrack/elevation_charts/{$id}_old.svg");
+            $ecMediaDisk->move("ectrack/elevation_charts/$id.svg", "ecmedia/ectrack/elevation_charts/{$id}_old.svg");
         }
         try {
-            $ecMediaDisk->writeStream("ecmedia/ectrack/elevation_charts/$id.svg", $localDisk->readStream("elevation_charts/$id.svg"));
+            $ecMediaDisk->writeStream("ectrack/elevation_charts/$id.svg", $localDisk->readStream("elevation_charts/$id.svg"));
         } catch (Exception $e) {
             Log::warning("The elevation chart image could not be written");
-            if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/{$id}_old.svg"))
-                $ecMediaDisk->move("ecmedia/ectrack/elevation_charts/{$id}_old.svg", "ecmedia/ectrack/elevation_charts/$id.svg");
+            if ($ecMediaDisk->exists("ectrack/elevation_charts/{$id}_old.svg"))
+                $ecMediaDisk->move("ectrack/elevation_charts/{$id}_old.svg", "ecmedia/ectrack/elevation_charts/$id.svg");
         }
 
-        if ($ecMediaDisk->exists("ecmedia/ectrack/elevation_charts/{$id}_old.svg"))
-            $ecMediaDisk->delete("ecmedia/ectrack/elevation_charts/{$id}_old.svg");
+        if ($ecMediaDisk->exists("ectrack/elevation_charts/{$id}_old.svg"))
+            $ecMediaDisk->delete("ectrack/elevation_charts/{$id}_old.svg");
     }
 
     /**
