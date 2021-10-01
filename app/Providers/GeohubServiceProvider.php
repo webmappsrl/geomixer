@@ -410,7 +410,8 @@ class GeohubServiceProvider extends ServiceProvider {
             'duration_backward',
             'duration',
             'slope',
-            'mbtiles'
+            'mbtiles',
+            'elevation_chart_image'
         ];
 
         foreach ($fields as $field) {
