@@ -537,7 +537,7 @@ function _getSlopeChartOptions(
     options: {
       layout: {
         padding: {
-          top: 40,
+          top: 5,
         },
       },
       maintainAspectRatio: false,

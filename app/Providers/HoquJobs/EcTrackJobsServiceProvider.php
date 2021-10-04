@@ -50,6 +50,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
             throw new MissingMandatoryParametersException('The parameter "id" is missing but required. The operation can not be completed');
         }
 
+        Log::info("Getting the ec track from API");
         $ecTrack = $geohubServiceProvider->getEcTrack($params['id']);
         $payload = [];
 
@@ -67,12 +68,14 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         /**
          * Retrieve 3D profile by geometry e DEM file.
          */
+        Log::info("Adding 3D");
         $geom3D_string = Dem::add3D(json_encode($ecTrack['geometry']));
         $payload['geometry'] = json_decode($geom3D_string, true);
 
         /**
          * Compute slope values
          */
+        Log::info("Calculating slope values");
         $slopeValues = $this->calculateSlopeValues($payload['geometry']);
         if (isset($slopeValues))
             $payload['slope'] = $slopeValues;
@@ -80,6 +83,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         /**
          * Compute EleMAX
          */
+        Log::info("Calculating elevation info");
         $info_ele = Dem::getEleInfo($geom3D_string);
         $payload['ele_max'] = $info_ele['ele_max'];
         $payload['ele_min'] = $info_ele['ele_min'];
@@ -93,6 +97,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         /**
          * Retrieve computed distance by geometry.
          */
+        Log::info("Calculating distance");
         $distance = round($this->getDistanceComp($ecTrack['geometry']), 1);
         $payload['distance'] = $distance;
         $payload['distance_comp'] = $distance;
@@ -102,36 +107,54 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
          */
         if (isset($ecTrack['geometry'])) {
             //$ids = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
+            Log::info("Associating wheres");
             $payload['ids'] = $taxonomyWhereJobServiceProvider->associateWhere($ecTrack['geometry']);
         }
 
         /**
          * Calculate durations by activity.
          */
+        Log::info("Calculating activities durations");
         if (isset($ecTrack['properties']['duration']) && isset($distance)) {
             $taxonomyActivityJobServiceProvider = app(TaxonomyActivityJobsServiceProvider::class);
             $payload['duration'] = $taxonomyActivityJobServiceProvider->calculateDuration($ecTrack['properties']['duration'], $distance, [$info_ele['ascent'], $info_ele['descent']]);
         }
 
+        Log::info("Calculating related mbtiles packages");
         $payload['mbtiles'] = $this->getMbtilesArray($payload['geometry']);
         if (count($payload['mbtiles']) > 0) {
+            $type = 'raster';
+            Log::info("Storing jobs to generate the related mbtiles");
             $hoquServiceProvider = app(HoquServiceProvider::class);
             foreach ($payload['mbtiles'] as $mbtiles) {
                 $split = explode('/', $mbtiles);
-                $hoquServiceProvider->store(GENERATE_MBTILES_SQUARE, [
-                    'zoom' => intval($split[0]),
-                    'x' => intval($split[1]),
-                    'y' => intval($split[2])
-                ]);
+                $zoom = intval($split[0]);
+                $x = intval($split[1]);
+                $y = intval($split[2]);
+                if (!Storage::disk('mbtiles')->exists("$type/$zoom/$x/$y.mbtiles")) {
+                    $hoquServiceProvider->store(GENERATE_MBTILES_SQUARE, [
+                        'zoom' => $zoom,
+                        'x' => $x,
+                        'y' => $y
+                    ]);
+                }
             }
         }
-        $newGeojson = [
-            'type' => 'Feature',
-            'properties' => $ecTrack['properties'],
-            'geometry' => $payload['geometry']
-        ];
-        $this->generateElevationChartImages($newGeojson);
 
+        try {
+            Log::info("Generating elevation chart images");
+            $newGeojson = [
+                'type' => 'Feature',
+                'properties' => $ecTrack['properties'],
+                'geometry' => $payload['geometry']
+            ];
+            $imageUrl = $this->generateElevationChartImage($newGeojson);
+            $payload['elevation_chart_image'] = $imageUrl;
+        } catch (Exception $e) {
+            Log::warning("The elevation chart image could not be generated: " . $e->getMessage());
+        }
+
+        Log::info("Completed job: updating ec track");
         $geohubServiceProvider->updateEcTrack($params['id'], $payload);
     }
 
@@ -231,15 +254,16 @@ ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
     }
 
     /**
-     * Generate all the elevation chart images for the ec track
+     * Generate the elevation chart image for the ec track
      *
      * @param array $geojson
      *
+     * @return string with the generated image path
      * @throws Exception when the generation fail
      */
-    public function generateElevationChartImages(array $geojson): void {
+    public function generateElevationChartImage(array $geojson): string {
         if (!isset($geojson['properties']['id']))
-            return;
+            throw new Exception('The geojson id is not defined');
 
         $localDisk = Storage::disk('local');
         $ecMediaDisk = Storage::disk('s3');
@@ -281,6 +305,8 @@ ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
 
         if ($ecMediaDisk->exists("ectrack/elevation_charts/{$id}_old.svg"))
             $ecMediaDisk->delete("ectrack/elevation_charts/{$id}_old.svg");
+
+        return $ecMediaDisk->path("ectrack/elevation_charts/{$id}.svg");
     }
 
     /**
@@ -290,7 +316,7 @@ ATAN(SINH(PI() * (1 - 2 * tiles.y / POWER(2, tiles.z)))) * 180 / PI(),
      *
      * @throws Exception
      */
-    public function runElevationChartImageGeneration(string $cmd) {
+    public function runElevationChartImageGeneration(string $cmd): void {
         $descriptorSpec = array(
             0 => array("pipe", "r"),   // stdin is a pipe that the child will read from
             1 => array("pipe", "w"),   // stdout is a pipe that the child will write to
