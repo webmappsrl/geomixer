@@ -123,15 +123,21 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
         Log::info("Calculating related mbtiles packages");
         $payload['mbtiles'] = $this->getMbtilesArray($payload['geometry']);
         if (count($payload['mbtiles']) > 0) {
+            $type = 'raster';
             Log::info("Storing jobs to generate the related mbtiles");
             $hoquServiceProvider = app(HoquServiceProvider::class);
             foreach ($payload['mbtiles'] as $mbtiles) {
                 $split = explode('/', $mbtiles);
-                $hoquServiceProvider->store(GENERATE_MBTILES_SQUARE, [
-                    'zoom' => intval($split[0]),
-                    'x' => intval($split[1]),
-                    'y' => intval($split[2])
-                ]);
+                $zoom = intval($split[0]);
+                $x = intval($split[1]);
+                $y = intval($split[2]);
+                if (!Storage::disk('mbtiles')->exists("$type/$zoom/$x/$y.mbtiles")) {
+                    $hoquServiceProvider->store(GENERATE_MBTILES_SQUARE, [
+                        'zoom' => $zoom,
+                        'x' => $x,
+                        'y' => $y
+                    ]);
+                }
             }
         }
 
