@@ -6,13 +6,10 @@ use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Exception;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
-use League\Flysystem\MountManager;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
 class EcTrackJobsServiceProvider extends ServiceProvider {
@@ -185,7 +182,7 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
             $deltaY = $lastPoint[2] - $firstPoint[2];
             $deltaX = $this->getDistanceComp(['type' => 'LineString', 'coordinates' => [$firstPoint, $lastPoint]]) * 1000;
 
-            $values[] = round($deltaY / $deltaX * 100, 1);
+            $values[] = $deltaX > 0 ? round($deltaY / $deltaX * 100, 1) : 0;
         }
 
         if (count($values) !== count($geometry['coordinates']))
