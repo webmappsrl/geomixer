@@ -46,7 +46,7 @@ class UgcMediaJobsServiceProvider extends ServiceProvider
 
         $geohubServiceProvider = app(GeohubServiceProvider::class);
 
-        // $imagePath = $geohubServiceProvider->getEcMediaImage($params['id']);
+        $imagePath = $geohubServiceProvider->getUgcMediaImage($params['id']);
 
         // $exif = $this->getImageExif($imagePath);
         // if (isset($exif['coordinates'])) {
