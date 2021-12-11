@@ -7,6 +7,7 @@ use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
 use App\Providers\HoquJobs\EcPoiJobsServiceProvider;
 use App\Providers\HoquJobs\MBTilesJobsServiceProvider;
 use App\Providers\HoquJobs\TaxonomyWhereJobsServiceProvider;
+use App\Providers\HoquJobs\UgcMediaJobsServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Exception;
 use Illuminate\Console\Command;
@@ -20,6 +21,7 @@ define('ENRICH_EC_POI', 'enrich_ec_poi');
 define('UPDATE_GEOMIXER_TAXONOMY_WHERE', 'update_geomixer_taxonomy_where');
 define('UPDATE_UGC_TAXONOMY_WHERES', 'update_ugc_taxonomy_wheres');
 define('GENERATE_MBTILES_SQUARE', 'generate_mbtiles_square');
+define('UPDATE_UGC_MEDIA_POSITION', 'update_ugc_media_position');
 
 define('JOBS', [
     ENRICH_EC_MEDIA,
@@ -28,10 +30,12 @@ define('JOBS', [
     ENRICH_EC_POI,
     UPDATE_GEOMIXER_TAXONOMY_WHERE,
     UPDATE_UGC_TAXONOMY_WHERES,
-    GENERATE_MBTILES_SQUARE
+    GENERATE_MBTILES_SQUARE,
+    UPDATE_UGC_MEDIA_POSITION
 ]);
 
-class HoquServer extends Command implements SignalableCommandInterface {
+class HoquServer extends Command implements SignalableCommandInterface
+{
     /**
      * The name and signature of the console command.
      *
@@ -53,7 +57,8 @@ class HoquServer extends Command implements SignalableCommandInterface {
      *
      * @return void
      */
-    public function __construct(HoquServiceProvider $hoquServiceProvider) {
+    public function __construct(HoquServiceProvider $hoquServiceProvider)
+    {
         parent::__construct();
 
         $this->hoquServiceProvider = $hoquServiceProvider;
@@ -65,7 +70,8 @@ class HoquServer extends Command implements SignalableCommandInterface {
      *
      * @return array
      */
-    public function getSubscribedSignals(): array {
+    public function getSubscribedSignals(): array
+    {
         return [SIGINT];
     }
 
@@ -74,7 +80,8 @@ class HoquServer extends Command implements SignalableCommandInterface {
      *
      * @param int $signal the signal number
      */
-    public function handleSignal(int $signal): void {
+    public function handleSignal(int $signal): void
+    {
         switch ($signal) {
             case SIGINT:
                 Log::channel('stdout')->warning("  [CTRL - C] Performing soft interruption. Terminating job before closing");
@@ -86,7 +93,8 @@ class HoquServer extends Command implements SignalableCommandInterface {
     /**
      * Calculate the server executable jobs
      */
-    public function initializeJobs() {
+    public function initializeJobs()
+    {
         if (config('geomixer.hoqu.jobs_supported') != null || config('geomixer.hoqu.jobs_not_supported') != null) {
             if (config('geomixer.hoqu.jobs_supported') != null) {
                 $supported = explode(',', str_replace(' ', '', config('geomixer.hoqu.jobs_supported')));
@@ -115,7 +123,8 @@ class HoquServer extends Command implements SignalableCommandInterface {
      *
      * @return int
      */
-    public function handle(): int {
+    public function handle(): int
+    {
         $this->initializeJobs();
         while (!$this->interrupted) {
             $result = $this->executeHoquJob();
@@ -131,7 +140,8 @@ class HoquServer extends Command implements SignalableCommandInterface {
      *
      * @return bool true if a job has been executed
      */
-    public function executeHoquJob(): bool {
+    public function executeHoquJob(): bool
+    {
         try {
             Log::channel('stdout')->info('Retrieving new job from HOQU');
             $job = $this->hoquServiceProvider->pull($this->jobs);
@@ -170,6 +180,10 @@ class HoquServer extends Command implements SignalableCommandInterface {
                         case GENERATE_MBTILES_SQUARE;
                             $service = app(MBTilesJobsServiceProvider::class);
                             $service->generateMBTilesSquareJob($parameters);
+                            break;
+                        case UPDATE_UGC_MEDIA_POSITION;
+                            $service = app(UgcMediaJobsServiceProvider::class);
+                            $service->updatePositionJob($parameters);
                             break;
                         default:
                             $error = true;

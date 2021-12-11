@@ -202,6 +202,7 @@ return [
         App\Providers\HoquJobs\EcTrackJobsServiceProvider::class,
         App\Providers\HoquJobs\EcPoiJobsServiceProvider::class,
         App\Providers\HoquJobs\MBTilesJobsServiceProvider::class,
+        App\Providers\HoquJobs\UgcMediaJobsServiceProvider::class,
 
     ],
 
