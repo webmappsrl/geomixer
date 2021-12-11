@@ -48,17 +48,18 @@ class UgcMediaJobsServiceProvider extends ServiceProvider
 
         $imagePath = $geohubServiceProvider->getUgcMediaImage($params['id']);
 
-        // $exif = $this->getImageExif($imagePath);
-        // if (isset($exif['coordinates'])) {
-        //     $ecMediaCoordinatesJson = [
-        //         'type' => 'Point',
-        //         'coordinates' => [$exif['coordinates'][0], $exif['coordinates'][1]]
-        //     ];
-        //     $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
-        // }
+        $exif = $this->getImageExif($imagePath);
+        if (isset($exif['coordinates'])) {
+            $ugcMediaCoordinatesJson = [
+                'type' => 'Point',
+                'coordinates' => [$exif['coordinates'][0], $exif['coordinates'][1]]
+            ];
+            $taxonomyWhereJobsServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
+            $ids = $taxonomyWhereJobsServiceProvider->associateWhere($ugcMediaCoordinatesJson);
+        }
 
-        // $geohubServiceProvider->setExifAndUrlToEcMedia($params['id'], $exif, $ecMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
-        // unlink($imagePath);
+        // $geohubServiceProvider->updateUgcMedia($params['id'], $exif, $ugcMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
+        unlink($imagePath);
     }
 
     /**
@@ -77,9 +78,8 @@ class UgcMediaJobsServiceProvider extends ServiceProvider
 
         $data = Image::make($imagePath)->exif();
 
-        if (in_array('GPSLatitude', $data) && in_array('GPSLongitude', $data)) {
+        if (is_array($data) && in_array('GPSLatitude', $data) && in_array('GPSLongitude', $data)) {
             //Calculate Latitude with degrees, minutes and seconds
-
             $latDegrees = $data['GPSLatitude'][0];
             $latDegrees = explode('/', $latDegrees);
             $latDegrees = ($latDegrees[0] / $latDegrees[1]);
@@ -93,7 +93,6 @@ class UgcMediaJobsServiceProvider extends ServiceProvider
             $latSeconds = (($latSeconds[0] / $latSeconds[1]) / 3600);
 
             //Calculate Longitude with degrees, minutes and seconds
-
             $lonDegrees = $data['GPSLongitude'][0];
             $lonDegrees = explode('/', $lonDegrees);
             $lonDegrees = ($lonDegrees[0] / $lonDegrees[1]);
