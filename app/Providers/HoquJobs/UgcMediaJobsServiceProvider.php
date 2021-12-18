@@ -49,16 +49,17 @@ class UgcMediaJobsServiceProvider extends ServiceProvider
         $imagePath = $geohubServiceProvider->getUgcMediaImage($params['id']);
 
         $exif = $this->getImageExif($imagePath);
+
         if (isset($exif['coordinates'])) {
-            $ugcMediaCoordinatesJson = [
+            $ugcMediaCoordinates = [
                 'type' => 'Point',
                 'coordinates' => [$exif['coordinates'][0], $exif['coordinates'][1]]
             ];
             $taxonomyWhereJobsServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
-            $ids = $taxonomyWhereJobsServiceProvider->associateWhere($ugcMediaCoordinatesJson);
+            $ids = $taxonomyWhereJobsServiceProvider->associateWhere($ugcMediaCoordinates);
+            $geohubServiceProvider->updateUgcMedia($params['id'], $ugcMediaCoordinates, $ids);
         }
 
-        // $geohubServiceProvider->updateUgcMedia($params['id'], $exif, $ugcMediaCoordinatesJson, $imageCloudUrl, $ids, $thumbnailList);
         unlink($imagePath);
     }
 
