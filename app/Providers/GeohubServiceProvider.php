@@ -9,15 +9,16 @@ use Illuminate\Support\ServiceProvider;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Intl\Exception\MissingResourceException;
 
-define('GET_TAXONOMY_WHERE_ENDPOINT', '/api/taxonomy/where/geojson/');
-define('GET_EC_MEDIA_ENDPOINT', '/api/ec/media/');
-define('GET_EC_TRACK_ENDPOINT', '/api/ec/track/');
-define('GET_EC_TRACK_ENRICH', '/api/ec/track/update/');
-define('GET_EC_MEDIA_IMAGE_PATH_ENDPOINT', '/api/ec/media/image/');
-define('GET_EC_MEDIA_ENRICH', '/api/ec/media/update/');
-define('GET_EC_POI_ENDPOINT', '/api/ec/poi/');
-define('GET_EC_POI_ENRICH', '/api/ec/poi/update/');
 define('GET_ENDPOINT', '/api/');
+define('GET_TAXONOMY_WHERE_ENDPOINT', GET_ENDPOINT . 'taxonomy/where/geojson/');
+define('GET_EC_MEDIA_ENDPOINT', GET_ENDPOINT . 'ec/media/');
+define('GET_EC_TRACK_ENDPOINT', GET_ENDPOINT . 'ec/track/');
+define('GET_EC_TRACK_ENRICH', GET_ENDPOINT . 'ec/track/update/');
+define('GET_EC_MEDIA_IMAGE_PATH_ENDPOINT', GET_ENDPOINT . 'ec/media/image/');
+define('GET_EC_MEDIA_ENRICH', GET_ENDPOINT . 'ec/media/update/');
+define('GET_EC_POI_ENDPOINT', GET_ENDPOINT . 'ec/poi/');
+define('GET_EC_POI_ENRICH', GET_ENDPOINT . 'ec/poi/update/');
+define('UPDATE_UGC_MEDIA_ENDPOINT', GET_ENDPOINT . 'ugc/media/update/');
 define('CONTENT_TYPE_IMAGE_MAPPING', [
     'image/bmp' => 'bmp',
     'image/gif' => 'gif',
@@ -29,13 +30,15 @@ define('CONTENT_TYPE_IMAGE_MAPPING', [
     'image/webp' => 'webp'
 ]);
 
-class GeohubServiceProvider extends ServiceProvider {
+class GeohubServiceProvider extends ServiceProvider
+{
     /**
      * Register services.
      *
      * @return void
      */
-    public function register() {
+    public function register()
+    {
         $this->app->singleton(GeohubServiceProvider::class, function ($app) {
             return new GeohubServiceProvider($app);
         });
@@ -46,7 +49,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    public function boot() {
+    public function boot()
+    {
         //
     }
 
@@ -59,7 +63,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getTaxonomyWhere(int $id): array {
+    public function getTaxonomyWhere(int $id): array
+    {
         $url = config('geohub.base_url') . GET_TAXONOMY_WHERE_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -89,7 +94,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getEcTrack(int $id): array {
+    public function getEcTrack(int $id): array
+    {
         $url = config('geohub.base_url') . GET_EC_TRACK_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -120,7 +126,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getEcMedia(int $id): array {
+    public function getEcMedia(int $id): array
+    {
         $url = config('geohub.base_url') . GET_EC_MEDIA_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -152,7 +159,8 @@ class GeohubServiceProvider extends ServiceProvider {
      * @throws HttpException if the HTTP request fails
      * @throws Exception
      */
-    public function getEcMediaImage(int $id): string {
+    public function getEcMediaImage(int $id): string
+    {
         $url = config('geohub.base_url') . GET_EC_MEDIA_IMAGE_PATH_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -183,6 +191,50 @@ class GeohubServiceProvider extends ServiceProvider {
     }
 
     /**
+     * Get the UgcMedia Image from the Geohub
+     *
+     * @param int $id the UgcMedia id to retrieve
+     *
+     * @return string the UgcMedia selected by id
+     *
+     * @throws HttpException if the HTTP request fails
+     * @throws Exception
+     */
+    public function getUgcMediaImage(int $id): string
+    {
+        $url = config('geohub.base_url') . GET_EC_MEDIA_IMAGE_PATH_ENDPOINT . $id;
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $result = curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        curl_close($ch);
+
+        if ($code >= 400) {
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
+
+        if (!isset(CONTENT_TYPE_IMAGE_MAPPING[$contentType])) {
+            throw new Exception('Content type not supported: ' . $contentType);
+        }
+
+        if (!Storage::disk('local')->exists('ugc_media')) {
+            Storage::disk('local')->makeDirectory('ugc_media');
+        }
+        $filename = $id . '.' . CONTENT_TYPE_IMAGE_MAPPING[$contentType];
+        Storage::disk('local')->put('ugc_media/' . $filename, $result);
+
+        return Storage::disk('local')->path('ugc_media/' . $filename);
+    }
+
+    /**
      * Return a geojson with the given ugc feature
      *
      * @param int    $id   the id of the ugc feature to retrieve
@@ -192,7 +244,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException if the HTTP request fails
      */
-    public function getUgcFeature(int $id, string $type): array {
+    public function getUgcFeature(int $id, string $type): array
+    {
         return $this->getFeature($id, 'ugc/' . $type);
     }
 
@@ -207,7 +260,8 @@ class GeohubServiceProvider extends ServiceProvider {
      * @throws HttpException
      * @throws MissingResourceException
      */
-    public function getFeature(int $id, string $featureType): array {
+    public function getFeature(int $id, string $featureType): array
+    {
         $url = config('geohub.base_url') . GET_ENDPOINT . $featureType . "/geojson/" . $id;
         $ch = curl_init($url);
 
@@ -243,7 +297,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException
      */
-    public function setWheresToUgcFeature(int $id, string $featureType, array $whereIds): int {
+    public function setWheresToUgcFeature(int $id, string $featureType, array $whereIds): int
+    {
         return $this->setWheresToFeature($id, 'ugc/' . $featureType, $whereIds);
     }
 
@@ -258,7 +313,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException
      */
-    public function setWheresToFeature(int $id, string $featureType, array $whereIds): int {
+    public function setWheresToFeature(int $id, string $featureType, array $whereIds): int
+    {
         $url = config('geohub.base_url') . GET_ENDPOINT . $featureType . "/taxonomy_where";
         $payload = [
             'id' => $id,
@@ -301,7 +357,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @throws HttpException
      */
-    public function setEcMediaToWhere(int $id, array $whereIds): int {
+    public function setEcMediaToWhere(int $id, array $whereIds): int
+    {
         $url = config('geohub.base_url') . GET_ENDPOINT . "/taxonomy_where";
         $payload = [
             'id' => $id,
@@ -347,7 +404,8 @@ class GeohubServiceProvider extends ServiceProvider {
      * @return int the http code of the request
      *
      */
-    public function setExifAndUrlToEcMedia(int $id, array $exif, array $geometry, string $imageUrl, array $whereIds, array $thumbnailUrls): int {
+    public function setExifAndUrlToEcMedia(int $id, array $exif, array $geometry, string $imageUrl, array $whereIds, array $thumbnailUrls): int
+    {
         $url = config('geohub.base_url') . GET_EC_MEDIA_ENRICH . $id;
         $payload = [
             'exif' => $exif,
@@ -392,7 +450,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @return int
      */
-    public function updateEcTrack(int $id, array $parameters = []): int {
+    public function updateEcTrack(int $id, array $parameters = []): int
+    {
         $url = config('geohub.base_url') . GET_EC_TRACK_ENRICH . $id;
 
         $payload = [];
@@ -435,7 +494,8 @@ class GeohubServiceProvider extends ServiceProvider {
      *
      * @return int
      */
-    public function updateEcPoi(int $id, array $parameters = []): int {
+    public function updateEcPoi(int $id, array $parameters = []): int
+    {
         $url = config('geohub.base_url') . GET_EC_POI_ENRICH . $id;
 
         $payload = [];
@@ -465,7 +525,8 @@ class GeohubServiceProvider extends ServiceProvider {
      * @return int CURL CODE
      * @throws HttpException When code is greater than 400
      */
-    public function _executePutCurl(string $url, array $payload): int {
+    public function _executePutCurl(string $url, array $payload): int
+    {
         $headers = [
             "Accept: application/json",
             "Content-Type:application/json"
@@ -494,7 +555,8 @@ class GeohubServiceProvider extends ServiceProvider {
         return $code;
     }
 
-    public function getEcPoi(int $id): array {
+    public function getEcPoi(int $id): array
+    {
         $url = config('geohub.base_url') . GET_EC_POI_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -525,7 +587,8 @@ class GeohubServiceProvider extends ServiceProvider {
      * @return int the http code of the request
      *
      */
-    public function updateEcPoiOld(int $id, array $whereIds): int {
+    public function updateEcPoiOld(int $id, array $whereIds): int
+    {
         $url = config('geohub.base_url') . GET_EC_POI_ENRICH . $id;
         $payload = [
             'where_ids' => $whereIds,
@@ -538,6 +601,65 @@ class GeohubServiceProvider extends ServiceProvider {
 
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        curl_exec($ch);
+
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        if ($code >= 400) {
+            throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
+        }
+
+        return $code;
+    }
+
+    /**
+     * Post to Geohub the parameters to update an Ugc Media
+     *
+     * @param int   $id       the ugcmedia id
+     * @param array $whereIds the ids of associated taxonomy where
+     *
+     * @return int the http code of the request
+     *
+     * @throws HttpException when any error occurs in the API call
+     */
+    public function updateUgcMedia(int $id, array $geometry = null, array $whereIds = null): int
+    {
+        if (!isset($geometry) && !isset($ids)) {
+            return 204;
+        }
+
+        $geojson = [
+            'type' => 'Feature',
+            'properties' => []
+        ];
+
+        if (isset($geometry)) {
+            $geojson['geometry'] = $geometry;
+        }
+        if (isset($whereIds)) {
+            $geojson['properties']['where_ids'] = $whereIds;
+        }
+
+        $url = config('geohub.base_url') . UPDATE_UGC_MEDIA_ENDPOINT . $id;
+        $payload = [
+            'geojson' => $geojson
+        ];
+        $headers = [
+            "Accept: application/json",
+            "Content-Type:application/json"
+        ];
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
