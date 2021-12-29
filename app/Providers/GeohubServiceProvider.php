@@ -18,6 +18,7 @@ define('GET_EC_MEDIA_IMAGE_PATH_ENDPOINT', GET_ENDPOINT . 'ec/media/image/');
 define('GET_EC_MEDIA_ENRICH', GET_ENDPOINT . 'ec/media/update/');
 define('GET_EC_POI_ENDPOINT', GET_ENDPOINT . 'ec/poi/');
 define('GET_EC_POI_ENRICH', GET_ENDPOINT . 'ec/poi/update/');
+define('GET_UGC_MEDIA_IMAGE_PATH_ENDPOINT', '/storage/media/images/ugc/image_');
 define('UPDATE_UGC_MEDIA_ENDPOINT', GET_ENDPOINT . 'ugc/media/update/');
 define('CONTENT_TYPE_IMAGE_MAPPING', [
     'image/bmp' => 'bmp',
@@ -202,7 +203,8 @@ class GeohubServiceProvider extends ServiceProvider
      */
     public function getUgcMediaImage(int $id): string
     {
-        $url = config('geohub.base_url') . GET_EC_MEDIA_IMAGE_PATH_ENDPOINT . $id;
+        // storage/media/images/ugc/image_1082.jpg
+        $url = config('geohub.base_url') . GET_UGC_MEDIA_IMAGE_PATH_ENDPOINT . $id.'.jpg';
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
