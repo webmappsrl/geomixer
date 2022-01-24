@@ -44,6 +44,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
      * @throws Exception
      */
     public function enrichJob(array $params): void {
+        Log::info("ENRICH JOB");
         $thumbnailList = [];
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
@@ -55,13 +56,29 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
         $exif = $this->getImageExif($imagePath);
         $ids = [];
         $ecMediaCoordinatesJson = [];
-        if (isset($exif['coordinates'])) {
+        if (isset($exif['coordinates'])) {;
             $ecMediaCoordinatesJson = [
                 'type' => 'Point',
                 'coordinates' => [$exif['coordinates'][0], $exif['coordinates'][1]]
             ];
             $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
         }
+        else {
+            // search geometry
+            $ecMedia = $geohubServiceProvider->getEcMedia($params['id']);
+            Log::info("NO EXIF: Trying to GET coordinates from EC MEDIA");
+            if (isset($ecMedia['geometry']['coordinates'])) {
+                $ecMediaCoordinatesJson = [
+                    'type' => 'Point',
+                    'coordinates' => [
+                        $ecMedia['geometry']['coordinates'][0], 
+                        $ecMedia['geometry']['coordinates'][1]]
+                ];    
+                $ids = $taxonomyWhereJobServiceProvider->associateWhere($ecMediaCoordinatesJson);
+            }
+        }
+
+        var_dump($ecMediaCoordinatesJson);
 
         $imageCloudUrl = $this->uploadEcMediaImage($imagePath);
 
