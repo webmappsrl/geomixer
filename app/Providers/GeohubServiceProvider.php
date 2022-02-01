@@ -559,6 +559,7 @@ class GeohubServiceProvider extends ServiceProvider
 
     public function getEcPoi(int $id): array
     {
+
         $url = config('geohub.base_url') . GET_EC_POI_ENDPOINT . $id;
         $ch = curl_init($url);
 
@@ -577,7 +578,15 @@ class GeohubServiceProvider extends ServiceProvider
             throw new HttpException($code, 'Error ' . $code . ' calling ' . $url . ': ' . $error);
         }
 
-        return json_decode($result, true);
+        $val = json_decode($result, true);
+        if(is_null($val)) {
+            Log::info("Problem with GET_EC_POI_ENDPOINT (ID=$id)");
+            Log::info("CURL RESULT: $result");
+            Log::info("CURL CODE: $code");
+            Log::info("CURL ERROR: $error");
+            return [];
+        }
+        return $val;
     }
 
     /**

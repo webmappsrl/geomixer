@@ -5,6 +5,7 @@ namespace App\Providers\HoquJobs;
 use App\Models\Dem;
 use App\Providers\GeohubServiceProvider;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
@@ -46,6 +47,12 @@ class EcPoiJobsServiceProvider extends ServiceProvider
         }
 
         $ecPoi = $geohubServiceProvider->getEcPoi($params['id']);
+
+        // Manage null TODO: warning / error to hoqu (?)
+        if(count($ecPoi)==0) {
+            Log::warning("PROBLEM WITH POI geohubServiceProvider->getEcPoi() ID=".$params['id']);
+            return;
+        }
         
         $ele = 0;
         if (isset($ecPoi['geometry'])) {
