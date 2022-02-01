@@ -44,7 +44,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
      * @throws Exception
      */
     public function enrichJob(array $params): void {
-        Log::info("ENRICH JOB");
+        Log::info("EcMediaJobsServiceProvider");
         $thumbnailList = [];
         $taxonomyWhereJobServiceProvider = app(TaxonomyWhereJobsServiceProvider::class);
         $geohubServiceProvider = app(GeohubServiceProvider::class);
@@ -123,12 +123,17 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
      * @throws Exception
      */
     public function getImageExif(string $imagePath): array {
+
+        Log::info("getImageExif");
+
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
         $data = Image::make($imagePath)->exif();
 
-        if (in_array('GPSLatitude', $data) && in_array('GPSLongitude', $data)) {
+        if (isset($data['GPSLatitude']) && isset($data['GPSLongitude'])) {
+
+            Log::info("getImageExif: Coordinates present");
             //Calculate Latitude with degrees, minutes and seconds
 
             $latDegrees = $data['GPSLatitude'][0];
@@ -203,6 +208,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider {
      * @throws Exception
      */
     public function uploadEcMediaImageResize(string $imagePath, int $width, int $height): string {
+        Log::info("Uploading Image to ".STORAGE);
         if (!file_exists($imagePath))
             throw new Exception("The image $imagePath does not exists");
 
