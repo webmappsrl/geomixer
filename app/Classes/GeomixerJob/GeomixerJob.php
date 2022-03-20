@@ -6,6 +6,7 @@ use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 abstract class GeomixerJob {
 
@@ -25,6 +26,12 @@ abstract class GeomixerJob {
      */
     public function __construct(array $job,  HoquServiceProvider $hoqu) 
     {
+        // check parameter job: camel case it and check if is the 
+        $jobFromParameter = str_replace('_', '', ucwords($job['job'], '_')).'GeomixerJob';
+        if($jobFromParameter != (new \ReflectionClass($this))->getShortName()) {
+            throw new InvalidParameterException('job parameter not VALID: expected->' . get_class($this) . ', actual->'.$jobFromParameter);
+        }
+    
         $this->id=$job['id'];
         $this->instance=$job['instance'];
         $this->parameters=json_decode($job['parameters'],TRUE);
