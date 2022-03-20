@@ -4,6 +4,7 @@ namespace App\Classes\GeomixerJob;
 
 use App\Classes\GeomixerJob\GeomixerJob;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderRelatedPoiGeomixerJob extends GeomixerJob {
 

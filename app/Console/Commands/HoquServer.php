@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Classes\GeomixerJob\OrderRelatedPoiGeomixerJob;
+use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquJobs\EcTrackJobsServiceProvider;
 use App\Providers\HoquJobs\EcMediaJobsServiceProvider;
 use App\Providers\HoquJobs\EcPoiJobsServiceProvider;
@@ -22,6 +24,7 @@ define('UPDATE_GEOMIXER_TAXONOMY_WHERE', 'update_geomixer_taxonomy_where');
 define('UPDATE_UGC_TAXONOMY_WHERES', 'update_ugc_taxonomy_wheres');
 define('GENERATE_MBTILES_SQUARE', 'generate_mbtiles_square');
 define('UPDATE_UGC_MEDIA_POSITION', 'update_ugc_media_position');
+define('ORDER_RELATED_POI', 'order_related_poi');
 
 define('JOBS', [
     ENRICH_EC_MEDIA,
@@ -31,7 +34,8 @@ define('JOBS', [
     UPDATE_GEOMIXER_TAXONOMY_WHERE,
     UPDATE_UGC_TAXONOMY_WHERES,
     GENERATE_MBTILES_SQUARE,
-    UPDATE_UGC_MEDIA_POSITION
+    UPDATE_UGC_MEDIA_POSITION,
+    ORDER_RELATED_POI
 ]);
 
 class HoquServer extends Command implements SignalableCommandInterface
@@ -145,6 +149,7 @@ class HoquServer extends Command implements SignalableCommandInterface
         try {
             Log::channel('stdout')->info('Retrieving new job from HOQU');
             $job = $this->hoquServiceProvider->pull($this->jobs);
+            $geohub = app(GeohubServiceProvider::class);
             $error = false;
             $errorLog = '';
             $log = '';
@@ -184,6 +189,9 @@ class HoquServer extends Command implements SignalableCommandInterface
                         case UPDATE_UGC_MEDIA_POSITION;
                             $service = app(UgcMediaJobsServiceProvider::class);
                             $service->updatePositionJob($parameters);
+                        case ORDER_RELATED_POI;
+                            $geomixerJob = new OrderRelatedPoiGeomixerJob($job,$this->hoquServiceProvider,$geohub);
+                            $geomixerJob->execute();
                             break;
                         default:
                             $error = true;

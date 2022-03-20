@@ -472,7 +472,8 @@ class GeohubServiceProvider extends ServiceProvider
             'duration',
             'slope',
             'mbtiles',
-            'elevation_chart_image'
+            'elevation_chart_image',
+            'related_pois_order'
         ];
 
         foreach ($fields as $field) {
