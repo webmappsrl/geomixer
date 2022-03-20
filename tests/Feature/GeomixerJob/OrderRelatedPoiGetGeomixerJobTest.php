@@ -8,17 +8,18 @@ use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Mockery\MockInterface;
-use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Tests\TestCase;
 
-class OrderRelatedPoiGeomixerJobTest extends TestCase
+class OrderRelatedPoiGetGeomixerJobTest extends TestCase
 {
+
     /**
      *
      * @return void
      * @test
      */
-    public function order_related_poi_geomixer_job_has_proper_properties() {
+    public function method_get_set_property_data_input_properly() {
+
         // PREPARE
         $trackId = 53;
         $job = [
@@ -39,38 +40,30 @@ class OrderRelatedPoiGeomixerJobTest extends TestCase
                 ->andReturn($ecTrack);
         });
 
+        // Creates GeomixerJobInstances (with some security assertions)
         $hoqu = app(HoquServiceProvider::class);
         $geohub = app(GeohubServiceProvider::class);
         $geomixerJob = new OrderRelatedPoiGeomixerJob($job,$hoqu,$geohub);
         $this->assertEquals(100,$geomixerJob->getId());
         $this->assertEquals('myInstance',$geomixerJob->getInstance());
-
         $this->assertIsArray($geomixerJob->getParameters());
         $parameters = $geomixerJob->getParameters();
-        $this->assertEquals($trackId,$parameters['id']);
-        $this->assertEquals(TRUE,$geomixerJob->execute());
+        $this->assertEquals(53,$parameters['id']);
+
+        // Execute
+        $res = $geomixerJob->execute();
+        $this->assertEquals(TRUE,$res);
+
+        // Check input data
+        $inputData = $geomixerJob->getInputData();
+        $this->assertIsArray($inputData);
+        $this->assertArrayHasKey('ecTrack',$inputData);
+        $this->assertIsArray($inputData['ecTrack']);
+        $ecTrack=$inputData['ecTrack'];
+        $this->assertEquals(53,$ecTrack['properties']['id']);
+        $this->assertIsArray($ecTrack['properties']['related_pois']);
 
     }
 
 
-    /**
-     *
-     * @return void
-     * @test
-     */
-    public function order_related_poi_geomixer_with_wrong_job_parameter_throw_exception() {
-        $job = [
-            'id' => 100,
-            'instance' => 'myInstance',
-            'parameters' => json_encode(['a'=>1,'b'=>2]),
-            'job' => 'wrong_parameter'
-        ];
-        $geohub = app(GeohubServiceProvider::class);
-        $hoqu = app(HoquServiceProvider::class);
-
-        $this->expectException(InvalidParameterException::class);
-
-        $geomixerJob = new OrderRelatedPoiGeomixerJob($job,$hoqu,$geohub);
-
-    }
 }

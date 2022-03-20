@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Classes\GeomixerJob\TemplateGeomixerJob;
+use App\Providers\GeohubServiceProvider;
 use App\Providers\HoquServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -20,10 +21,11 @@ class GeomixerJobTest extends TestCase
             'id' => 100,
             'instance' => 'myInstance',
             'parameters' => json_encode(['a'=>1,'b'=>2]),
-            'job' => 'order_related_poi'
+            'job' => 'template'
         ];
         $hoqu = app(HoquServiceProvider::class);
-        $geomixerJob = new TemplateGeomixerJob($job,$hoqu);
+        $geohub = app(GeohubServiceProvider::class);
+        $geomixerJob = new TemplateGeomixerJob($job,$hoqu,$geohub);
 
         $this->assertEquals(100,$geomixerJob->getId());
         $this->assertEquals('myInstance',$geomixerJob->getInstance());
