@@ -37,6 +37,8 @@ class OrderRelatedPoiGeomixerJobTest extends TestCase
                 ->once()
                 ->with($trackId)
                 ->andReturn($ecTrack);
+            $mock->shouldReceive('updateEcTrack')->once();
+
         });
 
         $hoqu = app(HoquServiceProvider::class);

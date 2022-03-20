@@ -37,6 +37,8 @@ class OrderRelatedPoiGeomixerJob extends GeomixerJob {
     }
 
     public function put() {
-        // Check if outputData['related_pois_order'] is set
+        if(isset($this->outputData['related_pois_order'])) {
+            $this->geohub->updateEcTrack($this->parameters['id'],$this->outputData);
+        }
     }
 }

@@ -38,6 +38,8 @@ class OrderRelatedPoiGetGeomixerJobTest extends TestCase
                 ->once()
                 ->with($trackId)
                 ->andReturn($ecTrack);
+
+            $mock->shouldReceive('updateEcTrack')->once();
         });
 
         // Creates GeomixerJobInstances (with some security assertions)

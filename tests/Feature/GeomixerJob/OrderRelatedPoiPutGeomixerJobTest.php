@@ -10,14 +10,14 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
-class OrderRelatedPoiEnrichGeomixerJobTest extends TestCase
+class OrderRelatedPoiPutGeomixerJobTest extends TestCase
 {
-    /**
+        /**
      *
      * @return void
      * @test
      */
-    public function method_put_set_property_data_output_properly() {
+    public function method_put_upload_data_properly() {
 
         // PREPARE
         $trackId = 53;
@@ -32,13 +32,18 @@ class OrderRelatedPoiEnrichGeomixerJobTest extends TestCase
         // Build MOCK geohub getTrack
         $ecTrack = json_decode(file_get_contents(base_path('tests/Fixtures/EcTracks/ec_track_53A.geojson')),TRUE);
 
-        $this->mock(GeohubServiceProvider::class, function (MockInterface $mock) use ($ecTrack,$trackId){
+        $payload = [
+            'related_pois_order' => [3,2,1,0],
+        ];
+        $this->mock(GeohubServiceProvider::class, function (MockInterface $mock) use ($ecTrack,$trackId,$payload){
             $mock->shouldReceive('getEcTrack')
                 ->once()
                 ->with($trackId)
                 ->andReturn($ecTrack);
-                
-            $mock->shouldReceive('updateEcTrack')->once();
+
+            $mock->shouldReceive('updateEcTrack')
+                ->once()
+                ->with($trackId,$payload);
 
         });
 
@@ -56,17 +61,5 @@ class OrderRelatedPoiEnrichGeomixerJobTest extends TestCase
         $res = $geomixerJob->execute();
         $this->assertEquals(TRUE,$res);
 
-        // Check Output data
-        $outputData = $geomixerJob->getOutputData();
-        $this->assertIsArray($outputData);
-        $this->assertArrayHasKey('related_pois_order',$outputData);
-        $pois = $outputData['related_pois_order'];
-        $this->assertEquals(4,count($pois));
-        $this->assertEquals(3,$pois[0]);
-        $this->assertEquals(2,$pois[1]);
-        $this->assertEquals(1,$pois[2]);
-        $this->assertEquals(0,$pois[3]);
-
     }
-
 }
