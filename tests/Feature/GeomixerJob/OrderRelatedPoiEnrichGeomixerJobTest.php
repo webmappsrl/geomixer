@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
-class OrderRelatedPoiPutGeomixerJobTest extends TestCase
+class OrderRelatedPoiEnrichGeomixerJobTest extends TestCase
 {
     /**
      *
