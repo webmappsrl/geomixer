@@ -75,18 +75,22 @@ abstract class GeomixerJob {
             Log::error("ERROR ON GETTING DATA: ".$e->getMessage());
             return FALSE;
         }
+
         Log::info("Class $job is ENRICHING DATA enrich()");
         try {
             $this->enrich();
         } catch (Exception $e) {
             $this->errorMessage=$e->getMessage();
+            Log::error("ERROR ON ENRICHING DATA: ".$e->getMessage());
             return FALSE;
         }
+
         Log::info("Class $job is PUTTING DATA put()");
         try {
             $this->put();
         } catch (Exception $e) {
             $this->errorMessage=$e->getMessage();
+            Log::error("ERROR ON PUTTING DATA: ".$e->getMessage());
             return FALSE;
         }
 

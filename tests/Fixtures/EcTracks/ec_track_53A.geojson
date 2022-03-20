@@ -1,0 +1,558 @@
+{
+    "type": "Feature",
+    "properties": {
+      "id": 53,
+      "created_at": "2021-11-18T14:20:47.000000Z",
+      "updated_at": "2022-03-07T11:32:39.000000Z",
+      "name": {
+        "it": "Sentiero dei Vulcani di fango Tappa 3",
+        "en": null
+      },
+      "description": {
+        "it": "<p>Dalla Riserva Naturale delle Salse di Nirano, il sentiero prosegue diretto ad est, inoltrandosi nella valle del torrente Fossa, avvicinando il castello di Spezzano e di qui inizia a salire in direzione di Fogliano, per poi scendere nel fondovalle del rio Grizzaga. Una nuova salita conduce a S.Venanzio, proseguendo poi per Torre Maina, sino a raggiungere l&#39;alveo del torrente Tiepido. A questo punto il sentiero riprende a salire in direzione di Poggio Gaiano, proseguendo lungo la dorsale diretta a Puianello e Poggio Fontana, sino ad incontrare la localit&agrave; Possessione, nei cui pressi &egrave; situata la Salsa di Maranello, termine del sentiero.</p>",
+        "en": null
+      },
+      "excerpt": {
+        "it": ""
+      },
+      "distance_comp": 16.2,
+      "user_id": 4103,
+      "feature_image": {
+        "id": 148,
+        "name": {
+          "it": "Le Salse"
+        },
+        "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/148.jpg",
+        "api_url": "https://geohub.webmapp.it/api/ec/media/148",
+        "sizes": {
+          "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/148_108x148.jpg",
+          "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/148_108x137.jpg",
+          "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/148_150x150.jpg",
+          "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/148_225x100.jpg",
+          "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/148_118x138.jpg",
+          "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/148_108x139.jpg",
+          "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/148_118x117.jpg",
+          "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/148_335x250.jpg",
+          "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/148_400x200.jpg",
+          "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/148_250x150.jpg"
+        }
+      },
+      "distance": 16.2,
+      "ascent": 753,
+      "descent": 534,
+      "ele_from": 221,
+      "ele_to": 440,
+      "ele_min": 141,
+      "ele_max": 448,
+      "duration_forward": 407,
+      "duration_backward": 370,
+      "difficulty": {
+        "it": "Media"
+      },
+      "mbtiles": [
+        "2/2/1",
+        "7/67/46",
+        "11/1085/740",
+        "11/1085/741",
+        "15/17368/11848",
+        "15/17368/11849",
+        "15/17368/11850",
+        "15/17369/11848",
+        "15/17369/11849",
+        "15/17369/11850",
+        "15/17371/11847",
+        "15/17370/11847",
+        "15/17370/11848",
+        "15/17370/11849",
+        "15/17370/11850",
+        "15/17370/11851",
+        "15/17371/11848",
+        "15/17371/11849",
+        "15/17371/11850",
+        "15/17371/11851",
+        "15/17371/11852",
+        "15/17371/11855",
+        "15/17371/11856",
+        "15/17373/11850",
+        "15/17372/11848",
+        "15/17372/11849",
+        "15/17372/11850",
+        "15/17372/11851",
+        "15/17372/11852",
+        "15/17372/11853",
+        "15/17372/11854",
+        "15/17372/11855",
+        "15/17372/11856",
+        "15/17373/11851",
+        "15/17373/11852",
+        "15/17373/11853",
+        "15/17373/11854",
+        "15/17373/11855",
+        "15/17373/11856",
+        "15/17374/11850",
+        "15/17374/11851",
+        "15/17374/11852",
+        "15/17374/11853",
+        "15/17374/11854",
+        "15/17374/11855",
+        "15/17374/11856",
+        "15/17375/11854"
+      ],
+      "elevation_chart_image": "ectrack/elevation_charts/53.svg",
+      "from": "Salse di Nirano",
+      "ref": "SV3",
+      "to": "Salse di Puianello",
+      "cai_scale": "E",
+      "related_url": {
+        "parchiemiliacentrale": "http://www.parchiemiliacentrale.it/iniziativa.php?id=66825"
+      },
+      "not_accessible": false,
+      "image_gallery": [
+        {
+          "id": 147,
+          "name": {
+            "it": "Castello di Spezzano"
+          },
+          "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/147.jpg",
+          "api_url": "https://geohub.webmapp.it/api/ec/media/147",
+          "sizes": {
+            "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/147_108x148.jpg",
+            "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/147_108x137.jpg",
+            "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/147_150x150.jpg",
+            "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/147_225x100.jpg",
+            "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/147_118x138.jpg",
+            "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/147_108x139.jpg",
+            "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/147_118x117.jpg",
+            "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/147_335x250.jpg",
+            "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/147_400x200.jpg",
+            "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/147_250x150.jpg"
+          }
+        },
+        {
+          "id": 259,
+          "name": {
+            "it": "Ecomuseo Cà Rossa"
+          },
+          "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/259.jpg",
+          "api_url": "https://geohub.webmapp.it/api/ec/media/259",
+          "sizes": {
+            "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/259_108x148.jpg",
+            "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/259_108x137.jpg",
+            "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/259_150x150.jpg",
+            "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/259_225x100.jpg",
+            "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/259_118x138.jpg",
+            "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/259_108x139.jpg",
+            "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/259_118x117.jpg",
+            "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/259_335x250.jpg",
+            "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/259_400x200.jpg",
+            "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/259_250x150.jpg"
+          }
+        },
+        {
+          "id": 148,
+          "name": {
+            "it": "Le Salse"
+          },
+          "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/148.jpg",
+          "api_url": "https://geohub.webmapp.it/api/ec/media/148",
+          "sizes": {
+            "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/148_108x148.jpg",
+            "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/148_108x137.jpg",
+            "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/148_150x150.jpg",
+            "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/148_225x100.jpg",
+            "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/148_118x138.jpg",
+            "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/148_108x139.jpg",
+            "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/148_118x117.jpg",
+            "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/148_335x250.jpg",
+            "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/148_400x200.jpg",
+            "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/148_250x150.jpg"
+          }
+        },
+        {
+          "id": 141,
+          "name": {
+            "it": "Salse di Nirano",
+            "en": null
+          },
+          "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/141.jpg",
+          "caption": {
+            "en": null
+          },
+          "api_url": "https://geohub.webmapp.it/api/ec/media/141",
+          "sizes": {
+            "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/141_108x148.jpg",
+            "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/141_108x137.jpg",
+            "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/141_150x150.jpg",
+            "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/141_225x100.jpg",
+            "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/141_118x138.jpg",
+            "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/141_108x139.jpg",
+            "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/141_118x117.jpg",
+            "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/141_335x250.jpg",
+            "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/141_400x200.jpg",
+            "1440x500": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/1440x500/141_1440x500.jpg",
+            "1920x": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/1920x/141_1920x.jpg",
+            "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/141_250x150.jpg"
+          }
+        }
+      ],
+      "geojson_url": "https://geohub.webmapp.it/api/ec/track/download/53.geojson",
+      "gpx_url": "https://geohub.webmapp.it/api/ec/track/download/53.gpx",
+      "kml_url": "https://geohub.webmapp.it/api/ec/track/download/53.kml",
+      "taxonomy": {
+        "activity": [
+          {
+            "id": 1,
+            "created_at": "2021-06-15T13:35:16.000000Z",
+            "updated_at": "2022-03-07T15:02:02.000000Z",
+            "name": {
+              "it": "Escursionismo",
+              "en": "Hiking"
+            },
+            "description": {
+              "en": null
+            },
+            "excerpt": {
+              "en": null
+            },
+            "identifier": "hiking",
+            "color": "#E84B3C",
+            "stroke_width": "3",
+            "min_visible_zoom": "5",
+            "min_size_zoom": "5",
+            "min_size": "0.1",
+            "max_size": "0.1",
+            "icon_zoom": "5",
+            "icon_size": "0.1"
+          }
+        ],
+        "theme": [
+          3
+        ],
+        "where": [
+          8,
+          56,
+          13218,
+          755,
+          696,
+          919,
+          2380,
+          13216
+        ]
+      },
+      "duration": {
+        "hiking": {
+          "forward": 407,
+          "backward": 370
+        }
+      },
+      "related_pois": [
+        {
+          "type": "Feature",
+          "properties": {
+            "id": 3,
+            "created_at": "2022-02-01T15:34:20.000000Z",
+            "updated_at": "2022-02-01T15:34:25.000000Z",
+            "name": {
+              "it": "Castello di Spezzano"
+            },
+            "description": {
+              "it": "Il castello di Spezzano, di origine medievale, fu trasformato dalla famiglia dei Pio di Savoia, a partire dal 1529, in palazzo nobiliare con corte porticata rinascimentale. Di particolare pregio la Sala delle Vedute, affrescata intorno al 1596 da Cesare Baglione, che ritrae i domini di Marco III Pio di Savoia e della moglie Clelia Farnese, oltre ad un ciclo affrescato di 57 vedute di castelli, torri e borghi, dalla pianura alla montagna, dello Stato di Sassuolo e delle sue podesterie. Al piano nobile si trovano l’appartamento dei Pio e gli affreschi della “Galleria delle battaglie”. Dal Seicento feudo dei Marchesi Coccapani Imperiali e poi dimora estiva dei Conti Pignatti Morano, il castello fu acquistato nel 1983 dal Comune di Fiorano Modenese. Oggi è sede del Museo della Ceramica di Fiorano, che occupa gli spazi del piano nobile e i sotterranei del castello, e dell’Acetaia comunale, ospitata nella torre pentagonale. Il castello-villa è circondato da un parco ottocentesco dotato di zona attrezzata per pic-nic, da cui muove un percorso ciclo-pedonale che conduce alla Riserva delle Salse di Nirano."
+            },
+            "user_id": 4103,
+            "feature_image": {
+              "id": 147,
+              "name": {
+                "it": "Castello di Spezzano"
+              },
+              "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/147.jpg",
+              "api_url": "https://geohub.webmapp.it/api/ec/media/147",
+              "sizes": {
+                "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/147_108x148.jpg",
+                "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/147_108x137.jpg",
+                "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/147_150x150.jpg",
+                "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/147_225x100.jpg",
+                "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/147_118x138.jpg",
+                "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/147_108x139.jpg",
+                "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/147_118x117.jpg",
+                "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/147_335x250.jpg",
+                "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/147_400x200.jpg",
+                "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/147_250x150.jpg"
+              }
+            },
+            "related_url": {
+              "": null
+            },
+            "ele": "166",
+            "addr_street": "via del Castello",
+            "addr_postcode": "41042",
+            "addr_locality": "Spezzano",
+            "pivot": {
+              "ec_track_id": 53,
+              "ec_poi_id": 34
+            },
+            "geojson_url": "https://geohub.webmapp.it/api/ec/poi/download/34.geojson",
+            "gpx_url": "https://geohub.webmapp.it/api/ec/poi/download/34.gpx",
+            "kml_url": "https://geohub.webmapp.it/api/ec/poi/download/34.kml",
+            "taxonomy": {
+              "where": [
+                8,
+                696,
+                56,
+                13218
+              ],
+              "poi_type": [
+                12
+              ]
+            }
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "id": 2,
+            "created_at": "2022-02-01T15:34:31.000000Z",
+            "updated_at": "2022-02-01T15:34:38.000000Z",
+            "name": {
+              "it": "Le Salse"
+            },
+            "description": {
+              "it": "Detti anche “vulcani di fango”, costituiscono il cuore della Riserva naturale delle Salse di Nirano. Sono in totale una ventina di coni e polle, dai quali fuoriescono acque salate miscelate ad argilla e idrocarburi: da qui la denominazione di “salse”. Esse hanno origine da depositi di idrocarburi principalmente gassosi (bolle di metano) e in piccola parte liquidi (petrolio), che, venendo in superficie, stemperano le argille e danno luogo alle tipiche formazioni a cono. Le salse sono quindi particolari sorgenti fredde di acqua fangosa e salata in cui gorgogliano bolle di gas costituite per il 98% da gas metano. Questi vulcanetti sono l’espressione superficiale della presenza, in profondità, di depositi di idrocarburi accompagnati da acque salate di origine marina."
+            },
+            "user_id": 4103,
+            "feature_image": {
+              "id": 148,
+              "name": {
+                "it": "Le Salse"
+              },
+              "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/148.jpg",
+              "api_url": "https://geohub.webmapp.it/api/ec/media/148",
+              "sizes": {
+                "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/148_108x148.jpg",
+                "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/148_108x137.jpg",
+                "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/148_150x150.jpg",
+                "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/148_225x100.jpg",
+                "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/148_118x138.jpg",
+                "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/148_108x139.jpg",
+                "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/148_118x117.jpg",
+                "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/148_335x250.jpg",
+                "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/148_400x200.jpg",
+                "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/148_250x150.jpg"
+              }
+            },
+            "related_url": {
+              "": null
+            },
+            "ele": "209",
+            "addr_street": "via Rio Salse II traversa",
+            "addr_postcode": "41042",
+            "addr_locality": "Nirano",
+            "opening_hours": "24/7",
+            "pivot": {
+              "ec_track_id": 53,
+              "ec_poi_id": 35
+            },
+            "geojson_url": "https://geohub.webmapp.it/api/ec/poi/download/35.geojson",
+            "gpx_url": "https://geohub.webmapp.it/api/ec/poi/download/35.gpx",
+            "kml_url": "https://geohub.webmapp.it/api/ec/poi/download/35.kml",
+            "taxonomy": {
+              "where": [
+                8,
+                56,
+                13218,
+                696,
+                13216
+              ],
+              "poi_type": [
+                13
+              ]
+            }
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              1,
+              1
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "id": 1,
+            "created_at": "2022-02-01T16:13:57.000000Z",
+            "updated_at": "2022-02-01T16:13:59.000000Z",
+            "name": {
+              "it": "Cà Tassi"
+            },
+            "description": {
+              "it": "Fulcro dei servizi offerti dalla Riserva è il Centro Visite \"Cà Tassi\", localizzato in posizione panoramica; esso è il risultato di un recupero, secondo i dettami della bioedilizia, di un vecchio complesso rurale. All'interno del fabbricato si svolgono attività finalizzate alla tutela ed alla valorizzazione della Riserva, nonché centro reception dove ricevere informazioni e potere acquistare materiali illustrativi e didattici, esposizione naturale e ornitologica, il laboratorio di ricerca e sperimentazione per scolaresche, esposizione di fossili e minerali, strumenti di educazione multimediale (pannelli, giochi interattivi e bacheche didattiche), al piano superiore, auditorium/sala convegni, esternamente l'area attrezzata per pic-nic, centralina di rilievo dati meteo climatici. Nel 2007 è stato installato un nuovo impianto fotovoltaico, corredato da un display di visualizzazione dati, capace di informare circa l'energia elettrica prodotta e la quantità di anidride carbonica non immessa in atmosfera. Si può ben dire che Cà Tassi sia il primo esempio di centro visite regionale energeticamente autonomo e pertanto ecosostenibile."
+            },
+            "user_id": 4103,
+            "feature_image": {
+              "id": 255,
+              "name": {
+                "it": "Cà Tassi"
+              },
+              "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/255.jpg",
+              "api_url": "https://geohub.webmapp.it/api/ec/media/255",
+              "sizes": {
+                "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/255_108x148.jpg",
+                "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/255_108x137.jpg",
+                "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/255_150x150.jpg",
+                "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/255_225x100.jpg",
+                "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/255_118x138.jpg",
+                "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/255_108x139.jpg",
+                "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/255_118x117.jpg",
+                "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/255_335x250.jpg",
+                "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/255_400x200.jpg",
+                "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/255_250x150.jpg"
+              }
+            },
+            "contact_phone": "+39 0536 921214",
+            "contact_email": "salse.nirano@fiorano.it",
+            "related_url": {
+              "www.parchiemiliacentrale.it": "www.parchiemiliacentrale.it"
+            },
+            "ele": "222",
+            "addr_street": "via Rio Salse II Tronco",
+            "addr_housenumber": "7",
+            "addr_postcode": "41042",
+            "addr_locality": "Nirano",
+            "opening_hours": "Feb-Nov: Sa 14:00-18:00; Su 09:00-18:00",
+            "pivot": {
+              "ec_track_id": 53,
+              "ec_poi_id": 165
+            },
+            "geojson_url": "https://geohub.webmapp.it/api/ec/poi/download/165.geojson",
+            "gpx_url": "https://geohub.webmapp.it/api/ec/poi/download/165.gpx",
+            "kml_url": "https://geohub.webmapp.it/api/ec/poi/download/165.kml",
+            "taxonomy": {
+              "where": [
+                8,
+                56,
+                13218,
+                696,
+                13216
+              ],
+              "poi_type": [
+                7
+              ]
+            }
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              2,
+              2
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "id": 0,
+            "created_at": "2022-02-01T16:15:49.000000Z",
+            "updated_at": "2022-03-07T11:04:00.000000Z",
+            "name": {
+              "it": "Ecomuseo Cà Rossa",
+              "en": null
+            },
+            "description": {
+              "it": "Nell'ottobre 2010 è stata inaugurata Cà Rossa, complesso rurale ottocentesco classificato come \"edificio di valore storico-architettonico, culturale e testimoniale\". Acquistato dal Comune di Fiorano Modenese nel 1999, solo recentemente è stato possibile procedere al risanamento conservativo dell'edificio mediante le più recenti tecniche della bioarchitettura e della domotica per il contenimento dei consumi energetici. All'interno di Cà Rossa, attraverso pannelli, fotografie, attrezzi agricoli, documenti e strumenti interattivi vengono rievocate le tradizioni del passato. Il percorso multisensoriale \"Gusti memorabili\" valorizza i prodotti enogastronomici coltivati e cucinati come una volta, mentre il \"Baule dei ricordi\" è riservato ai più giovani che si possono divertire con i giochi dei loro nonni. Qui si può utilizzare il minifrantoio a disposizione della popolazione locale per la molitura delle olive di Nirano. Nell'ottobre 2014 è stato inaugurato il Percorso sensoriale denominato \"Biodiversità da gustare\", dotato di 2 postazioni interattive e multidisciplinari in grado di coinvolgere i 4 sensi principali dell'uomo (la vista, l'udito, l'olfatto e il tatto), strettamente collegato all'esposizione degli attrezzi e giochi del passato e alla biodiversità tutelata presso il campo catalogo. Grazie al progetto finanziato dalla Regione Emilia-Romagna l'intera struttura è collegabile tramite internet alla Rete nazionale degli Ecomusei ed è dotata di un sistema controllato di navigazione pubblica gratuita. Cà Rossa si presenta quindi non solo come uno strumento di gestione della Riserva, ma anche come luogo fisico di partecipazione sociale, dove rievocare le tradizioni, promuovere i prodotti tipici locali, accogliere i visitatori ed educare e sensibilizzare al rispetto dell'ambiente partendo dalla conoscenza e dalla memoria del passato.",
+              "en": null
+            },
+            "excerpt": {
+              "en": null
+            },
+            "user_id": 4103,
+            "feature_image": {
+              "id": 380,
+              "name": {
+                "it": "Ecomuseo Ca' Rossa",
+                "en": null
+              },
+              "url": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/380.jpg",
+              "caption": {
+                "en": null
+              },
+              "api_url": "https://geohub.webmapp.it/api/ec/media/380",
+              "sizes": {
+                "108x148": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x148/380_108x148.jpg",
+                "108x137": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x137/380_108x137.jpg",
+                "150x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/150x150/380_150x150.jpg",
+                "225x100": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/225x100/380_225x100.jpg",
+                "118x138": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x138/380_118x138.jpg",
+                "108x139": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/108x139/380_108x139.jpg",
+                "118x117": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/118x117/380_118x117.jpg",
+                "335x250": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/335x250/380_335x250.jpg",
+                "400x200": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/400x200/380_400x200.jpg",
+                "250x150": "https://ecmedia.s3.eu-central-1.amazonaws.com/EcMedia/Resize/250x150/380_250x150.jpg"
+              }
+            },
+            "contact_phone": "+39 0536 833276",
+            "contact_email": "salse.nirano@fiorano.it",
+            "related_url": {
+              "Ecomuseo Ca' Rossa": "https://www.fioranoturismo.it/it/natura/salse-di-nirano/ca-rossa-ecomuseo"
+            },
+            "ele": "222",
+            "addr_street": "via Rio Salse II Tronco",
+            "addr_housenumber": "2",
+            "addr_postcode": "41042",
+            "addr_locality": "Nirano",
+            "opening_hours": "Feb-Nov: Su 09:00-18:00",
+            "pivot": {
+              "ec_track_id": 53,
+              "ec_poi_id": 169
+            },
+            "geojson_url": "https://geohub.webmapp.it/api/ec/poi/download/169.geojson",
+            "gpx_url": "https://geohub.webmapp.it/api/ec/poi/download/169.gpx",
+            "kml_url": "https://geohub.webmapp.it/api/ec/poi/download/169.kml",
+            "taxonomy": {
+              "where": [
+                8,
+                56,
+                13218,
+                13216,
+                696
+              ],
+              "poi_type": [
+                7
+              ]
+            }
+          },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              3,
+              3
+            ]
+          }
+        }
+      ],
+      "user_can_download": false
+    },
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [
+        [
+          0,
+          0,
+          221,
+          0
+        ],
+        [
+          3,
+          3,
+          221,
+          -2.2
+        ]
+      ]
+    }
+  }
