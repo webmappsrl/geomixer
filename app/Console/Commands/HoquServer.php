@@ -19,6 +19,7 @@ use Symfony\Component\Console\Command\SignalableCommandInterface;
 define('ENRICH_EC_MEDIA', 'enrich_ec_media');
 define('DELETE_EC_MEDIA_IMAGES', 'delete_ec_media_images');
 define('ENRICH_EC_TRACK', 'enrich_ec_track');
+define('EC_TRACK_GENERATE_MBTILES', 'ec_track_generate_mbtiles');
 define('ENRICH_EC_POI', 'enrich_ec_poi');
 define('UPDATE_GEOMIXER_TAXONOMY_WHERE', 'update_geomixer_taxonomy_where');
 define('UPDATE_UGC_TAXONOMY_WHERES', 'update_ugc_taxonomy_wheres');
@@ -161,6 +162,10 @@ class HoquServer extends Command implements SignalableCommandInterface
                         case ENRICH_EC_TRACK;
                             $service = app(EcTrackJobsServiceProvider::class);
                             $service->enrichJob($parameters);
+                            break;
+                        case EC_TRACK_GENERATE_MBTILES;
+                            $service = app(EcTrackJobsServiceProvider::class);
+                            $service->generateMbtiles($parameters);
                             break;
                         case ENRICH_EC_MEDIA;
                             $service = app(EcMediaJobsServiceProvider::class);
