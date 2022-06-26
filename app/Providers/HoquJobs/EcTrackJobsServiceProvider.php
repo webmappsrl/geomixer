@@ -117,8 +117,42 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
             $payload['duration'] = $taxonomyActivityJobServiceProvider->calculateDuration($ecTrack['properties']['duration'], $distance, [$info_ele['ascent'], $info_ele['descent']]);
         }
 
+        try {
+            Log::info("Generating elevation chart images");
+            $newGeojson = [
+                'type' => 'Feature',
+                'properties' => $ecTrack['properties'],
+                'geometry' => $payload['geometry']
+            ];
+            $imageUrl = $this->generateElevationChartImage($newGeojson);
+            $payload['elevation_chart_image'] = $imageUrl;
+        } catch (Exception $e) {
+            Log::warning("The elevation chart image could not be generated: " . $e->getMessage());
+        }
+
+        Log::info("Completed job: updating ec track");
+        $geohubServiceProvider->updateEcTrack($params['id'], $payload);
+    }
+
+    /**
+     * Job to build mbtiles needed to offline features
+     *
+     * @param array $params job parameters
+     *
+     * @throws Exception
+     */
+    public function generateMbtiles(array $params): void {
+        $geohubServiceProvider = app(GeohubServiceProvider::class);
+        if (!isset($params['id']) || empty($params['id'])) {
+            throw new MissingMandatoryParametersException('The parameter "id" is missing but required. The operation can not be completed');
+        }
+
+        Log::info("Getting the ec track from API");
+        $ecTrack = $geohubServiceProvider->getEcTrack($params['id']);
+        $payload = [];
+
         Log::info("Calculating related mbtiles packages");
-        $payload['mbtiles'] = $this->getMbtilesArray($payload['geometry']);
+        $payload['mbtiles'] = $this->getMbtilesArray($ecTrack['geometry']);
         if (count($payload['mbtiles']) > 0) {
             $type = 'raster';
             Log::info("Storing jobs to generate the related mbtiles");
@@ -136,19 +170,6 @@ class EcTrackJobsServiceProvider extends ServiceProvider {
                     ]);
                 }
             }
-        }
-
-        try {
-            Log::info("Generating elevation chart images");
-            $newGeojson = [
-                'type' => 'Feature',
-                'properties' => $ecTrack['properties'],
-                'geometry' => $payload['geometry']
-            ];
-            $imageUrl = $this->generateElevationChartImage($newGeojson);
-            $payload['elevation_chart_image'] = $imageUrl;
-        } catch (Exception $e) {
-            Log::warning("The elevation chart image could not be generated: " . $e->getMessage());
         }
 
         Log::info("Completed job: updating ec track");
