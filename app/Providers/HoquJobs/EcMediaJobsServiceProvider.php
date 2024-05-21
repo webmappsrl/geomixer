@@ -137,42 +137,47 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         $data = Image::make($imagePath)->exif();
 
         if (isset($data['GPSLatitude']) && isset($data['GPSLongitude'])) {
-
             Log::info("getImageExif: Coordinates present");
-            //Calculate Latitude with degrees, minutes and seconds
+            try {
 
-            $latDegrees = $data['GPSLatitude'][0];
-            $latDegrees = explode('/', $latDegrees);
-            $latDegrees = ($latDegrees[0] / $latDegrees[1]);
+                //Calculate Latitude with degrees, minutes and seconds
 
-            $latMinutes = $data['GPSLatitude'][1];
-            $latMinutes = explode('/', $latMinutes);
-            $latMinutes = (($latMinutes[0] / $latMinutes[1]) / 60);
+                $latDegrees = $data['GPSLatitude'][0];
+                $latDegrees = explode('/', $latDegrees);
+                $latDegrees = ($latDegrees[0] / $latDegrees[1]);
 
-            $latSeconds = $data['GPSLatitude'][2];
-            $latSeconds = explode('/', $latSeconds);
-            $latSeconds = (($latSeconds[0] / $latSeconds[1]) / 3600);
+                $latMinutes = $data['GPSLatitude'][1];
+                $latMinutes = explode('/', $latMinutes);
+                $latMinutes = (($latMinutes[0] / $latMinutes[1]) / 60);
 
-            //Calculate Longitude with degrees, minutes and seconds
+                $latSeconds = $data['GPSLatitude'][2];
+                $latSeconds = explode('/', $latSeconds);
+                $latSeconds = (($latSeconds[0] / $latSeconds[1]) / 3600);
 
-            $lonDegrees = $data['GPSLongitude'][0];
-            $lonDegrees = explode('/', $lonDegrees);
-            $lonDegrees = ($lonDegrees[0] / $lonDegrees[1]);
+                //Calculate Longitude with degrees, minutes and seconds
 
-            $lonMinutes = $data['GPSLongitude'][1];
-            $lonMinutes = explode('/', $lonMinutes);
-            $lonMinutes = (($lonMinutes[0] / $lonMinutes[1]) / 60);
+                $lonDegrees = $data['GPSLongitude'][0];
+                $lonDegrees = explode('/', $lonDegrees);
+                $lonDegrees = ($lonDegrees[0] / $lonDegrees[1]);
 
-            $lonSeconds = $data['GPSLongitude'][2];
-            $lonSeconds = explode('/', $lonSeconds);
-            $lonSeconds = (($lonSeconds[0] / $lonSeconds[1]) / 3600);
+                $lonMinutes = $data['GPSLongitude'][1];
+                $lonMinutes = explode('/', $lonMinutes);
+                $lonMinutes = (($lonMinutes[0] / $lonMinutes[1]) / 60);
 
-            $imgLatitude = $latDegrees + $latMinutes + $latSeconds;
-            $imgLongitude = $lonDegrees + $lonMinutes + $lonSeconds;
+                $lonSeconds = $data['GPSLongitude'][2];
+                $lonSeconds = explode('/', $lonSeconds);
+                $lonSeconds = (($lonSeconds[0] / $lonSeconds[1]) / 3600);
 
-            $coordinates = [$imgLongitude, $imgLatitude];
+                $imgLatitude = $latDegrees + $latMinutes + $latSeconds;
+                $imgLongitude = $lonDegrees + $lonMinutes + $lonSeconds;
 
-            return array('coordinates' => $coordinates);
+                $coordinates = [$imgLongitude, $imgLatitude];
+
+                return array('coordinates' => $coordinates);
+            } catch (Exception $e) {
+                Log::info("getImageExif: invalid Coordinates present");
+                return [];
+            }
         } else {
             return [];
         }
