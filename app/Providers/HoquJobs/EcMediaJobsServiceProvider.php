@@ -251,7 +251,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
         if ($imgWidth < $width || $imgHeight < $height)
             throw new ImageException("The image is too small to resize - required size: $width, $height - actual size: $imgWidth, $imgHeight");
 
-        $img = Image::make($imagePath);
+        $img = $this->correctImageOrientation(Image::make($imagePath));
         $pathInfo = pathinfo($imagePath);
         $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width, $height);
         $img->fit($width, $height, function ($const) {
@@ -279,7 +279,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             if ($imgHeight < $dim)
                 throw new ImageException("The image is too small to resize ");
 
-            $img = Image::make($imagePath);
+            $img = $this->correctImageOrientation(Image::make($imagePath));
             $pathInfo = pathinfo($imagePath);
             $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $width = '', $dim);
             $img->fit(null, $dim, function ($const) {
@@ -291,7 +291,7 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             if ($imgWidth < $dim)
                 throw new ImageException("The image is too small to resize ");
 
-            $img = Image::make($imagePath);
+            $img = $this->correctImageOrientation(Image::make($imagePath));
             $pathInfo = pathinfo($imagePath);
             $newPathImage = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $this->resizedFileName($imagePath, $dim, $height = 0);
             $img->fit($dim, null, function ($const) {
@@ -366,5 +366,28 @@ class EcMediaJobsServiceProvider extends ServiceProvider
                 throw new Exception("Resize " . $thumbPath . " cannot be deleted");
             }
         }
+    }
+
+    /**
+     * Corregge l'orientamento dell'immagine basato sui dati Exif.
+     *
+     * @param \Intervention\Image\Image $img
+     * @return \Intervention\Image\Image
+     */
+    public function correctImageOrientation($img)
+    {
+        $orientation = $img->exif('Orientation');
+        switch ($orientation) {
+            case 3:
+                $img->rotate(180);
+                break;
+            case 6:
+                $img->rotate(-90);
+                break;
+            case 8:
+                $img->rotate(90);
+                break;
+        }
+        return $img;
     }
 }
