@@ -41,13 +41,14 @@ class CleanWheresCommand extends Command
     {
         // Loop on all items
         $items = TaxonomyWhere::all();
-        if (count($items)>0) {
+        if (count($items) > 0) {
             Log::info("Checking wheres items");
-            foreach($items as $item) {
+            foreach ($items as $item) {
+                sleep(1);
                 $code = $this->checkTaxonomy($item->id);
-                if ($code==200) {
+                if ($code == 200) {
                     Log::info("Checking ITEM {$item->id} CODE: $code ... OK");
-                } else if ($code==404) {
+                } else if ($code == 404) {
                     $item->delete();
                     Log::info("Checking ITEM {$item->id} CODE: $code ... item removed");
                 } else {
@@ -73,7 +74,5 @@ class CleanWheresCommand extends Command
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         return $code;
-
     }
-
 }
