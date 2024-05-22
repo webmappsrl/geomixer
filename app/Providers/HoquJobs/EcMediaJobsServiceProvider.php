@@ -56,8 +56,6 @@ class EcMediaJobsServiceProvider extends ServiceProvider
             throw new MissingMandatoryParametersException('The parameter "id" is missing but required. The operation can not be completed');
 
         $imagePath = $geohubServiceProvider->getEcMediaImage($params['id']);
-        $img = $this->correctImageOrientation(Image::make($imagePath));
-        $img->save($imagePath);
         $exif = $this->getImageExif($imagePath);
         $ids = [];
         $ecMediaCoordinatesJson = [];
